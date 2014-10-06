@@ -3,7 +3,11 @@
 //identifikator
 #define ID       0
 
+
 //klicova slova
+/*
+zmenit !!!
+*/
 #define SETZERO 10
 #define READ    11
 #define WRITE   12
