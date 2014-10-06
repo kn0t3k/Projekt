@@ -175,7 +175,7 @@ int getNextToken(string *attr)
         else
             if(c == '=') return SE;//mensi nebo rovno
             else
-            if(c == '>') return SL;//mensi/vetsi
+            if(c == '>') return SL;//nerovno
             else return LEX_ERROR;
         break;
 
@@ -187,8 +187,9 @@ int getNextToken(string *attr)
             return L;//vetsitko
         }
         else
-            if(c == '=') return LE;//mensi nebo rovno
+            if(c == '=') return LE;//vetsi nebo rovno
                 else return LEX_ERROR;
+        break;
     }
   }
 }

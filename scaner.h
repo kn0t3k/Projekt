@@ -33,6 +33,16 @@
 #define TIM     32
 #define DIV     33
 #define EQ		34
+#define L		35
+#define S		36
+#define LE		37
+#define SE		38
+#define SL		39
+
+
+
+
+
 
 
 //jednotlive znaky
