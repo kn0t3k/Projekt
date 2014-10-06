@@ -30,8 +30,11 @@ zmenit !!!
 #define WRITE 29
 
 //operatory inkrementace a dekrementace
-#define INC     30
-#define DEC     31
+#define ADD     30
+#define DIF     31
+#define TIM     32
+#define DIV     33
+
 
 //jednotlive znaky
 #define LEFT_VINCULUM  40 // '{'
