@@ -59,6 +59,16 @@ int getNextToken(string *attr)
          if (c == '/')
          // operator deleno
             state = 6;
+         else
+         if (c == '>')
+            state = 7;
+         else
+         if (c == '<')
+            state = 8;
+         else
+         if (c == '=')
+            state = 9;
+         else
          if (c == '{') return LEFT_VINCULUM;
          else
          if (c == '}') return RIGHT_VINCULUM;
@@ -139,32 +149,39 @@ int getNextToken(string *attr)
 
 
        case 3:
-       // pokracovani operatoru ++
-         if (c == '+') return LEX_ERROR;
+       // pokracovani operatoru +
+         if ((c == '_')||(isalnum(c))) return ADD;
          else
-            return ADD;
+            return LEX_ERROR;
        break;
 
 
        case 4:
-       // pokracovani operatoru --
-         if (c == '-') return LEX_ERROR;
+       // pokracovani operatoru -
+         if ((c == '_')||(isalnum(c))) return DIF;
          else
-            return DIF;
+            return LEX_ERROR;
        break;
 
        case 5:
         //operator nasobeni
-        if (c == '*') return LEX_ERROR;
+        if ((c == '_')||(isalnum(c))) return TIM;
         else
-            return TIM;
+            return LEX_ERROR;
         break;
 
        case 6:
         //operator deleni
-        if (c == '/') return LEX_ERROR;
+        if ((c == '_')||(isalnum(c))) return DIV;
         else
-            return DIV;
+            return LEX_ERROR;
+        break;
+
+       case 9:
+        //rovnase
+        if((c == '_')||(isalnum(c))) return EQ;
+        else
+            return LEX_ERROR;
         break;
 
     }

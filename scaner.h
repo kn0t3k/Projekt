@@ -32,6 +32,7 @@
 #define DIF     31
 #define TIM     32
 #define DIV     33
+#define EQ		34
 
 
 //jednotlive znaky
