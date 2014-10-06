@@ -50,24 +50,24 @@ int getNextToken(string *attr)
          else
          if (c == '-')
          // operator -
-            state = 4;
+            state = 3;
          else
          if (c == '*')
          // operator *
-            state = 5;
+            state = 3;
          else
          if (c == '/')
          // operator deleno
-            state = 6;
+            state = 3;
          else
          if (c == '>')
-            state = 7;
+            state = 5;
          else
          if (c == '<')
-            state = 8;
+            state = 4;
          else
          if (c == '=')
-            state = 9;
+            state = 3;
          else
          if (c == '{') return LEFT_VINCULUM;
          else
@@ -149,41 +149,46 @@ int getNextToken(string *attr)
 
 
        case 3:
-       // pokracovani operatoru +
-         if ((c == '_')||(isalnum(c))) return ADD;
-         else
-            return LEX_ERROR;
+         if ((c == '_')||(isalnum(c)))
+            {
+                ungetc(c, source);
+                if(c == '+') return ADD;
+                else
+                if(c == '-') return DIF;
+                else
+                if(c == '*') return TIM;
+                else
+                if(c == '/') return DIV;
+                else
+                if(c == '=') return EQ;
+            }
+         else return LEX_ERROR;
        break;
-
 
        case 4:
-       // pokracovani operatoru -
-         if ((c == '_')||(isalnum(c))) return DIF;
-         else
-            return LEX_ERROR;
-       break;
+        //mensi
+        if ((c == '_')||(isalnum(c)))
+        {
+            ungetc(c, source);
+            return S;//mensitko
+        }
+        else
+            if(c == '=') return SE;//mensi nebo rovno
+            else
+            if(c == '>') return SL;//mensi/vetsi
+            else return LEX_ERROR;
+        break;
 
        case 5:
-        //operator nasobeni
-        if ((c == '_')||(isalnum(c))) return TIM;
+           //vetsi
+        if((c == '_')||(isalnum(c)))
+        {
+            ungetc(c, source);
+            return L;//vetsitko
+        }
         else
-            return LEX_ERROR;
-        break;
-
-       case 6:
-        //operator deleni
-        if ((c == '_')||(isalnum(c))) return DIV;
-        else
-            return LEX_ERROR;
-        break;
-
-       case 9:
-        //rovnase
-        if((c == '_')||(isalnum(c))) return EQ;
-        else
-            return LEX_ERROR;
-        break;
-
+            if(c == '=') return LE;//mensi nebo rovno
+                else return LEX_ERROR;
     }
   }
 }
