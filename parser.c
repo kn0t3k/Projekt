@@ -5,6 +5,9 @@
 #include "scaner.h"
 #include "parser.h"
 
+/*
+ZMENIT KLICOVA SLOVA !!! INSTRUIKCE
+*/
 
 tSymbolTable *table;// globalni promenna uchovavajici tabulku symbolu
 tListOfInstr *list; // globalni promenna uchovavajici seznam instrukci

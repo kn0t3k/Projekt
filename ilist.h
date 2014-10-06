@@ -1,4 +1,7 @@
 // typy jednotlivych instrukci
+/*
+zmenit!!!
+*/
 #define I_STOP    0
 #define I_READ    1
 #define I_WRITE   2
