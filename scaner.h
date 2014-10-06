@@ -39,12 +39,6 @@
 #define SE		38
 #define SL		39
 
-
-
-
-
-
-
 //jednotlive znaky
 #define LEFT_VINCULUM  40 // '{'
 #define RIGHT_VINCULUM 41 // '}'
