@@ -5,9 +5,7 @@
 
 
 //klicova slova
-/*
-zmenit !!!
-*/
+
 #define BEGIN 10
 #define BOOLEAN    11
 #define DO   12

@@ -45,11 +45,11 @@ int getNextToken(string *attr)
          }
          else
          if (c == '+')
-         // operator ++
+         // operator +
             state = 3;
          else
          if (c == '-')
-         // operator --
+         // operator -
             state = 4;
          else
          if (c == '*')

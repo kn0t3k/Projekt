@@ -132,6 +132,9 @@ int stat()
 
   switch (token)
   {
+      /*
+      ZMENIT !!!
+      */
     case READ:
     case WRITE:
     case SETZERO:
