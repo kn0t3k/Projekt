@@ -6,7 +6,7 @@
 #define STR_LEN_INC 8
 // konstanta STR_LEN_INC udava, na kolik bytu provedeme pocatecni alokaci pameti
 // pokud nacitame retezec znak po znaku, pamet se postupne bude alkokovat na
-// nasobky tohoto cisla 
+// nasobky tohoto cisla
 
 #define STR_ERROR   1
 #define STR_SUCCESS 0
@@ -70,13 +70,13 @@ int strCopyString(string *s1, string *s2)
 int strCmpString(string *s1, string *s2)
 // porovna oba retezce a vrati vysledek
 {
-   return strcmp(s1->str, s2->str);
+   return strcasecmp(s1->str, s2->str);//strcasecmp() porovnava bez ohledu na velikost pismen
 }
 
 int strCmpConstStr(string *s1, char* s2)
 // porovna nas retezec s konstantnim retezcem
 {
-   return strcmp(s1->str, s2);
+   return strcasecmp(s1->str, s2);
 }
 
 char *strGetStr(string *s)
