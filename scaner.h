@@ -27,7 +27,7 @@
 #define WHILE 28
 #define WRITE 29
 
-//operatory inkrementace a dekrementace
+//operatory
 #define ADD     30
 #define DIF     31
 #define TIM     32

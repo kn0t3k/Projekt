@@ -6,7 +6,8 @@
 #include "parser.h"
 
 /*
-ZMENIT KLICOVA SLOVA !!! INSTRUIKCE
+ZMENIT KLICOVA SLOVA A INSTRUKCE !!!
+KLICOVA SLOVA JSOU UVEDENA V scanner.h
 */
 
 tSymbolTable *table;// globalni promenna uchovavajici tabulku symbolu
@@ -101,7 +102,7 @@ int statList()
     break;
 
     /*
-    ZMENIT KLICOVA SLOVA
+    ZMENIT KLICOVA SLOVA !!!
     */
     case WHILE:
     case READ:

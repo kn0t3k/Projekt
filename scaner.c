@@ -37,7 +37,7 @@ int getNextToken(string *attr)
          // komentar
             state = 1;
          else
-         if (isalpha(c))
+         if ((isalnum(c))||(c == '_'))
          // identifikator nebo klicove slovo
          {
             strAddChar(attr, c);
