@@ -16,11 +16,17 @@ int main(int argc, char** argv)
       fprintf(stderr, "Neni zadan vstupni soubor\n");
       return INTERNAL_ERR;
    }
-   if ((f = fopen("argv[1]", "r")) == NULL)
+   if(argc > 2)
+   {
+       fprintf(stderr, "Spatne parametry prikazove radky\n");
+       return INTERNAL_ERR;
+   }
+   if ((f = fopen(argv[1], "r")) == NULL)
    {
       fprintf(stderr, "Soubor se nepodarilo otevrit\n");
       return INTERNAL_ERR;
    }
+
 
    setSourceFile(f);
 
