@@ -37,6 +37,7 @@ int getNextToken(string *attr)
          // komentar
             state = 1;
          else
+            /*  zmenit muze byt i cislo - int, double   */
          if ((isalnum(c))||(c == '_'))
          // identifikator nebo klicove slovo
          {
