@@ -38,6 +38,13 @@
 #define LE		37
 #define SE		38
 #define SL		39
+#define ASS		70
+
+#define DES_INT 60	//desetinna cisla
+#define DES_EXP 61	//desetinna isla s exponentem
+#define DES_EXP_NEG 62	//desetina cisla s zapornym exp
+#define EXP 63	//cela cisla s exponemtem
+#define EXP_NEG 64	//cela cisla se zapornym exp
 
 //jednotlive znaky
 #define LEFT_VINCULUM  40 // '{'
