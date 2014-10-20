@@ -1,12 +1,14 @@
     // lexikalni analyzator
     #include <stdio.h>
     #include <ctype.h>
+    #include <stdlib.h>
     #include "str.h"
     #include "scaner.h"
 
     // promenna pro ulozeni vstupniho souboru
     FILE *source;
     short obs = 0;   //kontorla, zda ciselne exponentu, nebo cisla obsahuji nejakou hodnotu
+    string pom;
 
     void setSourceFile(FILE *f)
     {
@@ -46,7 +48,6 @@
                 state = 2;
              }
              else
-                /*  pridat prirazeni    */
              if (c == '+')
                 state = 3;
              else
@@ -70,6 +71,8 @@
              else
              if(c == ':')
                 state = 12;
+             if(c == 39)    //39 = ascii hodnota apostrofu
+                state = 13;
              if (c == '{') return LEFT_VINCULUM;
              else
              if (c == '}') return RIGHT_VINCULUM;
@@ -357,6 +360,48 @@
                if(c == '=')
                 return ASS;
                else return LEX_ERROR;
+            break;
+
+           case 13:
+               /* rozsirit o povolene/nepovolene znaky  */
+               if(isalnum(c))
+               {
+                   strAddChar(attr; c);
+               }
+               if(c == APS)  //APS = 39 = ascii hodnota apostrofu
+               {
+                   state = 14;
+               }
+            break;
+
+           case 14:
+               if(c == '\n')
+               {
+                   return STRING;
+               }
+               if(c == APS)
+               {
+                   strAddChar(attr, APS);
+                   state = 13;
+               }
+               if(c == '#')
+               {
+                   state = 15;
+               }
+               else return LEX_ERROR;
+            break;
+
+           case 15:
+               if(c>='0' && c<= '9')
+                {
+                    strAddChar(pom, c);
+                }
+                if(c == APS)
+                {
+                    strAddChar(attr, atoi(pom));
+                    state = 13;
+                }
+                else return LEX_ERROR;
             break;
         }
       }

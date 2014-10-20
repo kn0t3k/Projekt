@@ -37,8 +37,8 @@
 #define S		36
 #define LE		37
 #define SE		38
-#define SL		39
-#define ASS		70
+#define SL		70
+#define ASS		71
 
 #define DES_INT 60	//desetinna cisla
 #define DES_EXP 61	//desetinna isla s exponentem
@@ -50,6 +50,7 @@
 #define LEFT_VINCULUM  40 // '{'
 #define RIGHT_VINCULUM 41 // '}'
 #define SEMICOLON      42 // ';'
+#define APS				39	//" ' "
 
 //specialni znaky
 #define END_OF_FILE    52
