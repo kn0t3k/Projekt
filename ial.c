@@ -1,3 +1,5 @@
+//Martin Knotek xknote11
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -50,6 +52,34 @@ int lenght(char *s)
             break;
         }
     }
+
+    return p;
+}
+
+int copy(char *s, int i, int n)
+{
+    if(i < 1)   return -1;
+    int p = i;
+    /*
+        mozna chyba v pocitani indexu
+        zacinam na i, provedu pozadovany pocet kroku(rozdil pocatecniho(i) a koncoveho indexu(p))
+    */
+    while ((p - i) <= n)
+    {
+        printf("%c", s[p-1]);
+        p++;
+    }
+    return 0;
+}
+
+int my_sort()
+{
+    return 0;
+}
+
+int find()
+{
+    return 0;
 }
 
 
