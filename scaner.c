@@ -51,16 +51,16 @@
              }
              else
              if (c == '+')
-                state = 3;
+                return ADD;
              else
              if (c == '-')
-                state = 3;
+                state = DIF;
              else
              if (c == '*')
-                state = 3;
+                state = TIM;
              else
              if (c == '/')
-                state = 3;
+                state = DIV;
              else
              if (c == '>')
                 state = 5;
@@ -69,7 +69,7 @@
                 state = 4;
              else
              if (c == '=')
-                state = 3;
+                state = EQ;
              else
              if(c == ':')
                 state = 12;
@@ -109,7 +109,6 @@
                 ungetc(c, source); // POZOR! Je potreba vratit posledni nacteny znak
 
                 // kontrola, zda se nejedna o klicove slovo
-                /* lepsi bude implementace pomoci hash tab  */
                 if (strCmpConstStr(attr, "BEGIN") == 0) return BEGIN;
                 else
                 if (strCmpConstStr(attr, "BOOLEAN") == 0) return BOOLEAN;
@@ -155,25 +154,6 @@
               }
            break;
 
-
-           case 3:
-             if ((c == '_')||(isalnum(c)))
-                {
-                    ungetc(c, source);
-                    /* SPATNE - unget nevrati o dva znaky zpet */
-                    if(c == '+') return ADD;
-                    else
-                    if(c == '-') return DIF;
-                    else
-                    if(c == '*') return TIM;
-                    else
-                    if(c == '/') return DIV;
-                    else
-                    if(c == '=') return EQ;
-                }
-             else return LEX_ERROR;
-           break;
-
            case 4:
             //mensi
             if ((c == '_')||(isalnum(c)))
@@ -200,21 +180,21 @@
                     else return LEX_ERROR;
             break;
 
-           case 6:
+           case 6:  //int nebo double
                if(c>='0' && c<='9')
                 {
                     strAddChar(attr, c);
                 }
                 else
                 {
-                    if(c == '.')
+                    if(c == '.')    //desetinne cislo
                     {
                         strAddChar(attr, c);
                         state = 7;
                     }
                     else
                     {
-                        if(c == 'e' || c == 'E')
+                        if(c == 'e' || c == 'E')    //cislo s exponentem
                         {
                             strAddChar(attr, c);
                             state = 10;
@@ -233,16 +213,16 @@
 
             break;
 
-           case 7:
+           case 7:  //desetinne cislo
                if(c>='0' && c<='9')
                 {
                     strAddChar(attr, c);
-                    obs = 1;
+                    obs = 1;    //desetinna cast musi neco obsahovat
                 }
                 else
                 {
-                    if(obs == 0) return LEX_ERROR;
-                    if(c == 'e' || c == 'E')
+                    if(obs == 0) return LEX_ERROR;  //ukonceni desetinne casti bez obsahu
+                    if(c == 'e' || c == 'E')    //desetinne cislo s exp
                     {
                         strAddChar(attr, c);
                         state = 8;
@@ -260,7 +240,7 @@
                 }
             break;
 
-           case 8:
+           case 8:  //desetinne cislo s exp
                if(c>='0' && c<='9'))
                 {
                     strAddChar(attr, c);
@@ -269,14 +249,14 @@
                else
                {
                    if(obs == 0) return LEX_ERROR;
-                   if(c == '-')
+                   if(c == '-') //zaporny exp
                    {
-                       strAddChar(attr, c);
+                        strAddChar(attr, c);
                         state = 9;
                    }
                    else
                    {
-                       if(c == '+') state = 8;
+                       if(c == '+') state = 8;  //kladny exp nema vliv
                        else
                        {
                            if(isalpha(c) && ((c != ' ') || (c != ';'))) return LEX_ERROR;
@@ -291,7 +271,7 @@
                }
             break;
 
-           case 9:
+           case 9:  //desetinne cislo se zapornym exp
                if(c>='0' && c<='9'))
                 {
                     strAddChar(attr, c);
@@ -309,7 +289,7 @@
                 }
             break;
 
-           case 10:
+           case 10: //pouze e^+-(neco)
                if(c>='0' && c<='9'))
                 {
                     strAddChar(attr, c);
@@ -318,14 +298,14 @@
                else
                {
                    if(obs == 0) return LEX_ERROR;
-                   if(c == '-')
+                   if(c == '-') //e^-neco
                    {
-                       strAddChar(attr, c);
+                        strAddChar(attr, c);
                         state = 11;
                    }
                    else
                    {
-                       if(c == '+') state = 10;
+                       if(c == '+') state = 10; //e^+neco
                        else
                        {
                            if(isalpha(c) && ((c != ' ') || (c != ';'))) return LEX_ERROR;
@@ -340,7 +320,7 @@
                }
             break;
 
-           case 11:
+           case 11: //e^-neco
                if(c>='0' && c<='9'))
                 {
                     strAddChar(attr, c);
@@ -360,7 +340,7 @@
 
            case 12:
                if(c == '=')
-                return ASS;
+                return ASS; //prirazeni :D
                else return LEX_ERROR;
             break;
 
@@ -377,29 +357,31 @@
             break;
 
            case 14:
-               if(c == '\n')
+               if(c == '\n')    //doslo k ukonceni cteni retezce
                {
                    return STRING;
                }
-               if(c == APS)
+               if(c == APS) //dva apostrofy za sebou
                {
                    strAddChar(attr, APS);
                    state = 13;
                }
-               if(c == '#')
+               if(c == '#') //escape sekvence
                {
                    state = 15;
                }
                else return LEX_ERROR;
             break;
 
-           case 15:
-               if(c>='0' && c<= '9')
+           case 15: //escape sekvence
+               if(c>='0' && c<= '9')    //obsahuje nejake cisla, ty ulozim do pom a potom je vypisu jako jeden znak
                 {
                     strAddChar(pom, c);
+                    /*  pridat obsah obs = 1    */
                 }
                 if(c == APS)
                 {
+                    /* if obs = 0 return LEX_ERROR  */
                     strAddChar(attr, atoi(pom));
                     state = 13;
                 }
