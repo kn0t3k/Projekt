@@ -1,3 +1,5 @@
+    //Martin Knotek xknote11
+
     // lexikalni analyzator
     #include <stdio.h>
     #include <ctype.h>
@@ -71,7 +73,7 @@
              else
              if(c == ':')
                 state = 12;
-             if(c == 39)    //39 = ascii hodnota apostrofu
+             if(c == APS)    //39 = ascii hodnota apostrofu
                 state = 13;
              if (c == '{') return LEFT_VINCULUM;
              else
@@ -158,7 +160,7 @@
              if ((c == '_')||(isalnum(c)))
                 {
                     ungetc(c, source);
-                    /*  pokud unget nacte predchozi znak, jinak zmenit  */
+                    /* SPATNE - unget nevrati o dva znaky zpet */
                     if(c == '+') return ADD;
                     else
                     if(c == '-') return DIF;
