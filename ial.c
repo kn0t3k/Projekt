@@ -75,10 +75,37 @@ int copy(char *s, int i, int n)
     return 0;
 }
 
-/*  jak vratit retezec??    */
-int my_sort(char *s, int levy, int pravy)
+    /*
+    jak vratit retezec??
+    char a[] = {12, 3, 5, 6, 8, 16};
+    quick_sort(a, sizeof a/ sizeofa[0]);    -   pocet prvku
+
+    vysledek by mel byt v s
+    */
+void quick_sort(char *s, int n)
 {
-    return 0;
+    if(n < 2)   return;
+    char p = s[n/2];  //pivot je prostredni prvek
+    char *l = s;
+    char *r = s + n - 1;
+    while(l <= r)
+    {
+        if(*l < p)  l++;
+        else
+        {
+            if(*r > p)  r--;
+            else
+            {
+                char pom = *l;
+                *l = *r;
+                *r = pom;
+                l++;
+                r--;
+            }
+        }
+    }
+    quick_sort(s, (r - s + 1));
+    quick_sort(l, *(s + n - 1));
 }
 
 int find()
