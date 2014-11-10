@@ -10,11 +10,22 @@
     // promenna pro ulozeni vstupniho souboru
     FILE *source;
     short obs = 0;   //kontorla, zda ciselne exponentu, nebo cisla obsahuji nejakou hodnotu
-    string pom;
+    int *pom;
 
     void setSourceFile(FILE *f)
     {
       source = f;
+    }
+
+    void prilep(int z, int y)   //jako parametr dostane dve cisla, ktere prevede na jedno, napr prilep(1, 2) => 12
+    {
+        int moc = 10;   //zaklad ciselne desitkove soustavy
+        int x = z-48;   //48 = posun hodnot znaku cisel v ascii, znak s hodnotou 50 je cislo 2
+        while(y >= moc)
+        {
+            moc *= 10;
+        }
+        *pom = (x*moc + y);
     }
 
     int getNextToken(string *attr)
@@ -241,7 +252,7 @@
             break;
 
            case 8:  //desetinne cislo s exp
-               if(c>='0' && c<='9'))
+               if(c>='0' && c<='9')
                 {
                     strAddChar(attr, c);
                     obs = 1;
@@ -272,7 +283,7 @@
             break;
 
            case 9:  //desetinne cislo se zapornym exp
-               if(c>='0' && c<='9'))
+               if(c>='0' && c<='9')
                 {
                     strAddChar(attr, c);
                     obs = 1;
@@ -290,7 +301,7 @@
             break;
 
            case 10: //pouze e^+-(neco)
-               if(c>='0' && c<='9'))
+               if(c>='0' && c<='9')
                 {
                     strAddChar(attr, c);
                     obs = 1;
@@ -321,7 +332,7 @@
             break;
 
            case 11: //e^-neco
-               if(c>='0' && c<='9'))
+               if(c>='0' && c<='9')
                 {
                     strAddChar(attr, c);
                     obs = 1;
@@ -348,7 +359,7 @@
                /* rozsirit o povolene/nepovolene znaky  */
                if(isalnum(c))
                {
-                   strAddChar(attr; c);
+                   strAddChar(attr, c);
                }
                if(c == APS)  //APS = 39 = ascii hodnota apostrofu
                {
@@ -376,13 +387,13 @@
            case 15: //escape sekvence
                if(c>='0' && c<= '9')    //obsahuje nejake cisla, ty ulozim do pom a potom je vypisu jako jeden znak
                 {
-                    strAddChar(pom, c);
-                    /*  pridat obsah obs = 1    */
+                    prilep(c, *pom);
+                    obs = 1;
                 }
                 if(c == APS)
                 {
-                    /* if obs = 0 return LEX_ERROR  */
-                    strAddChar(attr, atoi(pom));
+                    if (obs = 0) return LEX_ERROR;
+                    strAddChar(attr, *pom);
                     state = 13;
                 }
                 else return LEX_ERROR;
