@@ -51,6 +51,9 @@
 #define RIGHT_VINCULUM 41 // '}'
 #define SEMICOLON      42 // ';'
 #define APS				39	//" ' "
+#define LEFT_BRACKET  43 // '('
+#define RIGHT_BRACKET  44 // ')'
+#define COLON  45 // ':'
 
 //specialni znaky
 #define END_OF_FILE    52

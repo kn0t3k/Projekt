@@ -44,11 +44,9 @@
          switch (state)
          {
            case 0:
-             if (isspace(c))    //bila mista ignorujeme
-                state = 0;
+             if (isspace(c)) state = 0;  //bila mista ignorujeme
              else
-             if (c == '{')  // komentar
-                state = 1;
+             if (c == '{') state = 1;  //komentar
              else
              if(isalpha(c)) //jedna se o cislo - int/double
              {
@@ -61,40 +59,38 @@
                 state = 2;
              }
              else
-             if (c == '+')
-                return ADD;
+             if (c == '+') return ADD;
              else
-             if (c == '-')
-                state = DIF;
+             if (c == '-') return DIF;
              else
-             if (c == '*')
-                state = TIM;
+             if (c == '*') return TIM;
              else
-             if (c == '/')
-                state = DIV;
+             if (c == '/') return DIV;
              else
-             if (c == '>')
-                state = 5;
+             if (c == '=') return EQ;
              else
-             if (c == '<')
-                state = 4;
-             else
-             if (c == '=')
-                state = EQ;
-             else
-             if(c == ':')
-                state = 12;
-             if(c == APS)    //39 = ascii hodnota apostrofu
-                state = 13;
              if (c == '{') return LEFT_VINCULUM;
              else
              if (c == '}') return RIGHT_VINCULUM;
              else
              if (c == ';') return SEMICOLON;
              else
+             if (c == '(') return LEFT_BRACKET;
+             else
+             if (c == ')') return RIGHT_BRACKET;
+             else
+             if (c == ':') return COLON;
+             else
              if (c == EOF) return END_OF_FILE;
              else
-             return LEX_ERROR;
+             if (c == '>') state = 5;
+             else
+             if (c == '<') state = 4;
+             else
+             if(c == ':') state = 12;
+             else
+             if(c == APS) state = 13;   //39 = ascii hodnota apostrofu
+             else return LEX_ERROR;
             break;
 
 
@@ -117,8 +113,7 @@
              else
              // konec identifikatoru
              {
-                ungetc(c, source); // POZOR! Je potreba vratit posledni nacteny znak
-
+                ungetc(c, source);
                 // kontrola, zda se nejedna o klicove slovo
                 if (strCmpConstStr(attr, "BEGIN") == 0) return BEGIN;
                 else
@@ -350,8 +345,7 @@
             break;
 
            case 12:
-               if(c == '=')
-                return ASS; //prirazeni :D
+               if(c == '=') return ASS; //prirazeni :D
                else return LEX_ERROR;
             break;
 
