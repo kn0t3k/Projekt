@@ -16,16 +16,19 @@
 #define FORWARD   17
 #define FUNCTION   18
 #define IF   19
-#define INTEGER 20
+#define INTEGER_T 20
 #define READLN 21
-#define REAL 22
+#define REAL_T 22
 #define SORT 23
-#define STRING 24
+#define STRING_T 24
 #define THEN 25
 #define TRUE 26
 #define VAR 27
 #define WHILE 28
 #define WRITE 29
+#define STRING 72
+#define INTEGER 73
+#define REAL 74
 
 //operatory
 #define ADD     30
@@ -54,6 +57,8 @@
 #define LEFT_BRACKET  43 // '('
 #define RIGHT_BRACKET  44 // ')'
 #define COLON  45 // ':'
+#define COMMA 46 // ','
+#define DOT 47  // '.'
 
 //specialni znaky
 #define END_OF_FILE    52

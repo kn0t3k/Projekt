@@ -59,6 +59,10 @@
                 state = 2;
              }
              else
+             if (c == ',') return COMMA;
+             else
+             if (c == '.') return DOT;
+             else
              if (c == '+') return ADD;
              else
              if (c == '-') return DIF;
@@ -79,7 +83,7 @@
              else
              if (c == ')') return RIGHT_BRACKET;
              else
-             if (c == ':') return COLON;
+             if (c == ':') state = 12;
              else
              if (c == EOF) return END_OF_FILE;
              else
@@ -135,15 +139,15 @@
                 else
                 if (strCmpConstStr(attr, "IF") == 0) return IF;
                 else
-                if (strCmpConstStr(attr, "INTEGER") == 0) return INTEGER;
+                if (strCmpConstStr(attr, "INTEGER") == 0) return INTEGER_T;
                 else
                 if (strCmpConstStr(attr, "READLN") == 0) return READLN;
                 else
-                if (strCmpConstStr(attr, "REAL") == 0) return REAL;
+                if (strCmpConstStr(attr, "REAL") == 0) return REAL_T;
                 else
                 if (strCmpConstStr(attr, "SORT") == 0) return SORT;
                 else
-                if (strCmpConstStr(attr, "STRING") == 0) return STRING;
+                if (strCmpConstStr(attr, "STRING") == 0) return STRING_T;
                 else
                 if (strCmpConstStr(attr, "THEN") == 0) return THEN;
                 else
@@ -346,6 +350,11 @@
 
            case 12:
                if(c == '=') return ASS; //prirazeni :D
+               else if(isalnum(c) || c == ' ')  //" : neco "
+               {
+                   ungetc(c, source);
+                   return COLON;
+               }
                else return LEX_ERROR;
             break;
 
