@@ -57,7 +57,7 @@ int declaration(){/*<DECLARATION>*/
 	  
 	default:/*Nemuze nastat, ale z konvence to pridavam*/
 	  return SYNTAX_ERROR;
-  }
+    }
 }
 
 int type (){/*<TYPE>*/
@@ -73,7 +73,7 @@ int type (){/*<TYPE>*/
 	  
 	default:
       return SYNTAX_ERROR;
-  }	  
+    }	  
 }
 
 int n_declaration(){/*<N_DECLARATION>*/
@@ -98,58 +98,14 @@ int n_declaration(){/*<N_DECLARATION>*/
 	
     default:
       return SYNTAX_ERROR;
-  }	  
+    }	  
 }
 
-int function(){
-
+int function(){/*<FUNCTION>*/
+  return SYNTAX_OK;
 }
 
 int body(){/*<BODY>*/
-  
-  switch (token){
-    /*<BODY> -> BEGIN <ELEMENT> END*/
-    case BEGIN:
-	  token = getNextToken();
-	  if ((element()) != SYNTAX_OK) return SYNTAX_ERROR;
-	  if (token != END) return SYNTAX_ERROR;
-	  token = getNextToken();
-	  return SYNTAX_OK;
-	break;
-	
-	default:
-	  return SYNTAX_ERROR;
-  }
+  return SYNTAX_OK;  
 }
-
-int element(){/*<ELEMENT>*/
-  /*<ELEMENT> -> eps*/
-  if (token == END)
-    return SYNTAX_OK;
-  else{
-    /*<ELEMENT> -> <SELECT_ELEMENT> <N_ELEMENT>*/  
-    if ((select_element()) != SYNTAX_OK) return SYNTAX_ERROR;
-    if ((n_element()) != SYNTAX_OK) return SYNTAX_ERROR;
-	return SYNTAX_OK;
-    }	
-}
-
-int select_element(){/*SELECT_ELEMENT*/
-
-  
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
