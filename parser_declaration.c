@@ -15,6 +15,7 @@ string attr;
 
 int parse()
 {
+  printf("ahoj_parse\n");
   int result;
   strInit(&attr);
   if ((token = getNextToken(&attr)) == LEX_ERROR)
@@ -27,7 +28,7 @@ int parse()
 }
 
 int program(){ /*<PROGRAM>*/
-  
+  printf("ahoj_program\n");
   switch (token){
     /*<PROGRAM> -> <DECLARATION> <FUNCTION> <BODY> DOT*/
     case VAR:
