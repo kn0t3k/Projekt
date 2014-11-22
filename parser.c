@@ -1,12 +1,34 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "str.h"
-#include "stable.h"
-#include "ilist.h"
 #include "scaner.h"
 #include "parser.h"
 
 int token;/*Globalni promena*/
+string attr;
+ 
+/*Funkce, ktere predstavuji nonterminaly*/
+int parse();
+int program();
+int declaration();
+int n_declaration();
+int type();
+int value();
+int function();
+int parameter();
+int n_parameter();
+int function_body();
+int callfunass();
+int callorass();
+int id_function();
+int variable();
+int n_variable();
+int while_condition();
+int if_condition();
+int body();
+int element();
+int n_element();
+int select_element();
 
 int parse(){
   
@@ -59,7 +81,7 @@ int declaration(){/*<DECLARATION>*/
 	  if (token != ID) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
-	  token = getNextToken();
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = type();
       if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
@@ -129,8 +151,132 @@ int n_declaration(){/*<N_DECLARATION>*/
   }	  
 }
 
-int function(){
+int function(){/*<FUNCTION>*/
 
+  int result;
+  
+  switch (token){
+    /*<FUNCTION> -> FUNCTION ID L_BRACKET <PARAMETER> R_BRACKET COLON <TYPE> SEMICOLON <FUNCTION_BODY> <FUNCTION>*/
+    case FUNCTION:
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  if (token != ID) return SYNTAX_ERROR;
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  if (token != L_BRACKET) return SYNTAX_ERROR;
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  result = parameter();
+	  if (result != SYNTAX_OK) return result;
+	  if (token != R_BRACKET) return SYNTAX_ERROR;
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  if (token != COLON) return SYNTAX_ERROR;
+	  result = type();
+	  if (result != SYNTAX_OK) return result;
+	  if (token != SEMICOLON) return SYNTAX_ERROR;
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  result = function_body();
+	  if (result != SYNTAX_OK) return result;
+	  result = function();
+	  if (result != SYNTAX_OK) return result;
+	  return SYNTAX_OK;
+	  break;
+	
+    /*<FUNCTION> -> eps*/	
+	case BEGIN:
+	  return SYNTAX_OK;
+	  break;
+	
+	default:
+	  return SYNTAX_ERROR;
+	  break;
+	}
+}
+
+int parameter(){/*<PARAMETER>*/
+
+  int result;
+  
+  switch (token){
+    /*<PARAMETER> -> ID COLON <TYPE> <N_PARAMETER>*/
+	case ID:
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  if (token != COLON) return SYNTAX_ERROR;
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  result = type();
+	  if (result != SYNTAX_OK) return result;
+	  result = n_parameter();
+	  if (result != SYNTAX_OK) return result;
+	  return SYNTAX_OK;
+	  break;
+	
+	/*<PARAMETER> -> eps*/
+	case R_BRACKET:
+	  return SYNTAX_OK;
+	  break;
+	  
+	default: 
+	  return SYNTAX_ERROR;
+	  break;
+    }
+}
+
+int n_parameter(){/*<N_PARAMETER>*/
+
+  int result;
+  
+  switch (token){
+    /*<N_PARAMETER> -> SEMICOLON ID COLON <TYPE> <N_PARAMETER>*/
+	case SEMICOLON:
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  if (token != ID) return SYNTAX_ERROR;
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  if (token != COLON) return SYNTAX_ERROR;
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  result = type();
+	  if (result != SYNTAX_OK) return result;
+	  result = n_parameter();
+	  if (result != SYNTAX_OK) return result;
+	  return SYNTAX_OK;
+	  break;
+	
+    /*<N_PARAMETER> -> eps*/	
+	case R_BRACKET:
+	  return SYNTAX_OK;
+	  break;
+	  
+	default:
+	  return SYNTAX_ERROR;
+	  break;
+    }
+}
+
+int function_body(){/*<FUNCTION_BODY>*/
+
+  int result;
+  
+  switch (token){
+    /*<FUNCTION_BODY> -> FORWARD SEMICOLON*/
+    case FORWARD:
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  if (token != SEMICOLON) return SYNTAX_ERROR;
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  return SYNTAX_OK;
+	  break;
+	
+	/*<FUNCTION_BODY> -> <DECLARATION> <BODY> SEMICOLON*/
+	case VAR:
+	case BEGIN:
+	  result = declaration();
+	  if (result != SYNTAX_OK) return result;
+	  result = body();
+	  if (result != SYNTAX_OK) return result;
+	  if (token != SEMICOLON) return SYNTAX_ERROR;
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  return SYNTAX_OK;
+	  break;
+	  
+	default:
+	  return SYNTAX_ERROR;
+	  break;
+    }
 }
 
 int body(){/*<BODY>*/
@@ -270,7 +416,7 @@ int callorass(){
 /*
   int result;
   bool vyraz;
-  
+  */
   /*Tady bude nejaka funkce, ktera rozhodne zda jde o vyraz, volani funkce nebo o fail*/
   
   /*<CALLORASS> -> expression*/
@@ -324,7 +470,7 @@ int callorass(){
 	default:
 	  return SYNTAX_ERROR;
 	  break;
-	  
+	}  
 }
 
 int id_function(){
