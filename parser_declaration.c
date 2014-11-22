@@ -40,7 +40,7 @@ int program(){ /*<PROGRAM>*/
 	  if (token != DOT)/*DOT*/ 
 	    return SYNTAX_ERROR;
 	  else	  
-	    if ((getNextToken()) != END_OF_FILE) return SYNTAX_ERROR;
+	    if ((getNextToken(&attr)) != END_OF_FILE) return SYNTAX_ERROR;
 	  
 	  return SYNTAX_OK;/*Pokud zadne z pravidel nevrati SYNTAX_ERROR*/
 	  
@@ -56,12 +56,12 @@ int declaration(){/*<DECLARATION>*/
   switch (token){
     /*<DECLARATION> -> VAR ID COLON <TYPE> SEMICOLON <N_DECLARATION>*/
 	case VAR:
-	  if ((getNextToken()) != ID) return SYNTAX_ERROR;
-	  if ((getNextToken()) != COLON) return SYNTAX_ERROR;
-	  token = getNextToken();
+	  if ((getNextToken(&attr)) != ID) return SYNTAX_ERROR;
+	  if ((getNextToken(&attr)) != COLON) return SYNTAX_ERROR;
+	  token = getNextToken(&attr);
       if ((type()) != SYNTAX_OK) return SYNTAX_ERROR;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
-	  token = getNextToken();
+	  token = getNextToken(&attr);
 	  if ((n_declaration()) != SYNTAX_OK) return SYNTAX_ERROR;
       return SYNTAX_OK;	      
 	  break;
@@ -84,7 +84,7 @@ int type (){/*<TYPE>*/
     case T_INTEGER:
 	case T_REAL:
 	case T_STRING:
-	  token = getNextToken();/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
+	  token = getNextToken(&attr);/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
 	  return SYNTAX_OK;
 	  break;
 	  
@@ -98,11 +98,11 @@ int n_declaration(){/*<N_DECLARATION>*/
   switch (token){
     /*<N_DECLARATION> -> ID COLON <TYPE> SEMICOLON <N_DECLARATION>*/
     case ID:
-	  if ((getNextToken()) != COLON) return SYNTAX_ERROR;
-	  token = getNextToken();
+	  if ((getNextToken(&attr)) != COLON) return SYNTAX_ERROR;
+	  token = getNextToken(&attr);
 	  if ((type()) != SYNTAX_OK) return SYNTAX_ERROR;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
-	  token = getNextToken();
+	  token = getNextToken(&attr);
 	  if ((n_declaration()) != SYNTAX_OK) return SYNTAX_ERROR;
 	  return SYNTAX_OK;
 	  break;
