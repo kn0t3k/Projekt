@@ -66,6 +66,7 @@
              {
                 strAddChar(attr, c);
                 state = 2;
+                break;
              }
              else
              if (c == ',') return COMMA;
@@ -118,6 +119,7 @@
 
 
            case 2:
+               printf("**state2\n\n");
            // identifikator nebo klicove slovo
              if (isalnum(c)||(c == '_'))
              {
