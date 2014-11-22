@@ -36,7 +36,7 @@ int main(int argc, char** argv)
    listInit(&instrList); // inicializace seznamu instrukci*/
 
    int result;
-   result = parse(&ST, &instrList); // provedeme syntaktickou analyzu
+   result = program(); // provedeme syntaktickou analyzu
 
    switch (result)
    {

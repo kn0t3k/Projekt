@@ -4,7 +4,7 @@
     #include <stdio.h>
     #include <ctype.h>
     #include <stdlib.h>
-    #include "str.h"
+    //#include "str.h"
     #include "scaner.h"
 
     // promenna pro ulozeni vstupniho souboru
