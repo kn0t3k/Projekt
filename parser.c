@@ -110,6 +110,7 @@ int type(){/*<TYPE>*/
     case T_INTEGER:
 	case T_REAL:
 	case T_STRING:
+	  printf("TYPE\n");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
 	  return SYNTAX_OK;
 	  break;
@@ -158,19 +159,25 @@ int function(){/*<FUNCTION>*/
   switch (token){
     /*<FUNCTION> -> FUNCTION ID L_BRACKET <PARAMETER> R_BRACKET COLON <TYPE> SEMICOLON <FUNCTION_BODY> <FUNCTION>*/
     case FUNCTION:
+	  printf("FUNCTION\n");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != ID) return SYNTAX_ERROR;
+	  printf("ID\n");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != L_BRACKET) return SYNTAX_ERROR;
+	  printf("L_BRACKET\n");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = parameter();
 	  if (result != SYNTAX_OK) return result;
 	  if (token != R_BRACKET) return SYNTAX_ERROR;
+	  printf("R_BRACKET\n");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
+	  printf("COLON\n");
 	  result = type();
 	  if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
+	  printf("SEMICOLON\n");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = function_body();
 	  if (result != SYNTAX_OK) return result;
@@ -197,8 +204,10 @@ int parameter(){/*<PARAMETER>*/
   switch (token){
     /*<PARAMETER> -> ID COLON <TYPE> <N_PARAMETER>*/
 	case ID:
+	  printf("ID\n");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
+	  printf("COLON\n");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = type();
 	  if (result != SYNTAX_OK) return result;
@@ -225,10 +234,13 @@ int n_parameter(){/*<N_PARAMETER>*/
   switch (token){
     /*<N_PARAMETER> -> SEMICOLON ID COLON <TYPE> <N_PARAMETER>*/
 	case SEMICOLON:
+	  printf("SEMICOLON\n");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != ID) return SYNTAX_ERROR;
+	  printf("ID\n");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
+	  printf("COLON\n");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = type();
 	  if (result != SYNTAX_OK) return result;
@@ -255,8 +267,10 @@ int function_body(){/*<FUNCTION_BODY>*/
   switch (token){
     /*<FUNCTION_BODY> -> FORWARD SEMICOLON*/
     case FORWARD:
+	  printf("FORWARD\n");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
+	  printf("SEMICOLON\n");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  return SYNTAX_OK;
 	  break;
@@ -269,6 +283,7 @@ int function_body(){/*<FUNCTION_BODY>*/
 	  result = body();
 	  if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
+	  printf("SEMICOLON\n");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  return SYNTAX_OK;
 	  break;

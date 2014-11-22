@@ -3,6 +3,7 @@ var
   y:real;
   z:string;
 
+function neco(x:integer; c: real):integer;forward;
 
 begin
   
