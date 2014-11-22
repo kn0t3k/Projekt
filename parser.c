@@ -516,6 +516,7 @@ int variable(){
   
   switch (token){
     /*<VARIABLE> -> <VALUE> <N_VARIABLE>*/
+	case ID:
 	case INTEGER:
 	case STRING:
 	case DES_INT:
@@ -544,6 +545,7 @@ int value(){
   
   switch (token){
     /*<VALUE> -> INTEGER, analogicky pro zbytek*/
+	case ID:
 	case INTEGER:
 	case STRING:
 	case DES_INT:

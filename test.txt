@@ -4,8 +4,30 @@ var
   z:string;
 
 function neco(x:integer; c: real):integer;forward;
+function chocho(v:real):real;
+var
+  c:integer;
+  g:real;
+begin
+end;
+
 
 begin
+
+if expression then
+  begin
+  x:=expression
+  end
+else
+  begin
+  d:=expression
+  end;
+  
+while expression do
+  begin
+  x:=ahoj(c, l, 10);
+  a:= expression
+  end;  
   
 end.  
   
