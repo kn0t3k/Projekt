@@ -33,7 +33,6 @@
     int getNextToken(string *attr)
     // hlavni funkce lexikalniho analyzatoru
     {
-       printf("ahoj_lex\n\n");
        int state = 0;
        int c;
        // vymazeme obsah atributu a v pripade identifikatoru
@@ -47,7 +46,6 @@
        {
          // nacteni dalsiho znaku
          c = getc(source);
-         printf("cylkus\n");
          switch (state)
          {
 
@@ -56,16 +54,15 @@
              else
              if (c == '{') state = 1;  //komentar
              else
-             if(isalpha(c)) //jedna se o cislo - int/double
+             if(c>='0' && c<='9') //jedna se o cislo - int/double
              {
                  strAddChar(attr, c);
                  state = 6;
              }
              else
-             if ((isalnum(c))||(c == '_'))  //jedna se o slovo
+             if ((isalpha(c))||(c == '_'))  //jedna se o slovo
              {
                 strAddChar(attr, c);
-                printf("slovo\n");
                 state = 2;
                 break;
              }
@@ -120,7 +117,7 @@
 
 
            case 2:
-               printf("**state2\n\n");
+               printf("**state2\n");
            // identifikator nebo klicove slovo
              if (isalnum(c)||(c == '_'))
              {
