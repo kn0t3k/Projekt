@@ -36,11 +36,9 @@ int program(){ /*<PROGRAM>*/
       
 	  if ((declaration()) != SYNTAX_OK) return SYNTAX_ERROR;/*<DECLARATION>*/  
 	  if ((function()) != SYNTAX_OK) return SYNTAX_ERROR;/*<FUNCTION>*/	  
-	  if ((body()) != SYNTAX_OK) return SYNTAX_ERROR;/*BODY*/  
-	  if (token != DOT)/*DOT*/ 
-	    return SYNTAX_ERROR;
-	  else	  
-	    if ((getNextToken(&attr)) != END_OF_FILE) return SYNTAX_ERROR;
+	  if ((body()) != SYNTAX_OK) return SYNTAX_ERROR;/*BODY*/  	  
+	  if (token != END_OF_FILE) return SYNTAX_ERROR;
+	  printf("END_OF_FILE\n");
 	  
 	  return SYNTAX_OK;/*Pokud zadne z pravidel nevrati SYNTAX_ERROR*/
 	  
@@ -56,15 +54,15 @@ int declaration(){/*<DECLARATION>*/
   switch (token){
     /*<DECLARATION> -> VAR ID COLON <TYPE> SEMICOLON <N_DECLARATION>*/
 	case VAR:
-	  writeln("VAR");
+	  printf("VAR\n");
 	  if ((getNextToken(&attr)) != ID) return SYNTAX_ERROR;
-	  writeln("ID");
+	  printf("ID\n");
 	  if ((getNextToken(&attr)) != COLON) return SYNTAX_ERROR;
-	  writeln("COLON");
+	  printf("COLON\n");
 	  token = getNextToken(&attr);
       if ((type()) != SYNTAX_OK) return SYNTAX_ERROR;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
-	  writeln("SEMICOLON");
+	  printf("SEMICOLON\n");
 	  token = getNextToken(&attr);
 	  if ((n_declaration()) != SYNTAX_OK) return SYNTAX_ERROR;
       return SYNTAX_OK;	      
@@ -73,7 +71,7 @@ int declaration(){/*<DECLARATION>*/
 	/*<DECLARATION> -> eps*/
 	case FUNCTION:
 	case BEGIN:
-	  writeln("FUNCTION or BEGIN");
+	  printf("FUNCTION or BEGIN\n");
 	  return SYNTAX_OK;
 	  break;
 	  
@@ -89,7 +87,7 @@ int type (){/*<TYPE>*/
     case T_INTEGER:
 	case T_REAL:
 	case T_STRING:
-	  writeln("T_INTEGER or T_REAL or T_STRING");
+	  printf("T_INTEGER or T_REAL or T_STRING\n");
 	  token = getNextToken(&attr);/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
 	  return SYNTAX_OK;
 	  break;
@@ -104,13 +102,13 @@ int n_declaration(){/*<N_DECLARATION>*/
   switch (token){
     /*<N_DECLARATION> -> ID COLON <TYPE> SEMICOLON <N_DECLARATION>*/
     case ID:
-	  writeln("ID");
+	  printf("ID\n");
 	  if ((getNextToken(&attr)) != COLON) return SYNTAX_ERROR;
-	  writeln("COLON");
+	  printf("COLON\n");
 	  token = getNextToken(&attr);
 	  if ((type()) != SYNTAX_OK) return SYNTAX_ERROR;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
-	  writeln("SEMICOLON");
+	  printf("SEMICOLON\n");
 	  token = getNextToken(&attr);
 	  if ((n_declaration()) != SYNTAX_OK) return SYNTAX_ERROR;
 	  return SYNTAX_OK;
@@ -119,7 +117,7 @@ int n_declaration(){/*<N_DECLARATION>*/
 	/*<N_DECLARATION> -> eps*/
 	case FUNCTION:
 	case BEGIN:
-	  writeln("FUNCTION or BEGIN");
+	  printf("FUNCTION or BEGIN\n");
 	  return SYNTAX_OK;
 	  break;
 	
