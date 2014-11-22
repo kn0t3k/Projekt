@@ -8,6 +8,7 @@
 
 #define INTERNAL_ERR 99
 
+
 int main(int argc, char** argv)
 {
    FILE *f;
