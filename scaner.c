@@ -139,15 +139,15 @@
                 else
                 if (strCmpConstStr(attr, "IF") == 0) return IF;
                 else
-                if (strCmpConstStr(attr, "INTEGER") == 0) return INTEGER_T;
+                if (strCmpConstStr(attr, "INTEGER") == 0) return T_INTEGER;
                 else
                 if (strCmpConstStr(attr, "READLN") == 0) return READLN;
                 else
-                if (strCmpConstStr(attr, "REAL") == 0) return REAL_T;
+                if (strCmpConstStr(attr, "REAL") == 0) return T_REAL;
                 else
                 if (strCmpConstStr(attr, "SORT") == 0) return SORT;
                 else
-                if (strCmpConstStr(attr, "STRING") == 0) return STRING_T;
+                if (strCmpConstStr(attr, "STRING") == 0) return T_STRING;
                 else
                 if (strCmpConstStr(attr, "THEN") == 0) return THEN;
                 else

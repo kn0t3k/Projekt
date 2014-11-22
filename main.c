@@ -1,10 +1,10 @@
 #include <stdio.h>
-#include "str.h"
+/*#include "str.h"
 #include "stable.h"
-#include "ilist.h"
+#include "ilist.h"*/
 #include "scaner.h"
 #include "parser.h"
-#include "interpret.h"
+//#include "interpret.h"
 
 #define INTERNAL_ERR 99
 
@@ -27,14 +27,13 @@ int main(int argc, char** argv)
       return INTERNAL_ERR;
    }
 
-
    setSourceFile(f);
 
-   tSymbolTable ST;
-   tableInit(&ST); // inicializace tabulky symbolu
+   /*tSymbolTable ST;
+   tableInit(&ST); // inicializace tabulky symbolu*/
 
-   tListOfInstr instrList;
-   listInit(&instrList); // inicializace seznamu instrukci
+   /*tListOfInstr instrList;
+   listInit(&instrList); // inicializace seznamu instrukci*/
 
    int result;
    result = parse(&ST, &instrList); // provedeme syntaktickou analyzu
@@ -45,19 +44,19 @@ int main(int argc, char** argv)
      case SYNTAX_ERROR:
      case SEM_ERROR:
        // nastala chyba v prubehu prekladu
-       tableFree(&ST);
+       /*tableFree(&ST);
        listFree(&instrList);
-       fclose(f);
+       fclose(f);*/
        return -result;
      break;
      // jinak probehlo vse v poradku, muzeme provadet kod
    }
 
    // provedeme interpretaci
-   inter(&ST, &instrList);
+   /*inter(&ST, &instrList);
 
    tableFree(&ST);
-   listFree(&instrList);
+   listFree(&instrList);*/
    fclose(f);
    return 0;
 }

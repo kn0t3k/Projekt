@@ -16,11 +16,11 @@
 #define FORWARD   17
 #define FUNCTION   18
 #define IF   19
-#define INTEGER_T 20
+#define T_INTEGER 20
 #define READLN 21
-#define REAL_T 22
+#define T_REAL 22
 #define SORT 23
-#define STRING_T 24
+#define T_STRING 24
 #define THEN 25
 #define TRUE 26
 #define VAR 27
