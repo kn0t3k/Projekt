@@ -48,6 +48,7 @@ int main(int argc, char** argv)
        /*tableFree(&ST);
        listFree(&instrList);
        fclose(f);*/
+        printf("\n**chyba**\n");
        return -result;
      break;
      // jinak probehlo vse v poradku, muzeme provadet kod
