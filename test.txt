@@ -16,7 +16,7 @@ begin
   else
   begin
     e := expression;
-	b := expression;
+	b := expression
   end
 end
 
