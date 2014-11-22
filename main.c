@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 
    int result;
 
-   result = program(); // provedeme syntaktickou analyzu
+   result = parse(); // provedeme syntaktickou analyzu
 
 
    switch (result)
