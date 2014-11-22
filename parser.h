@@ -2,3 +2,4 @@
 #define SYNTAX_ERROR -2
 #define SEM_ERROR    -3
 
+int parse();
