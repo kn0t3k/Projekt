@@ -33,7 +33,7 @@
     int getNextToken(string *attr)
     // hlavni funkce lexikalniho analyzatoru
     {
-        printf("ahoj_lex\n\n");
+       printf("ahoj_lex\n\n");
        int state = 0;
        int c;
        // vymazeme obsah atributu a v pripade identifikatoru
