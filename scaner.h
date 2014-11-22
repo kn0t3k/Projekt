@@ -27,6 +27,11 @@
 #define STRING 72
 #define INTEGER 73
 #define REAL 74
+#define EXPRESSION 75
+#define COPY 76
+#define LENGHT 77
+
+
 
 //operatory
 #define ADD     30
@@ -52,8 +57,8 @@
 #define RIGHT_VINCULUM 41 // '}'
 #define SEMICOLON      42 // ';'
 #define APS				39	//" ' "
-#define LEFT_BRACKET  43 // '('
-#define RIGHT_BRACKET  44 // ')'
+#define L_BRACKET  43 // '('
+#define R_BRACKET  44 // ')'
 #define COLON  45 // ':'
 #define COMMA 46 // ','
 #define DOT 47  // '.'

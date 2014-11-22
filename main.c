@@ -3,7 +3,7 @@
 /*#include "stable.h"
 #include "ilist.h"*/
 #include "scaner.h"
-#include "parser_declaration.h"
+#include "parser.h"
 //#include "interpret.h"
 
 #define INTERNAL_ERR 99

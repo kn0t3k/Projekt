@@ -87,9 +87,9 @@
              else
              if (c == ';') return SEMICOLON;
              else
-             if (c == '(') return LEFT_BRACKET;
+             if (c == '(') return L_BRACKET;
              else
-             if (c == ')') return RIGHT_BRACKET;
+             if (c == ')') return R_BRACKET;
              else
              if (c == ':') state = 12;
              else
@@ -166,6 +166,12 @@
                 if (strCmpConstStr(attr, "WHILE") == 0) return WHILE;
                 else
                 if (strCmpConstStr(attr, "WRITE") == 0) return WRITE;
+                else
+                if (strCmpConstStr(attr, "EXPRESSION") == 0) return EXPRESSION;
+                else
+                if (strCmpConstStr(attr, "COPY") == 0) return COPY;
+                else
+                if (strCmpConstStr(attr, "LENGHT") == 0) return LENGHT;
                 else
                 // jednalo se skutecne o identifikator
                    return ID;
