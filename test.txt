@@ -1,2 +1,33 @@
 var
-	i:integer;
+  x:integer;
+  y:real;
+  z:string;
+
+function neco(n : integer; i: real):real;
+var
+  g:integer;
+  u:real;
+  y:real;
+begin
+  if expression then
+  begin
+    x := ahoj(x, 10, 45e-8, "ahoj", 78.78, 98e+5)
+  end
+  else
+  begin
+    e := expression;
+	b := expression;
+  end
+end
+
+function gug(j:real):integer;forward;
+
+begin
+  while expression do
+  begin
+    v:= expression;
+  end;
+  c := expression
+end.  
+  
+  
