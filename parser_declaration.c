@@ -40,7 +40,7 @@ int program(){ /*<PROGRAM>*/
 	  if ((body()) != SYNTAX_OK) return SYNTAX_ERROR;/*BODY*/  	  
 	  if (token != DOT) return SYNTAX_ERROR;
       printf("DOT\n");	  
-	  if ((getNextToken()) != END_OF_FILE) return SYNTAX_ERROR;
+	  if ((getNextToken(&attr)) != END_OF_FILE) return SYNTAX_ERROR;
 	  printf("END_OF_FILE\n");
 	  
 	  return SYNTAX_OK;/*Pokud zadne z pravidel nevrati SYNTAX_ERROR*/
@@ -139,10 +139,10 @@ int body(){/*<BODY>*/
     /*<BODY> -> BEGIN <ELEMENT> END*/
     case BEGIN:
 	  printf("BEGIN\n");
-	  token = getNextToken();
+	  token = getNextToken(&attr);
 	  if (token != END) return SYNTAX_ERROR;
 	  printf("END\n");
-	  token = getNextToken();
+	  token = getNextToken(&attr);
 	  return SYNTAX_OK;
 	  break;
 	
