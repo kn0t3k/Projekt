@@ -56,11 +56,15 @@ int declaration(){/*<DECLARATION>*/
   switch (token){
     /*<DECLARATION> -> VAR ID COLON <TYPE> SEMICOLON <N_DECLARATION>*/
 	case VAR:
+	  writeln("VAR");
 	  if ((getNextToken(&attr)) != ID) return SYNTAX_ERROR;
+	  writeln("ID");
 	  if ((getNextToken(&attr)) != COLON) return SYNTAX_ERROR;
+	  writeln("COLON");
 	  token = getNextToken(&attr);
       if ((type()) != SYNTAX_OK) return SYNTAX_ERROR;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
+	  writeln("SEMICOLON");
 	  token = getNextToken(&attr);
 	  if ((n_declaration()) != SYNTAX_OK) return SYNTAX_ERROR;
       return SYNTAX_OK;	      
@@ -69,6 +73,7 @@ int declaration(){/*<DECLARATION>*/
 	/*<DECLARATION> -> eps*/
 	case FUNCTION:
 	case BEGIN:
+	  writeln("FUNCTION or BEGIN");
 	  return SYNTAX_OK;
 	  break;
 	  
@@ -84,6 +89,7 @@ int type (){/*<TYPE>*/
     case T_INTEGER:
 	case T_REAL:
 	case T_STRING:
+	  writeln("T_INTEGER or T_REAL or T_STRING");
 	  token = getNextToken(&attr);/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
 	  return SYNTAX_OK;
 	  break;
@@ -98,10 +104,13 @@ int n_declaration(){/*<N_DECLARATION>*/
   switch (token){
     /*<N_DECLARATION> -> ID COLON <TYPE> SEMICOLON <N_DECLARATION>*/
     case ID:
+	  writeln("ID");
 	  if ((getNextToken(&attr)) != COLON) return SYNTAX_ERROR;
+	  writeln("COLON");
 	  token = getNextToken(&attr);
 	  if ((type()) != SYNTAX_OK) return SYNTAX_ERROR;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
+	  writeln("SEMICOLON");
 	  token = getNextToken(&attr);
 	  if ((n_declaration()) != SYNTAX_OK) return SYNTAX_ERROR;
 	  return SYNTAX_OK;
@@ -110,6 +119,7 @@ int n_declaration(){/*<N_DECLARATION>*/
 	/*<N_DECLARATION> -> eps*/
 	case FUNCTION:
 	case BEGIN:
+	  writeln("FUNCTION or BEGIN");
 	  return SYNTAX_OK;
 	  break;
 	
