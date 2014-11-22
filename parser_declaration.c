@@ -38,7 +38,9 @@ int program(){ /*<PROGRAM>*/
 	  if ((declaration()) != SYNTAX_OK) return SYNTAX_ERROR;/*<DECLARATION>*/  
 	  if ((function()) != SYNTAX_OK) return SYNTAX_ERROR;/*<FUNCTION>*/	  
 	  if ((body()) != SYNTAX_OK) return SYNTAX_ERROR;/*BODY*/  	  
-	  if (token != END_OF_FILE) return SYNTAX_ERROR;
+	  if (token != DOT) return SYNTAX_ERROR;
+      printf("DOT\n");	  
+	  if ((getNextToken()) != END_OF_FILE) return SYNTAX_ERROR;
 	  printf("END_OF_FILE\n");
 	  
 	  return SYNTAX_OK;/*Pokud zadne z pravidel nevrati SYNTAX_ERROR*/
@@ -120,11 +122,7 @@ int n_declaration(){/*<N_DECLARATION>*/
 	case BEGIN:
 	  printf("FUNCTION or BEGIN\n");
 	  return SYNTAX_OK;
-	  break;
-	
-    case END_OF_FILE:
-      return SYNTAX_OK;
-      break;	  
+	  break;  
 	
     default:
       return SYNTAX_ERROR;
@@ -136,6 +134,21 @@ int function(){/*<FUNCTION>*/
 }
 
 int body(){/*<BODY>*/
+  
+  switch (token){
+    /*<BODY> -> BEGIN <ELEMENT> END*/
+    case BEGIN:
+	  printf("BEGIN\n");
+	  token = getNextToken();
+	  if (token != END) return SYNTAX_ERROR;
+	  printf("END\n");
+	  token = getNextToken();
+	  return SYNTAX_OK;
+	  break;
+	
+	default:
+	  return SYNTAX_ERROR;
+  }
   return SYNTAX_OK;  
 }
 
