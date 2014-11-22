@@ -18,10 +18,11 @@ int parse()
   printf("ahoj_parse\n");
   int result;
   strInit(&attr);
-  if ((token = getNextToken(&attr)) == LEX_ERROR)
+  if ((token = getNextToken(&attr)) == LEX_ERROR){
      // nastala chyba jiz pri nacteni prvniho lexemu
 	 printf("LEX_ERROR\n");
      result = LEX_ERROR;
+	 }
   else
      result = program();
   strFree(&attr);
