@@ -34,22 +34,22 @@ int program(){ /*<PROGRAM>*/
     case VAR:
     case FUNCTION:
     case BEGIN:
-      
-	  if ((declaration()) != SYNTAX_OK) return SYNTAX_ERROR;/*<DECLARATION>*/  
-	  if ((function()) != SYNTAX_OK) return SYNTAX_ERROR;/*<FUNCTION>*/	  
-	  if ((body()) != SYNTAX_OK) return SYNTAX_ERROR;/*BODY*/  	  
+
+	  if ((declaration()) != SYNTAX_OK) return SYNTAX_ERROR;/*<DECLARATION>*/
+	  if ((function()) != SYNTAX_OK) return SYNTAX_ERROR;/*<FUNCTION>*/
+	  if ((body()) != SYNTAX_OK) return SYNTAX_ERROR;/*BODY*/
 	  if (token != DOT) return SYNTAX_ERROR;
-      printf("DOT\n");	  
+      printf("DOT\n");
 	  if ((getNextToken(&attr)) != END_OF_FILE) return SYNTAX_ERROR;
 	  printf("END_OF_FILE\n");
-	  
+
 	  return SYNTAX_OK;/*Pokud zadne z pravidel nevrati SYNTAX_ERROR*/
-	  
+
 	  break;
-	
+
 	default:/*Pokud je prvni token jiny nez povoleny*/
-      return SYNTAX_ERROR;	
-	}	
+      return SYNTAX_ERROR;
+	}
 }
 
 int declaration(){/*<DECLARATION>*/
@@ -68,16 +68,16 @@ int declaration(){/*<DECLARATION>*/
 	  printf("SEMICOLON\n");
 	  token = getNextToken(&attr);
 	  if ((n_declaration()) != SYNTAX_OK) return SYNTAX_ERROR;
-      return SYNTAX_OK;	      
+      return SYNTAX_OK;
 	  break;
-	
+
 	/*<DECLARATION> -> eps*/
 	case FUNCTION:
 	case BEGIN:
 	  printf("FUNCTION or BEGIN\n");
 	  return SYNTAX_OK;
 	  break;
-	  
+
 	default:/*Nemuze nastat, ale z konvence to pridavam*/
 	  return SYNTAX_ERROR;
     }
@@ -86,7 +86,7 @@ int declaration(){/*<DECLARATION>*/
 int type (){/*<TYPE>*/
 
   switch (token){
-    /*<TYPE> -> T_INTEGER, pro ostatni case analogicky*/  
+    /*<TYPE> -> T_INTEGER, pro ostatni case analogicky*/
     case T_INTEGER:
 	case T_REAL:
 	case T_STRING:
@@ -94,14 +94,14 @@ int type (){/*<TYPE>*/
 	  token = getNextToken(&attr);/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
 	  return SYNTAX_OK;
 	  break;
-	  
+
 	default:
       return SYNTAX_ERROR;
-    }	  
+    }
 }
 
 int n_declaration(){/*<N_DECLARATION>*/
-  
+
   switch (token){
     /*<N_DECLARATION> -> ID COLON <TYPE> SEMICOLON <N_DECLARATION>*/
     case ID:
@@ -122,11 +122,11 @@ int n_declaration(){/*<N_DECLARATION>*/
 	case BEGIN:
 	  printf("FUNCTION or BEGIN\n");
 	  return SYNTAX_OK;
-	  break;  
-	
+	  break;
+
     default:
       return SYNTAX_ERROR;
-    }	  
+    }
 }
 
 int function(){/*<FUNCTION>*/
@@ -134,7 +134,7 @@ int function(){/*<FUNCTION>*/
 }
 
 int body(){/*<BODY>*/
-  
+
   switch (token){
     /*<BODY> -> BEGIN <ELEMENT> END*/
     case BEGIN:
@@ -145,10 +145,10 @@ int body(){/*<BODY>*/
 	  token = getNextToken(&attr);
 	  return SYNTAX_OK;
 	  break;
-	
+
 	default:
 	  return SYNTAX_ERROR;
   }
-  return SYNTAX_OK;  
+  return SYNTAX_OK;
 }
 
