@@ -7,6 +7,19 @@
 
 int token;/*Globalni promena*/
 
+int parse()
+{
+  printf("ahoj_parse\n");
+  int result;
+  strInit(&attr);
+  if ((token = getNextToken(&attr)) == LEX_ERROR)
+     result = LEX_ERROR;
+  else
+     result = program();
+  strFree(&attr);
+  return result;
+}
+
 int program(){ /*<PROGRAM>*/
   
   token = getNextToken();
