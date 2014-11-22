@@ -46,6 +46,7 @@
        {
          // nacteni dalsiho znaku
          c = getc(source);
+         //printf("pocet\n");
          switch (state)
          {
 
@@ -125,7 +126,7 @@
              else
              // konec identifikatoru
              {
-                 printf("ahoj_lex\n\n");
+                 //printf("ahoj_lex\n\n");
                 ungetc(c, source);
                 // kontrola, zda se nejedna o klicove slovo
                 if (strCmpConstStr(attr, "BEGIN") == 0) return BEGIN;
