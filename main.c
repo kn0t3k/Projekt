@@ -28,7 +28,6 @@ int main(int argc, char** argv)
    }
 
    setSourceFile(f);
-
    /*tSymbolTable ST;
    tableInit(&ST); // inicializace tabulky symbolu*/
 
@@ -53,6 +52,7 @@ int main(int argc, char** argv)
      break;
      // jinak probehlo vse v poradku, muzeme provadet kod
    }
+   printf("\n**vse OK**\n");
 
    // provedeme interpretaci
    /*inter(&ST, &instrList);

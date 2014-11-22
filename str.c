@@ -38,6 +38,7 @@ void strClear(string *s)
 int strAddChar(string *s1, char c)
 // prida na konec retezce jeden znak
 {
+
    if (s1->length + 1 >= s1->allocSize)
    {
       // pamet nestaci, je potreba provest realokaci
@@ -48,6 +49,9 @@ int strAddChar(string *s1, char c)
    s1->str[s1->length] = c;
    s1->length++;
    s1->str[s1->length] = '\0';
+
+   printf("ahoj\n\n");
+
    return STR_SUCCESS;
 }
 

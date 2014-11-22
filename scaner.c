@@ -39,10 +39,10 @@
        // vymazeme obsah atributu a v pripade identifikatoru
        // budeme postupne do nej vkladat jeho nazev
 
-       strInit(attr);
+
        strClear(attr);
 
-       printf("ahoj\n\n");
+
        while (1)
        {
          // nacteni dalsiho znaku
@@ -50,6 +50,7 @@
 
          switch (state)
          {
+
            case 0:
              if (isspace(c)) state = 0;  //bila mista ignorujeme
              else
