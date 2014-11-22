@@ -1,6 +1,4 @@
 //hlavicka pro lexikalni analyzator
-#include "str.h"
-
 //identifikator
 #define ID       0
 
