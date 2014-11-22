@@ -6,6 +6,12 @@
 #include "parser.h"
 
 int token;/*Globalni promena*/
+int function();
+int body();
+int declaration();
+int n_declaration();
+int type();
+
 
 int program(){ /*<PROGRAM>*/
   
