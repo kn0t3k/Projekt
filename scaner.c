@@ -395,7 +395,7 @@
                 }
                 if(c == APS)
                 {
-                    if (obs = 0) return LEX_ERROR;
+                    if (obs == 0) return LEX_ERROR;
                     strAddChar(attr, *pom);
                     state = 13;
                 }
