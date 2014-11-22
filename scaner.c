@@ -117,7 +117,6 @@
 
 
            case 2:
-               printf("**state2\n");
            // identifikator nebo klicove slovo
              if (isalnum(c)||(c == '_'))
              {
