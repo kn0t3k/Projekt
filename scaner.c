@@ -47,7 +47,7 @@
        {
          // nacteni dalsiho znaku
          c = getc(source);
-
+         printf("cylkus\n");
          switch (state)
          {
 
@@ -65,6 +65,7 @@
              if ((isalnum(c))||(c == '_'))  //jedna se o slovo
              {
                 strAddChar(attr, c);
+                printf("slovo\n");
                 state = 2;
                 break;
              }
