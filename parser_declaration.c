@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "scaner.h"
-#include "parser.h"
+#include "parser_declaration.h"
 
 int token;/*Globalni promena*/
 int program();
