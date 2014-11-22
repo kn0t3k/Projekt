@@ -50,7 +50,7 @@ int strAddChar(string *s1, char c)
    s1->length++;
    s1->str[s1->length] = '\0';
 
-   printf("ahoj\n\n");
+   printf("ahoj_str\n\n");
 
    return STR_SUCCESS;
 }
