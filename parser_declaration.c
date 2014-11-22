@@ -3,17 +3,29 @@
 #include "parser_declaration.h"
 
 int token;/*Globalni promena*/
+int parse();
 int program();
 int function();
 int body();
 int declaration();
 int n_declaration();
 int type();
+string attr;
 
+int parse()
+{
+  int result;
+  strInit(&attr);
+  if ((token = getNextToken(&attr)) == LEX_ERROR)
+     // nastala chyba jiz pri nacteni prvniho lexemu
+     result = LEX_ERROR;
+  else
+     result = program();
+  strFree(&attr);
+  return result;
+}
 
 int program(){ /*<PROGRAM>*/
-  
-  token = getNextToken();
   
   switch (token){
     /*<PROGRAM> -> <DECLARATION> <FUNCTION> <BODY> DOT*/
