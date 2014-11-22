@@ -122,6 +122,10 @@ int n_declaration(){/*<N_DECLARATION>*/
 	  return SYNTAX_OK;
 	  break;
 	
+    case END_OF_FILE:
+      return SYNTAX_OK;
+      break;	  
+	
     default:
       return SYNTAX_ERROR;
     }	  
