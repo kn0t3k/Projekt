@@ -93,7 +93,7 @@
              else
              if (c == ':') state = 12;
              else
-             if (c == EOF) return END_OF_FILE;
+             if (c == EOF) { printf("konec\n");return END_OF_FILE;}
              else
              if (c == '>') state = 5;
              else
