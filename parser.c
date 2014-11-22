@@ -174,6 +174,7 @@ int function(){/*<FUNCTION>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  printf("COLON\n");
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = type();
 	  if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
