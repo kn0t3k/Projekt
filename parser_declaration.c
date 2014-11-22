@@ -3,6 +3,7 @@
 #include "parser.h"
 
 int token;/*Globalni promena*/
+int program();
 int function();
 int body();
 int declaration();
