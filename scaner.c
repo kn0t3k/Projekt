@@ -28,14 +28,21 @@
         *pom = (x*moc + y);
     }
 
+
+
     int getNextToken(string *attr)
     // hlavni funkce lexikalniho analyzatoru
     {
+
        int state = 0;
        int c;
        // vymazeme obsah atributu a v pripade identifikatoru
        // budeme postupne do nej vkladat jeho nazev
+
+       strInit(attr);
        strClear(attr);
+
+       printf("ahoj\n\n");
        while (1)
        {
          // nacteni dalsiho znaku

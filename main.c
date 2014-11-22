@@ -36,8 +36,9 @@ int main(int argc, char** argv)
    listInit(&instrList); // inicializace seznamu instrukci*/
 
    int result;
-   printf("ahoj\n\n");
+
    result = program(); // provedeme syntaktickou analyzu
+
 
    switch (result)
    {
