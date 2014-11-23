@@ -20,14 +20,22 @@ if expression then
   end
 else
   begin
+  if expression then
+    begin
+	x:=expression
+	end
+  else
+    begin
+	end;
   d:=expression
   end;
   
 while expression do
   begin
-  x:=ahoj(c, l, 10);
   a:= expression
-  end;  
+  end;
+
+c:= ahoj(x, l)  
   
 end.  
   
