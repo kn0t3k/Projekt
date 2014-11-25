@@ -8,29 +8,6 @@ int token;/*Globalni promena*/
 string attr;
  
 /*Funkce, ktere predstavuji nonterminaly*/
-int parse();
-int program();
-int declaration();
-int n_declaration();
-int type();
-int function();
-int parameter();
-int n_parameter();
-int function_body();
-int function_readln();
-int function_write();
-int callfunass();
-int callorass();
-int id_function();
-int value();
-int variable();
-int n_variable();
-int while_condition();
-int if_condition();
-int body();
-int element();
-int n_element();
-int select_element();
 
 int parse(){
   
@@ -669,6 +646,64 @@ int expression(){/*<EXPRESSION>*/
 
 int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 
+
+}
+
+
+/*
+
+Funkce potrebne pro operace nad zasobnikem
+Zasobnik se pouziva k precedencni syntakticke analyze
+
+
+*/
+
+/*Inicializace zasobniku*/
+void init(PtrStack S){
+
+  S -> Top = NULL;
+
+}
+
+/*Vlozeni prvku na zasobnik*/
+void push(PtrStack S, int data){
+
+  PtrElement tmp;
+  
+  if ((tmp = (PtrElement) malloc(sizeof(struct Element))) == NULL) return;
+  tmp -> data = data;
+  tmp -> Next = S -> Top;
+  S -> Top = tmp;
+
+}
+
+/*Odebrani prvku ze zasobniku*/
+void pop(PtrStack S){
+  
+  PtrElement tmp;
+  
+  if (S -> Top != NULL){
+    tmp = S -> Top;
+    S -> Top = S -> Top -> Next;
+	free(tmp);
+	}
+}
+
+/*Precteni hodnoty, ktera je na vrcholu zasobniku*/
+void top(PtrStack S, int *data){
+
+  if (S -> Top == NULL) return;
+  *data = S -> Top -> data;
+
+}
+
+/*Vyprazdneni zasobniku*/
+void empty(PtrStack S){
+
+  if (S -> Top != NULL){
+    pop(S);/*Volame Pop dokud neodeberem vsechny prvky*/
+    empty(S);
+    }
 
 }
 
