@@ -17,28 +17,51 @@
 *		Zvolena prvociselna hodnota pro lepsi rozptyleni vysledku hash funkce. (Zdroj http://en.wikipedia.org/wiki/Hash_table#Choosing_a_good_hash_function
 *
 */
+typedef struct variable_table{
+	struct vartab_listitem* global;
+	struct vartab_listitem* local;
+	} variable_table;
+	
+typedef struct vartab_listitem{
+	struct htab_t* table;
+ 	struct vartab_listitem* next;
+	} vartab_listitem;
 
+typedef union value_union{
+	int integer;
+	int boolean;
+	char *string;
+	double real;
+	} value_union;	
 
 typedef struct htab_listitem{ 
 	char *key;  //doplnit, co bude potreba
 	//typ    	//nejaky enum typ, ktery se nejspis includne z jineho souboru
-	//hodnota ??
+	int initialized;
+	union value_union value;
 	struct htab_listitem* next;
 	} htab_listitem;
 
 typedef struct htab_t{ 
 	unsigned int htab_size;
-	htab_listitem* ptr[];
+	htab_listitem* ptr[]; 
 	} htab_t;
 
 
 
 unsigned int hash_function(const char *str, unsigned htab_size); //bude v samostatnem modulu pro jednodussi zmenu hashovaci fce
-
 htab_t* htab_init(unsigned int htab_size);  //inicializace tabulky na pozadovanou velikost
 void htab_free(htab_t* t); //kompletni uvolneni
 htab_listitem* htab_search(htab_t *t,const char *key); //vzhleda prvek podle key, pokud neni vraci NULL
 void htab_remove(htab_t *t, const char *key);  //fce odstrani prvek specifikovany argumentem key
 htab_listitem* htab_add(htab_t *t,char *key); //prida prvek, nejspis bude potreba predelat bud pro vice argumentu nebo predavat cely novy prvek pro pridani pres ukazatel
+
+
+
+
+variable_table* variable_table_init(int* error);
+void add_local_listitem(variable_table* v_table, int* error);
+void remove_local_listitem(variable_table* v_table, int* error);
+
 					
 
