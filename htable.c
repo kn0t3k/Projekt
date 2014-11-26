@@ -12,6 +12,57 @@
 #include <string.h>
 #include "htable.h"
 
+
+
+
+variable_table* variable_table_init(int* error){
+	struct variable_table* new = (struct variable_table*)malloc(sizeof(struct variable_table));
+	if(new == NULL){
+		*error = 99;
+		return NULL;
+	}
+	new->global = (struct vartab_listitem*) malloc(sizeof(struct vartab_listitem));
+	if(new->global == NULL){
+		*error = 99;
+		return NULL;
+	}
+	new->local = new->global;
+	
+	
+	new->global->next = NULL;
+	new->global->table = htab_init(SIZE); //inicializace tabulky
+	
+	if(new->global->table == NULL){
+		*error = 99;
+		return NULL;
+	}
+	
+	*error = 0;
+	return new;
+}
+
+void add_local_listitem(variable_table* v_table, int* error){
+	if(v_table == NULL || v_table->global==NULL || v_table->local==NULL){ //kontrola argumentu
+		*error = 99;
+		printf("spatne argumenty v add_local_listitem()\n");
+		return;
+	}
+		
+	v_table->local->next = (struct vartab_listitem*) malloc(sizeof(struct vartab_listitem)); //alokace nove lokalni polozky ve spojovem seznamu
+	if(v_table->local->next == NULL){ //kontrola alokace
+		*error = 99;
+		return;
+	}
+	v_table->local = v_table->global->next; //presun ukazatele "local" na nove vytvorenou polozku
+	
+	v_table->local->table = htab_init(SIZE); //nove polozce se vytvori nova hashovaci tabulka
+	v_table->local->next=NULL;
+	
+	*error = 0;
+}	
+
+
+
 //-----------------htab_init---------------------------------------------
 htab_t* htab_init(unsigned int htab_size)
 //funkce alokuje misto pro tabulku, vraci ukazatel na ni
@@ -20,7 +71,8 @@ htab_t* htab_init(unsigned int htab_size)
 	htab_t *t = malloc(sizeof (struct htab_t) + sizeof ( htab_listitem* [htab_size] )); //alokuje pozadovanou velikost tabulky
 	if(t!=NULL) 
 	{
-		t->htab_size=htab_size; 
+		t->htab_size = htab_size;
+		 
 		for(int i=0; i<htab_size; i++)
 		{
 			t->ptr[i]=NULL;			
