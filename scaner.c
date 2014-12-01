@@ -4,6 +4,7 @@
     #include <stdio.h>
     #include <ctype.h>
     #include <stdlib.h>
+    #include "err.h"
     #include "str.h"
     #include "scaner.h"
 

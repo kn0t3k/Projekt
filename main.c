@@ -1,12 +1,11 @@
 #include <stdio.h>
+#include "err.h"
 #include "str.h"
 /*#include "stable.h"
 #include "ilist.h"*/
 #include "scaner.h"
 #include "parser.h"
 //#include "interpret.h"
-
-#define INTERNAL_ERR 99
 
 
 int main(int argc, char** argv)
