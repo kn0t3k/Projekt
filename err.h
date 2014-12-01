@@ -13,6 +13,7 @@
 //hlavicka pro lexikalni analyzator
 //identifikator
 #define ID       0
+#define ID_FUNCTION 75
 
 //klicova slova
 
