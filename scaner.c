@@ -212,6 +212,7 @@
                         ungetc(c, source);
                         return ID_FUNCTION;
                     }
+                    ungetc(c, source);
                     return ID;
                 }
               }
