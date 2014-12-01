@@ -10,12 +10,8 @@
 
 #define INTERNAL_ERR 99
 
-//hlavicka pro lexikalni analyzator
-//identifikator
 #define ID       0
 #define ID_FUNCTION 75
-
-//klicova slova
 
 #define BEGIN 10
 #define BOOLEAN    11
@@ -42,8 +38,9 @@
 #define REAL 74
 #define COPY 76
 #define LENGHT 77
+#define EXPRESSION 75
 
-//operatory
+
 #define ADD     30
 #define DIF     31
 #define MUL     32
@@ -62,7 +59,7 @@
 #define EXP 63	//cela cisla s exponemtem
 #define EXP_NEG 64	//cela cisla se zapornym exp
 
-//jednotlive znaky
+
 #define LEFT_VINCULUM  40 // '{'
 #define RIGHT_VINCULUM 41 // '}'
 #define SEMICOLON      42 // ';'
