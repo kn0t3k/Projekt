@@ -58,6 +58,7 @@ int declaration(){/*<DECLARATION>*/
 	case VAR:
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != ID) return SYNTAX_ERROR;
+	  
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -178,6 +179,7 @@ int parameter(){/*<PARAMETER>*/
   switch (token){
     /*<PARAMETER> -> ID COLON <TYPE> <N_PARAMETER>*/
 	case ID:
+	  
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -710,7 +712,7 @@ int assign_int_to_token(int token){
 }
 
 
-int table(int x, int y){/*Realizace tabulky*/
+int table(int x, int y, PtrStack Stack){/*Realizace tabulky*/
 /*x je token na vrcholu zasobniku*/
 /*y je vstupni token*/
   if ((x = assign_int_to_token(x)) == SYNTAX_ERROR) return SYNTAX_ERROR;  
@@ -772,12 +774,12 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
   int result;
   
   do{
-    if ((result = table(STop(Stack), token)) == SYNTAX_ERROR) return SYNTAX_ERROR;
+    if ((result = table(STop(Stack), token, Stack)) == SYNTAX_ERROR) return SYNTAX_ERROR;
     switch (result){
    
      case SHIFT:
 	    if (STopExpression(Stack)){
-		  SPop(Stack)
+		  SPop(Stack);
 		  SPush(Stack, SHIFT);
 		  SPush(Stack, EXPRESSION);
 		  }
