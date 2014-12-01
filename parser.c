@@ -40,8 +40,10 @@ int program(){ /*<PROGRAM>*/
       result = body();	  
 	  if (result != SYNTAX_OK) return result;/*BODY*/  
 	  if (token != DOT) return SYNTAX_ERROR;/*DOT*/
+	  printf("\nDOT");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != END_OF_FILE) return SYNTAX_ERROR;
+	  printf("\nEOL");
 	  return SYNTAX_OK;/*Pokud zadne z pravidel nevrati SYNTAX_ERROR, LEX_ERROR nebo SEM_ERROR*/
 	  break;
 	
@@ -58,14 +60,18 @@ int declaration(){/*<DECLARATION>*/
   switch (token){
     /*<DECLARATION> -> VAR ID COLON <TYPE> SEMICOLON <N_DECLARATION>*/
 	case VAR:
+	  printf("\nVAR");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  if (token != ID) return SYNTAX_ERROR;  
+	  if (token != ID) return SYNTAX_ERROR;
+      printf("\nID");	  
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
+	  printf("\nCOLON");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = type();
       if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
+	  printf("\nSEMICOLON");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = n_declaration();
 	  if (result != SYNTAX_OK) return result;
@@ -91,6 +97,7 @@ int type(){/*<TYPE>*/
     case T_INTEGER:
 	case T_REAL:
 	case T_STRING:
+	  printf("\nTYPE");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
 	  return SYNTAX_OK;
 	  break;
@@ -268,10 +275,12 @@ int body(){/*<BODY>*/
   switch (token){
     /*<BODY> -> BEGIN <ELEMENT> END*/
     case BEGIN:
+	  printf("\nBODY");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = element();
 	  if (result != SYNTAX_OK) return result;
 	  if (token != END) return SYNTAX_ERROR;
+	  printf("\nEND");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  return SYNTAX_OK;
 	  break;
