@@ -51,12 +51,12 @@
        {
          // nacteni dalsiho znaku
          c = getc(source);
-         znak++;
+         /*znak++;
          if(c == '\n' || c== '\0')
              {
                  //znak = 0;
                  radek ++;
-             }
+             }*/
 
          //printf("pocet\n");
          switch (state)
