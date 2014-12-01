@@ -709,6 +709,7 @@ int assign_int_to_token(int token){
 	case THEN:
 	case DO:
 	case SEMICOLON:
+	case DOLLAR:
 	  return 113;
 	  break;
 	default:
@@ -839,7 +840,7 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 	  
 	  case ERROR:
 	    SEmpty(Stack);
-	    return SEM_ERROR;
+	    return SYNTAX_ERROR;
 	    break;
 	  default:
 	    break;
@@ -876,9 +877,13 @@ void SPush(PtrStack Stack, int data){
 
 int STopExpression(PtrStack Stack){
   
-  if (Stack -> Top -> data == EXPRESSION)
-    return 1;
-  else
+  if (Stack -> Top != NULL){
+    if (Stack -> Top -> data == EXPRESSION)
+      return 1;
+    else
+      return 0;
+	}
+  else 
     return 0;
 
 }
@@ -901,8 +906,12 @@ int STop(PtrStack Stack){
   if (Stack -> Top == NULL)
     return DOLLAR;
   else{
-    if (Stack -> Top -> data == EXPRESSION)/*Pokud je na vrcholu zasobniku zpracovany vyraz vrati dalsi polozku*/
-      return Stack -> Top -> Next -> data;
+    if (Stack -> Top -> data == EXPRESSION){/*Pokud je na vrcholu zasobniku zpracovany vyraz vrati dalsi polozku*/
+      if (Stack -> Top -> Next != NULL)
+	    return Stack -> Top -> Next -> data;
+	  else 
+        return DOLLAR;
+      }		
     else
 	  return Stack -> Top -> data;;
 	}
