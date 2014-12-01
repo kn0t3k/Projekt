@@ -1,35 +1,5 @@
 var
-  x:integer;
-  y:real;
-  z:string;
-function neco(x:integer; c: real):integer;forward;
-function chocho(v:real):real;
-var
-  c:integer;
-  g:real;
+	x:integer;
 begin
-end;
-begin
-if expression then
-  begin
-  x:=expression
-  end
-else
-  begin
-  if expression then
-    begin
-	x:=expression
-	end
-  else
-    begin
-	end;
-  d:=expression
-  end;
-  
-while expression do
-  begin
-  a:= expression
-  end;
-c:= ahoj(x, 'ahoj')  
-  
+
 end.
