@@ -4,6 +4,7 @@
 #include "str.h"
 #include "scaner.h"
 #include "parser.h"
+#include "err.h"
 
 int token;/*Globalni promena*/
 string attr;
