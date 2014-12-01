@@ -188,7 +188,7 @@
                 else
                 if (strCmpConstStr(attr, "COPY") == 0)
                 {
-                    if((c==(getc(source)) == '(')
+                    if((c=getc(source)) == '(')
                     {
                         ungetc(c, source);
                         return ID_FUNCTION;
@@ -198,7 +198,7 @@
                 else
                 if (strCmpConstStr(attr, "LENGHT") == 0)
                 {
-                    if((c==(getc(source)) == '(')
+                    if((c=getc(source)) == '(')
                     {
                         ungetc(c, source);
                         return ID_FUNCTION;
@@ -207,7 +207,7 @@
                 }
                 else
                 {
-                    if((c==(getc(source)) == '(')
+                    if((c=getc(source)) == '(')
                     {
                         ungetc(c, source);
                         return ID_FUNCTION;

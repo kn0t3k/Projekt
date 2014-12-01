@@ -42,18 +42,18 @@ int main(int argc, char** argv)
    switch (result)
    {
      case LEX_ERROR:
-         printf("LEX ");
+         printf("err LEX \n");
          //tiskni_radky();
          return -result;
      break;
      case SYNTAX_ERROR:
-         printf("STX ");
+         printf("err STX \n");
          //tiskni_radky();
          return -result;
      break;
      case SEM_ERROR:
          //tiskni_radky();
-         printf("SYM ");
+         printf("err SYM \n");
        // nastala chyba v prubehu prekladu
        /*tableFree(&ST);
        listFree(&instrList);
