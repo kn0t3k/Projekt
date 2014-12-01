@@ -44,16 +44,16 @@ int main(int argc, char** argv)
    {
      case LEX_ERROR:
          printf("LEX ");
-         tiskni_radky();
+         //tiskni_radky();
          return -result;
      break;
      case SYNTAX_ERROR:
          printf("STX ");
-         tiskni_radky();
+         //tiskni_radky();
          return -result;
      break;
      case SEM_ERROR:
-         tiskni_radky();
+         //tiskni_radky();
          printf("SYM ");
        // nastala chyba v prubehu prekladu
        /*tableFree(&ST);
