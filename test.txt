@@ -2,7 +2,6 @@ var
   x:integer;
   y:real;
   z:string;
-
 function neco(x:integer; c: real):integer;forward;
 function chocho(v:real):real;
 var
@@ -10,10 +9,7 @@ var
   g:real;
 begin
 end;
-
-
 begin
-
 if expression then
   begin
   x:=expression
@@ -34,9 +30,6 @@ while expression do
   begin
   a:= expression
   end;
-
-c:= ahoj(x, l)  
+c:= ahoj(x, 'ahoj')  
   
-end.  
-  
-  
+end.

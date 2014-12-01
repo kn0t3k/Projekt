@@ -36,7 +36,7 @@
 //operatory
 #define ADD     30
 #define DIF     31
-#define TIM     32
+#define MUL     32
 #define DIV     33
 #define EQ		34
 #define L		35
@@ -73,3 +73,8 @@
 void setSourceFile(FILE *f);
 void prilep(int z, int y);
 int getNextToken(string *attr);
+
+int *radek_cnt;
+    int *token_cnt;
+
+

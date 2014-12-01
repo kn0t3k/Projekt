@@ -12,6 +12,7 @@
     short obs = 0;   //kontorla, zda ciselne exponentu, nebo cisla obsahuji nejakou hodnotu
     int *pom;
 
+
     void setSourceFile(FILE *f)
     {
       source = f;
@@ -33,6 +34,7 @@
     int getNextToken(string *attr)
     // hlavni funkce lexikalniho analyzatoru
     {
+        token_cnt+=1;
        int state = 0;
        int c;
        // vymazeme obsah atributu a v pripade identifikatoru
@@ -46,11 +48,19 @@
        {
          // nacteni dalsiho znaku
          c = getc(source);
+         token_cnt++;
+         if(c == '\n' || c== '\0')
+             {
+                 token_cnt = 0;
+                 radek_cnt+=1;
+             }
+
          //printf("pocet\n");
          switch (state)
          {
 
            case 0:
+
              if (isspace(c)) state = 0;  //bila mista ignorujeme
              else
              if (c == '{') state = 1;  //komentar
@@ -61,11 +71,16 @@
                  state = 6;
              }
              else
+             if(c == 'e' || c == 'E')
+             {
+                 strAddChar(attr, c);
+                 state = 16;
+             }
+             else
              if ((isalpha(c))||(c == '_'))  //jedna se o slovo
              {
                 strAddChar(attr, c);
                 state = 2;
-                break;
              }
              else
              if (c == ',') return COMMA;
@@ -76,7 +91,7 @@
              else
              if (c == '-') return DIF;
              else
-             if (c == '*') return TIM;
+             if (c == '*') return MUL;
              else
              if (c == '/') return DIV;
              else
@@ -126,7 +141,6 @@
              else
              // konec identifikatoru
              {
-                 //printf("ahoj_lex\n\n");
                 ungetc(c, source);
                 // kontrola, zda se nejedna o klicove slovo
                 if (strCmpConstStr(attr, "BEGIN") == 0) return BEGIN;
@@ -216,6 +230,7 @@
                     if(c == '.')    //desetinne cislo
                     {
                         strAddChar(attr, c);
+                        obs = 0;
                         state = 7;
                     }
                     else
@@ -223,6 +238,7 @@
                         if(c == 'e' || c == 'E')    //cislo s exponentem
                         {
                             strAddChar(attr, c);
+                            obs = 0;
                             state = 10;
                         }
                         else
@@ -251,6 +267,7 @@
                     if(c == 'e' || c == 'E')    //desetinne cislo s exp
                     {
                         strAddChar(attr, c);
+                        obs = 0;
                         state = 8;
                     }
                     else
@@ -274,9 +291,9 @@
                 }
                else
                {
-                   if(obs == 0) return LEX_ERROR;
                    if(c == '-') //zaporny exp
                    {
+                        obs = 0;
                         strAddChar(attr, c);
                         state = 9;
                    }
@@ -288,6 +305,7 @@
                            if(isalpha(c) && ((c != ' ') || (c != ';'))) return LEX_ERROR;
                             else
                             {
+                                if(obs == 0) return LEX_ERROR;
                                 ungetc(c, source);
                                 obs = 0;
                                 return DES_EXP;
@@ -305,6 +323,7 @@
                 }
                 else
                 {
+                    if(obs == 0) return LEX_ERROR;
                     if(isalpha(c) && ((c != ' ') || (c != ';'))) return LEX_ERROR;
                     else
                     {
@@ -315,28 +334,39 @@
                 }
             break;
 
-           case 10: //pouze e^+-(neco)
+        /*  pozor e na neco predelat, zacina to jako slovo a potom
+            prejde do cisel, pridat stavy
+            */
+           case 10: //pouze e^(neco)
                if(c>='0' && c<='9')
                 {
+
                     strAddChar(attr, c);
                     obs = 1;
                 }
                else
                {
-                   if(obs == 0) return LEX_ERROR;
+
                    if(c == '-') //e^-neco
                    {
                         strAddChar(attr, c);
+                        obs = 0;
                         state = 11;
                    }
                    else
                    {
-                       if(c == '+') state = 10; //e^+neco
+
+                       if(c == '+')
+                       {
+                           obs = 0;
+                           state = 10; //e^+neco
+                       }
                        else
                        {
                            if(isalpha(c) && ((c != ' ') || (c != ';'))) return LEX_ERROR;
                             else
                             {
+                                if(obs == 0) return LEX_ERROR;
                                 ungetc(c, source);
                                 obs = 0;
                                 return EXP;
@@ -354,6 +384,7 @@
                 }
                 else
                 {
+                    if(obs == 0) return LEX_ERROR;
                     if(isalpha(c) && ((c != ' ') || (c != ';'))) return LEX_ERROR;
                     else
                     {
@@ -368,7 +399,7 @@
                if(c == '=') return ASS; //prirazeni :D
                else if(isalnum(c) || c == ' ')  //" : neco "
                {
-                   ungetc(c, source);
+                    ungetc(c, source);
                    return COLON;
                }
                else return LEX_ERROR;
@@ -379,6 +410,7 @@
                if(isalnum(c))
                {
                    strAddChar(attr, c);
+                   printf("nacitam: %c\n", c);
                }
                if(c == APS)  //APS = 39 = ascii hodnota apostrofu
                {
@@ -387,10 +419,10 @@
             break;
 
            case 14:
-               if(c == '\n')    //doslo k ukonceni cteni retezce
+               /*if(c == '\n')    //doslo k ukonceni cteni retezce
                {
                    return STRING;
-               }
+               }*/
                if(c == APS) //dva apostrofy za sebou
                {
                    strAddChar(attr, APS);
@@ -400,7 +432,12 @@
                {
                    state = 15;
                }
-               else return LEX_ERROR;
+               else
+               {
+                   printf("vracim retezec \n");
+                    ungetc(c, source);
+                   return STRING;
+               }
             break;
 
            case 15: //escape sekvence
@@ -416,6 +453,35 @@
                     state = 13;
                 }
                 else return LEX_ERROR;
+            break;
+
+           case 16:
+                if( !(c>='0' && c<='9') || (c!= '-') || (c!='+'))
+                {
+                    strAddChar(attr, c);
+                    state = 2;
+                }
+                else
+                {
+                    if(c == '-')
+                    {
+                        state = 11;
+                        obs = 0;
+                        strAddChar(attr, c);
+                    }
+                    else if(c == '+')
+                    {
+                        state = 10;
+                        obs = 0;
+                        strAddChar(attr, c);
+                    }
+                    else
+                    {
+                        obs = 1;
+                        state = 10;
+                        strAddChar(attr, c);
+                    }
+                }
             break;
         }
       }
