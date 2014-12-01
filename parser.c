@@ -91,7 +91,6 @@ int type(){/*<TYPE>*/
     case T_INTEGER:
 	case T_REAL:
 	case T_STRING:
-	  printf("TYPE\n");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
 	  return SYNTAX_OK;
 	  break;
