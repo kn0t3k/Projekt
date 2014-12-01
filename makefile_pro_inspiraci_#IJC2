@@ -1,10 +1,10 @@
-#------------------------------------#
-#- Projekt: IJC2					-#
-#- Soubor: Makefile					-#
-#- Autor:   Tomáš Juřica			-#
-#- Překladač: GCC 4.8.2-7			-#
-#- Datum:   24.4.2014				-#
-#------------------------------------#
+#--------------------------------#
+#- Projekt: IJC2		-#
+#- Soubor: Makefile		-#
+#- Autor:   Tomáš Juřica	-#
+#- Překladač: GCC 4.8.2-7	-#
+#- Datum:   24.4.2014		-#
+#--------------------------------#
  
 MOD= htab_init.o hash_function.o htab_foreach.o htab_statistics.o htab_clear.o htab_free.o htab_lookup.o htab_remove.o 
 CC=gcc
