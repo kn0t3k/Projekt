@@ -2,6 +2,12 @@
 #define SYNTAX_ERROR -2
 #define SEM_ERROR    -3
 
+#define SHIFT 65
+#define REDUCE 63
+#define EQUAL 47
+#define ERROR 89
+#define DOLLAR 78
+
 /*Struktury pro zasobnik*/
 typedef struct Element{
   int data;  
@@ -39,3 +45,16 @@ int body();
 int element();
 int n_element();
 int select_element();
+int expression();
+int assign_int_to_token(int token);
+int table(int x, int y);
+int parse_expression();
+
+/*Funkce pro zasobnik*/
+void SInit(PtrStack S);
+void SPush(PtrStack S, int data);
+int STopExpression(PtrStack S);
+void SPop(PtrStack S);
+int STop(PtrStack S);
+void SEmpty(PtrStack S);
+
