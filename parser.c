@@ -633,6 +633,7 @@ int expression(){/*<EXPRESSION>*/
 	case DES_EXP_NEG:
 	case EXP:
 	case EXP_NEG:
+	case L_BRACKET:
       result = parse_expression();
 	  if (result != SYNTAX_OK) return result;
 	  return SYNTAX_OK;
@@ -644,10 +645,202 @@ int expression(){/*<EXPRESSION>*/
     }
 }
 
+
+int assign_int_to_token(int token){
+
+
+  switch (token){
+    case MUL:
+	  return 100;
+	  break;
+	case DIV:
+	  return 101;
+	  break;
+	case ADD:
+      return 102;
+	  break;
+    case DIF:
+      return 103;
+      break;
+    case S:
+      return 104;
+      break;
+    case L:
+      return 105;
+      break;
+    case SE:
+      return 106;
+      break;
+    case LE:
+      return 107;
+      break;
+    case EQ:
+      return 108;
+      break;
+    case SL:
+      return 109;
+      break;
+    case L_BRACKET:
+      return 110;
+      break;
+    case R_BRACKET:
+      return 111;
+      break;
+    case ID:
+	case INTEGER:
+	case STRING:
+	case DES_INT:
+	case DES_EXP:
+	case DES_EXP_NEG:
+	case EXP:
+	case EXP_NEG:
+	  return 112;
+	  break;
+	case THEN:
+	case DO:
+	case SEMICOLON:
+	  return 113;
+	  break;
+	default:
+	  return SYNTAX_ERROR;
+	  break;
+    }
+  
+ 
+}
+
+
+int table(int x, int y){/*Realizace tabulky*/
+/*x je token na vrcholu zasobniku*/
+/*y je vstupni token*/
+  if ((x = assign_int_to_token(x)) == SYNTAX_ERROR) return SYNTAX_ERROR;  
+  if ((y = assign_int_to_token(y)) == SYNTAX_ERROR) return SYNTAX_ERROR;
+  
+  if ((y <= 109) || (y == 111)){/*Vstupni token je operator, nebo prava zavorka, musime overit, ze na vrcholu zasobniku je vyraz*/
+    if (!(STopExpression(Stack)))
+      return SYNTAX_ERROR;
+    }
+
+  if ((y == 110) || (y == 112)){/*Vstupni token je leva zavorka, nebo hodnota, musime overit, ze na vrcholu zasobniku neni vyraz*/
+    if (STopExpression(Stack))
+	  return SYNTAX_ERROR;
+    }
+
+  if (((x <= 101) && (y <= 109))||
+      ((x > 101) && (x <= 103) && (y > 101) && (y <= 109))||
+      ((x > 103) && (x <= 109) && (y > 103) && (y <= 109))||
+      ((x > 110) && (x <= 112) && (y <= 109))||
+      ((x <= 109) && (y == 111))||
+      ((x <= 109) && (y == 113))||
+      ((x == 111) && (y > 110))||
+	  ((x == 112) && (y == 111))||
+	  ((x == 112) && (y == 113)))
+	    return SHIFT;
+  else{
+    if (((x > 101) && (x <= 103) && (y <= 101))||
+        ((x > 103) && (x <= 110) && (y <= 103))||
+        ((x == 110) && (y > 103) && (y <= 109))||
+        ((x == 113) && (y <= 110))||
+        ((x <= 110) && (y == 110))||
+        ((x <= 110) && (y == 112))||
+	    ((x == 113) && (y == 112)))
+          return REDUCE;
+    else{
+        if ((x == 110) && (y == 111))
+	      return EQUAL;
+		else
+		  return ERROR;
+	  }
+	}
+	/*
+    if (((x > 10) && (x <= 12) && (y == 10))||
+      ((x == 10) && (y == 13))||
+	  ((x == 12) && (y == 12))||
+      ((x == 10) && (y == 11))||
+      ((x == 13) && (y == 11))||
+      ((x == 13) && (y == 13)))	   
+	    return ERROR;
+   */
+}
+
 int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 
-
+  /*Inicializace zasobniku*/
+  PtrStack Stack;
+  SInit(S);
+  
+  int result;
+  
+  do{
+    if ((result = table(STop(Stack), token)) == SYNTAX_ERROR) return SYNTAX_ERROR;
+    switch (result){
+   
+     case SHIFT:
+	    if (STopExpression(Stack)){
+		  SPop(Stack)
+		  SPush(Stack, SHIFT);
+		  SPush(Stack, EXPRESSION);
+		  }
+		else{
+		  SPush(Stack, SHIFT);
+		  }
+	    SPush(Stack, token);
+	    if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	    break;
+	  
+     case REDUCE:
+	    switch (STop(S)){
+	      case ID:
+	      case INTEGER:
+	      case STRING:
+	      case DES_INT:
+	      case DES_EXP:
+	      case DES_EXP_NEG:
+	      case EXP:
+	      case EXP_NEG:
+            SPop(Stack);
+            SPop(Stack);
+            SPush(Stack, EXPRESSION);
+		    break;
+		
+	      case MUL:
+	      case DIV:
+          case ADD:
+          case DIF:
+          case S:
+          case L:
+          case SE:
+          case LE:
+          case EQ:
+          case SL:
+		  case R_BRACKET:
+		    SPop(Stack);
+            SPop(Stack);
+		    SPop(Stack);
+            SPush(Stack, EXPRESSION);
+		    break;  
+	      }
+	    break;
+	
+	  case EQUAL:
+	    SPush(Stack, token);
+	    if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	    break;
+	  
+	  case ERROR:
+	    SEmpty(Stack);
+	    return SEM_ERROR;
+	    break;
+	  default:
+	    break;
+      }
+    }while ((STop(Stack) != DOLLAR) && (token != THEN) && (token != DO) && (token != SEMICOLON))
+  
+  SEmpty(Stack);
+  return SYNTAX_OK;  
+  
 }
+
 
 
 /*
@@ -659,14 +852,14 @@ Zasobnik se pouziva k precedencni syntakticke analyze
 */
 
 /*Inicializace zasobniku*/
-void init(PtrStack S){
+void SInit(PtrStack S){
 
   S -> Top = NULL;
 
 }
 
 /*Vlozeni prvku na zasobnik*/
-void push(PtrStack S, int data){
+void SPush(PtrStack S, int data){
 
   PtrElement tmp;
   
@@ -677,8 +870,17 @@ void push(PtrStack S, int data){
 
 }
 
+int STopExpression(PtrStack S){
+  
+  if (S -> Top -> data == EXPRESSION)
+    return 1;
+  else
+    return 0;
+
+}
+
 /*Odebrani prvku ze zasobniku*/
-void pop(PtrStack S){
+void SPop(PtrStack S){
   
   PtrElement tmp;
   
@@ -690,15 +892,21 @@ void pop(PtrStack S){
 }
 
 /*Precteni hodnoty, ktera je na vrcholu zasobniku*/
-void top(PtrStack S, int *data){
+int STop(PtrStack S){
 
-  if (S -> Top == NULL) return;
-  *data = S -> Top -> data;
+  if (S -> Top == NULL)
+    return DOLLAR;
+  else{
+    if (S -> Top -> data == EXPRESSION)/*Pokud je na vrcholu zasobniku zpracovany vyraz vrati dalsi polozku*/
+      return S -> Top -> Next -> data;
+    else
+	  return S -> Top -> data;;
+	}
 
 }
 
 /*Vyprazdneni zasobniku*/
-void empty(PtrStack S){
+void SEmpty(PtrStack S){
 
   if (S -> Top != NULL){
     pop(S);/*Volame Pop dokud neodeberem vsechny prvky*/
