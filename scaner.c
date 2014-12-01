@@ -11,7 +11,12 @@
     FILE *source;
     short obs = 0;   //kontorla, zda ciselne exponentu, nebo cisla obsahuji nejakou hodnotu
     int *pom;
+    int radek, znak;
 
+    void tiskni_radky()
+    {
+        printf("%d:%d\n", radek, znak);
+    }
 
     void setSourceFile(FILE *f)
     {
@@ -34,12 +39,9 @@
     int getNextToken(string *attr)
     // hlavni funkce lexikalniho analyzatoru
     {
-        token_cnt+=1;
+
        int state = 0;
        int c;
-       // vymazeme obsah atributu a v pripade identifikatoru
-       // budeme postupne do nej vkladat jeho nazev
-
 
        strClear(attr);
 
@@ -48,11 +50,11 @@
        {
          // nacteni dalsiho znaku
          c = getc(source);
-         token_cnt++;
+         znak++;
          if(c == '\n' || c== '\0')
              {
-                 token_cnt = 0;
-                 radek_cnt+=1;
+                 //znak = 0;
+                 radek ++;
              }
 
          //printf("pocet\n");
@@ -183,14 +185,34 @@
                 else
                 if (strCmpConstStr(attr, "WRITE") == 0) return WRITE;
                 else
-                if (strCmpConstStr(attr, "EXPRESSION") == 0) return EXPRESSION;
+                if (strCmpConstStr(attr, "COPY") == 0)
+                {
+                    if(c==(getc(source)) == '(')
+                    {
+                        ungetc(c, source);
+                        return ID_FUNCTION;
+                    }
+                    return COPY;
+                }
                 else
-                if (strCmpConstStr(attr, "COPY") == 0) return COPY;
+                if (strCmpConstStr(attr, "LENGHT") == 0)
+                {
+                    if(c==(getc(source)) == '(')
+                    {
+                        ungetc(c, source);
+                        return ID_FUNCTION;
+                    }
+                    return LENGHT;
+                }
                 else
-                if (strCmpConstStr(attr, "LENGHT") == 0) return LENGHT;
-                else
-                // jednalo se skutecne o identifikator
-                   return ID;
+                {
+                    if(c==(getc(source)) == '(')
+                    {
+                        ungetc(c, source);
+                        return ID_FUNCTION;
+                    }
+                    return ID;
+                }
               }
            break;
 

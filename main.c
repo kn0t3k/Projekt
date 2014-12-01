@@ -9,13 +9,8 @@
 #define INTERNAL_ERR 99
 
 
-
 int main(int argc, char** argv)
 {
-    printf("ahoj\n");
-    radek_cnt = 0;
-    token_cnt = 0;
-    printf("ahoj\n");
    FILE *f;
    if (argc == 1)
    {
@@ -48,15 +43,18 @@ int main(int argc, char** argv)
    switch (result)
    {
      case LEX_ERROR:
-         printf("\n**LEX chyba: %d %d**\n", *radek_cnt, *token_cnt);
+         printf("LEX ");
+         tiskni_radky();
          return -result;
      break;
      case SYNTAX_ERROR:
-         printf("\n**STX chyba %d %d**\n", &(*radek_cnt), &(*token_cnt));
+         printf("STX ");
+         tiskni_radky();
          return -result;
      break;
      case SEM_ERROR:
-         printf("\n**SEM chyba %d %d**\n", *radek_cnt, *token_cnt);
+         tiskni_radky();
+         printf("SYM ");
        // nastala chyba v prubehu prekladu
        /*tableFree(&ST);
        listFree(&instrList);
