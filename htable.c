@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "htable.h"
+#include "err.h"
 
 
 
