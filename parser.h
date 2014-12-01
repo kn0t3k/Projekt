@@ -42,7 +42,6 @@ int table(int x, int y, PtrStack Stack);
 int parse_expression();
 
 /*Funkce pro zasobnik*/
-void SInit(PtrStack Stack);
 void SPush(PtrStack Stack, int data);
 int STopExpression(PtrStack Stack);
 void SPop(PtrStack Stack);

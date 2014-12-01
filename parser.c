@@ -768,7 +768,7 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 
   /*Inicializace zasobniku*/
   PtrStack Stack;
-  SInit(Stack);
+  Stack = NULL;
   
   int result;
   
@@ -852,12 +852,6 @@ Zasobnik se pouziva k precedencni syntakticke analyze
 
 */
 
-/*Inicializace zasobniku*/
-void SInit(PtrStack Stack){
-
-  Stack -> Top = NULL;
-
-}
 
 /*Vlozeni prvku na zasobnik*/
 void SPush(PtrStack Stack, int data){
