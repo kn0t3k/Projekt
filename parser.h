@@ -47,14 +47,14 @@ int n_element();
 int select_element();
 int expression();
 int assign_int_to_token(int token);
-int table(int x, int y);
+int table(int x, int y, PtrStack Stack);
 int parse_expression();
 
 /*Funkce pro zasobnik*/
-void SInit(PtrStack S);
-void SPush(PtrStack S, int data);
-int STopExpression(PtrStack S);
-void SPop(PtrStack S);
-int STop(PtrStack S);
-void SEmpty(PtrStack S);
+void SInit(PtrStack Stack);
+void SPush(PtrStack Stack, int data);
+int STopExpression(PtrStack Stack);
+void SPop(PtrStack Stack);
+int STop(PtrStack Stack);
+void SEmpty(PtrStack Stack);
 

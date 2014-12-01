@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "str.h"
 #include "scaner.h"
 #include "parser.h"
@@ -57,8 +58,7 @@ int declaration(){/*<DECLARATION>*/
     /*<DECLARATION> -> VAR ID COLON <TYPE> SEMICOLON <N_DECLARATION>*/
 	case VAR:
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  if (token != ID) return SYNTAX_ERROR;
-	  
+	  if (token != ID) return SYNTAX_ERROR;  
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -178,8 +178,7 @@ int parameter(){/*<PARAMETER>*/
   
   switch (token){
     /*<PARAMETER> -> ID COLON <TYPE> <N_PARAMETER>*/
-	case ID:
-	  
+	case ID: 
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -769,7 +768,7 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 
   /*Inicializace zasobniku*/
   PtrStack Stack;
-  SInit(S);
+  SInit(Stack);
   
   int result;
   
@@ -791,7 +790,7 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 	    break;
 	  
      case REDUCE:
-	    switch (STop(S)){
+	    switch (STop(Stack)){
 	      case ID:
 	      case INTEGER:
 	      case STRING:
@@ -836,7 +835,7 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 	  default:
 	    break;
       }
-    }while ((STop(Stack) != DOLLAR) && (token != THEN) && (token != DO) && (token != SEMICOLON))
+    }while ((STop(Stack) != DOLLAR) && (token != THEN) && (token != DO) && (token != SEMICOLON));
   
   SEmpty(Stack);
   return SYNTAX_OK;  
@@ -854,27 +853,27 @@ Zasobnik se pouziva k precedencni syntakticke analyze
 */
 
 /*Inicializace zasobniku*/
-void SInit(PtrStack S){
+void SInit(PtrStack Stack){
 
-  S -> Top = NULL;
+  Stack -> Top = NULL;
 
 }
 
 /*Vlozeni prvku na zasobnik*/
-void SPush(PtrStack S, int data){
+void SPush(PtrStack Stack, int data){
 
   PtrElement tmp;
   
   if ((tmp = (PtrElement) malloc(sizeof(struct Element))) == NULL) return;
   tmp -> data = data;
-  tmp -> Next = S -> Top;
-  S -> Top = tmp;
+  tmp -> Next = Stack -> Top;
+  Stack -> Top = tmp;
 
 }
 
-int STopExpression(PtrStack S){
+int STopExpression(PtrStack Stack){
   
-  if (S -> Top -> data == EXPRESSION)
+  if (Stack -> Top -> data == EXPRESSION)
     return 1;
   else
     return 0;
@@ -882,37 +881,37 @@ int STopExpression(PtrStack S){
 }
 
 /*Odebrani prvku ze zasobniku*/
-void SPop(PtrStack S){
+void SPop(PtrStack Stack){
   
   PtrElement tmp;
   
-  if (S -> Top != NULL){
-    tmp = S -> Top;
-    S -> Top = S -> Top -> Next;
+  if (Stack -> Top != NULL){
+    tmp = Stack -> Top;
+    Stack -> Top = Stack -> Top -> Next;
 	free(tmp);
 	}
 }
 
 /*Precteni hodnoty, ktera je na vrcholu zasobniku*/
-int STop(PtrStack S){
+int STop(PtrStack Stack){
 
-  if (S -> Top == NULL)
+  if (Stack -> Top == NULL)
     return DOLLAR;
   else{
-    if (S -> Top -> data == EXPRESSION)/*Pokud je na vrcholu zasobniku zpracovany vyraz vrati dalsi polozku*/
-      return S -> Top -> Next -> data;
+    if (Stack -> Top -> data == EXPRESSION)/*Pokud je na vrcholu zasobniku zpracovany vyraz vrati dalsi polozku*/
+      return Stack -> Top -> Next -> data;
     else
-	  return S -> Top -> data;;
+	  return Stack -> Top -> data;;
 	}
 
 }
 
 /*Vyprazdneni zasobniku*/
-void SEmpty(PtrStack S){
+void SEmpty(PtrStack Stack){
 
-  if (S -> Top != NULL){
-    pop(S);/*Volame Pop dokud neodeberem vsechny prvky*/
-    empty(S);
+  if (Stack -> Top != NULL){
+    SPop(Stack);/*Volame Pop dokud neodeberem vsechny prvky*/
+    SEmpty(Stack);
     }
 
 }
