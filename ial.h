@@ -47,6 +47,7 @@ typedef struct htab_item{
 	struct htab_item* next;
 	} htab_item;
 
+
 typedef struct htab_t{ 
 	unsigned int htab_size;
 	htab_item* ptr[]; 
@@ -71,5 +72,6 @@ struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error);
 struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error);
 struct htab_item* search_func(char *name, struct symbol_table* s_table, int* error);
 struct htab_item* search_var(char *name, struct symbol_table* s_table, int* error);
+void symbol_table_free(struct symbol_table* s_table);
 
 					
