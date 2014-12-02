@@ -21,7 +21,7 @@
 */
 
 //enum typu pro tabulku, to "s_" je tam, abych se vyhnul kolizim (napr. string ve str.h)
-enum s_table_type {s_integer,s_real,s_string,s_boolean};
+enum s_table_type {s_integer, s_real, s_string, s_boolean};
 
 
 typedef struct symbol_table{
