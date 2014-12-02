@@ -11,7 +11,9 @@
     // promenna pro ulozeni vstupniho souboru
     FILE *source;
     short obs = 0;   //kontorla, zda ciselne exponentu, nebo cisla obsahuji nejakou hodnotu
-    string *pom;
+    string pom;
+
+
 
 
     void setSourceFile(FILE *f)
@@ -32,6 +34,7 @@
 
     int getNextToken(string *attr)//tuto funkci vola praser a ona vola printtoken aby mohla vytisknout tokeny, potom zmenit
     {
+        strInit(&pom);
         int vysledek = printToken(attr);
 
         switch (vysledek)
@@ -487,11 +490,11 @@
 
            case 13:
                /* rozsirit o povolene/nepovolene znaky  */
-               printf("cyklim...\n");
+               //printf("cyklim...\n");
                if(isalnum(c) || (c == ' '))
                {
                    strAddChar(attr, c);
-                   printf("nacitam: %c\n", c);
+                   //printf("nacitam: %c\n", c);
                }
                else if(c == APS)  //APS = 39 = ascii hodnota apostrofu
                {
@@ -503,7 +506,7 @@
            case 14:
                if(c == APS) //dva apostrofy za sebou
                {
-                   printf("nacitam: %c\n", APS);
+                   //printf("nacitam: %c\n", APS);
                    strAddChar(attr, APS);
                    state = 13;
                }
@@ -515,7 +518,7 @@
                {
                    if((c == '\n') || (c == ';') || (c == ' ') )
                    {
-                       printf("vracim retezec \n");
+                       //printf("vracim retezec \n");
                         ungetc(c, source);
                         return STRING;
                    }
@@ -528,15 +531,15 @@
            case 15: //escape sekvence
                if(c>='0' && c<= '9')    //obsahuje nejake cisla, ty ulozim do pom a potom je vypisu jako jeden znak
                 {
-                    printf("lepim...\n");
-                    strAddChar(pom, c);
+                    //printf("lepim... %c\n", c);
+                    strAddChar(&pom, c);
                     obs = 1;
                 }
                 else if(c == APS)
                 {
                     if (obs == 0) return LEX_ERROR;
-                    //printf("sekvence je: %s\n", pom);
-                    strAddChar(attr, 010);
+                    //printf("tisknu prilepeny znak: %c\n", atoi((&pom)->str));
+                    strAddChar(attr, atoi((&pom)->str));
                     state = 13;
                 }
                 else return LEX_ERROR;
