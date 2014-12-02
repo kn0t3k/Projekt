@@ -662,7 +662,6 @@ int expression(){/*<EXPRESSION>*/
 
 int assign_int_to_token(int token){
 
-
   switch (token){
     case MUL:
 	  return 100;
@@ -713,6 +712,7 @@ int assign_int_to_token(int token){
 	case THEN:
 	case DO:
 	case SEMICOLON:
+	case END:
 	case DOLLAR:
 	  return 113;
 	  break;
@@ -728,19 +728,26 @@ int assign_int_to_token(int token){
 int table(int x, int y, PtrStack Stack){/*Realizace tabulky*/
 /*x je token na vrcholu zasobniku*/
 /*y je vstupni token*/
+  printf("\njkl");
+  printf ("%d",x);
   if ((x = assign_int_to_token(x)) == SYNTAX_ERROR) return SYNTAX_ERROR;  
   if ((y = assign_int_to_token(y)) == SYNTAX_ERROR) return SYNTAX_ERROR;
   
+  
+  
   if ((y <= 109) || (y == 111)){/*Vstupni token je operator, nebo prava zavorka, musime overit, ze na vrcholu zasobniku je vyraz*/
-    if (!(STopExpression(Stack)))
-      return SYNTAX_ERROR;
-    }
-
-  if ((y == 110) || (y == 112)){/*Vstupni token je leva zavorka, nebo hodnota, musime overit, ze na vrcholu zasobniku neni vyraz*/
-    if (STopExpression(Stack))
+    if (!(STopExpression(Stack))){
 	  return SYNTAX_ERROR;
+	  }
     }
-
+printf("\nzdar");
+  if ((y == 110) || (y == 112)){/*Vstupni token je leva zavorka, nebo hodnota, musime overit, ze na vrcholu zasobniku neni vyraz*/
+	if (!(STopExpression(Stack))){
+	  printf("\nzdar");
+	  return SYNTAX_ERROR;
+	  }
+    }
+  printf("\ntable");
   if (((x <= 101) && (y <= 109))||
       ((x > 101) && (x <= 103) && (y > 101) && (y <= 109))||
       ((x > 103) && (x <= 109) && (y > 103) && (y <= 109))||
@@ -750,7 +757,7 @@ int table(int x, int y, PtrStack Stack){/*Realizace tabulky*/
       ((x == 111) && (y > 110))||
 	  ((x == 112) && (y == 111))||
 	  ((x == 112) && (y == 113)))
-	    return SHIFT;
+	    return REDUCE;
   else{
     if (((x > 101) && (x <= 103) && (y <= 101))||
         ((x > 103) && (x <= 110) && (y <= 103))||
@@ -759,7 +766,7 @@ int table(int x, int y, PtrStack Stack){/*Realizace tabulky*/
         ((x <= 110) && (y == 110))||
         ((x <= 110) && (y == 112))||
 	    ((x == 113) && (y == 112)))
-          return REDUCE;
+          return SHIFT;
     else{
         if ((x == 110) && (y == 111))
 	      return EQUAL;
@@ -788,10 +795,12 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
   int result;
   
   do{
+    printf("\njoj");
     if ((result = table(STop(Stack), token, Stack)) == SYNTAX_ERROR) return SYNTAX_ERROR;
     switch (result){
    
       case SHIFT:
+	    printf("\nSHIFT");
 	    if (STopExpression(Stack)){
 		  SPop(Stack);
 		  if ((SPush(Stack, SHIFT)) != INTERNAL_OK) return INTERNAL_ERR;
@@ -802,9 +811,11 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 		  }
 	    SPush(Stack, token);
 	    if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+		printf("%d",token);
 	    break;
 	  
       case REDUCE:
+	    printf("\nREDUCE");
 	    switch (STop(Stack)){
 	      case ID:
 	      case INTEGER:
@@ -814,6 +825,7 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 	      case DES_EXP_NEG:
 	      case EXP:
 	      case EXP_NEG:
+		    printf("\nID"); 
             SPop(Stack);
             SPop(Stack);
             if ((SPush(Stack, EXPRESSION)) != INTERNAL_OK) return INTERNAL_ERR;
@@ -830,6 +842,7 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
           case EQ:
           case SL:
 		  case R_BRACKET:
+		    printf("\nOPERATOR");
 		    SPop(Stack);
             SPop(Stack);
 		    SPop(Stack);
@@ -854,7 +867,7 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 	  default:
 	    break;
       }
-    }while ((STop(Stack) != DOLLAR) && (token != THEN) && (token != DO) && (token != SEMICOLON));
+    }while (!((STop(Stack) == DOLLAR) && ((token == THEN) || (token == DO) || (token == SEMICOLON) || (token == END))));
   
   SEmpty(Stack);
   return SYNTAX_OK;  
@@ -884,7 +897,7 @@ void SInit(PtrStack Stack){
 int SPush(PtrStack Stack, int data){
 
   PtrElement tmp;
-  
+  printf("\n**push %d",data);
   if ((tmp = (PtrElement) malloc(sizeof(struct Element))) == NULL) return INTERNAL_ERR;
   tmp -> data = data;
   tmp -> Next = Stack -> Top;
@@ -913,6 +926,7 @@ void SPop(PtrStack Stack){
   
   if (Stack -> Top != NULL){
     tmp = Stack -> Top;
+	printf("\n**pop %d",Stack -> Top -> data);
     Stack -> Top = Stack -> Top -> Next;
 	free(tmp);
 	}
