@@ -3,8 +3,8 @@
 #define SEM_ERROR    -3
 
 #define SHIFT 65
-#define REDUCE 63
-#define EQUAL 47
+#define REDUCE 69
+#define EQUAL 88
 #define ERROR 89
 #define DOLLAR 78
 

@@ -33,9 +33,67 @@
     int getNextToken(string *attr)//tuto funkci vola praser a ona vola printtoken aby mohla vytisknout tokeny, potom zmenit
     {
         int vysledek = printToken(attr);
-        switch (vysledek)
-            case ID: printf("ID\n");
 
+        switch (vysledek)
+        {
+            case ID: printf("\n**ID");break;
+            case SHIFT:printf("\n**SHIFT");break;
+            case REDUCE:printf("\n**REDUCE");break;
+            case EQUAL:printf("\n**EQUAL");break;
+            case DOLLAR:printf("\n**DOLLAR");break;
+            case ID_FUNCTION:printf("\n**ID_FUNCTION");break;
+            case BEGIN:printf("\n**BEGIN");break;
+            case BOOLEAN:printf("\n**BOOLEAN");break;
+            case DO:printf("\n**DO");break;
+            case ELSE:printf("\n** ELSE");break;
+            case END:printf("\n**END");break;
+            case FALSE:printf("\n**FALSE");break;
+            case FIND:printf("\n**FIND");break;
+            case FORWARD:printf("\n**FORWARD");break;
+            case FUNCTION:printf("\n*FUNCTION");break;
+            case IF:printf("\n*IF");break;
+            case T_INTEGER:printf("\n**T_INTEGER");break;
+            case READLN:printf("\n**READLN");break;
+            case T_REAL:printf("\n**T_REAL");break;
+            case SORT:printf("\n**SORT");break;
+            case T_STRING:printf("\n**T_STRING");break;
+            case THEN:printf("\n**THEN");break;
+            case TRUE:printf("\n*TRUE");break;
+            case VAR:printf("\n*VAR");break;
+            case WHILE:printf("\n**WHLE");break;
+            case WRITE:printf("\n**WRITE");break;
+            case STRING:printf("\n**STRING");break;
+            case INTEGER:printf("\n**INTEGER");break;
+            case REAL:printf("\nREAL");break;
+            case COPY:printf("\n*COPY");break;
+            case LENGHT:printf("\n**LENGHT");break;
+            case EXPRESSION:printf("\n**EXPRESSION");break;
+            case ADD:printf("\n*ADD");break;
+            case DIF:printf("\n**DIF");break;
+            case MUL:printf("\n*MUO");break;
+            case DIV:printf("\n**DIV");break;
+            case EQ:printf("\n**EQ");break;
+            case L:printf("\n**L");break;
+            case S:printf("\n**S");break;
+            case LE:printf("\n**LE");break;
+            case SE:printf("\n**SE");break;
+            case SL:printf("\n**SL");break;
+            case ASS:printf("\n**ASS");break;
+            case DES_INT:printf("\n**DES_INT");break;
+            case DES_EXP:printf("\n**DES_EXP");break;
+            case DES_EXP_NEG:printf("\n**DES_EXP_NEG");break;
+            case EXP:printf("\n**EXP");break;
+            case EXP_NEG:printf("\n**EXP_NEG");break;
+            case LEFT_VINCULUM:printf("\n**LEFT_VINCULUM");break;
+            case RIGHT_VINCULUM:printf("\n**RIGHT_VINCULUM");break;
+            case SEMICOLON:printf("\n**SEMICOLON");break;
+            case APS:printf("\n**APS");break;
+            case L_BRACKET:printf("\n**L_BRAKET");break;
+            case R_BRACKET:printf("\n**R_BRACKET");break;
+            case COLON:printf("\n**COLON");break;
+            case COMMA:printf("\n**COMA");break;
+            case DOT:printf("\n**DOT");break;
+        }
         return vysledek;
     }
 
