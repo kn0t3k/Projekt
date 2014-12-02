@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include "ial.h"
+#include "err.h"
 
 
 //-----------------hash_function---------------------------------------------
