@@ -30,7 +30,7 @@
         *pom = (x*moc + y);
     }
 
-    int getNextToken(string *attr)
+    int getNextToken(string *attr)//tuto funkci vola praser a ona vola printtoken aby mohla vytisknout tokeny, potom zmenit
     {
         int vysledek = printToken(attr);
         switch (vysledek)
