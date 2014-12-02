@@ -4,6 +4,7 @@
 #include "scaner.h"
 #include "parser.h"
 #include "err.h"
+#include "ial.h"
 
 
 void vypis(int vysledek){
@@ -73,14 +74,18 @@ switch (vysledek)
 
 
 int token;/*Globalni promena*/
+struct symbol_table* table;
 string attr;
+
+
+
  
 /*Funkce, ktere predstavuji nonterminaly*/
 
-int parse(){
+int parse(struct symbol_table* table_main){
   
   int result;
-  
+  table = table_main;
   strInit(&attr);
   if ((token = getNextToken(&attr)) == LEX_ERROR)
      result = LEX_ERROR;
@@ -121,16 +126,20 @@ int program(){ /*<PROGRAM>*/
 int declaration(){/*<DECLARATION>*/
 
   int result;
+  //struct htab_item *item;
+  
 
   switch (token){
     /*<DECLARATION> -> VAR ID COLON <TYPE> SEMICOLON <N_DECLARATION>*/
 	case VAR:
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != ID) return SYNTAX_ERROR;  
+	 // if ((item = add_var(attr.str, table, &error)) == NULL)
+     //   return error;	  
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type();
+	  result = type(NULL);
       if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -151,13 +160,25 @@ int declaration(){/*<DECLARATION>*/
   }
 }
 
-int type(){/*<TYPE>*/
+int type(struct htab_item *item){/*<TYPE>*/
 
   switch (token){
     /*<TYPE> -> T_INTEGER, pro ostatni case analogicky*/  
     case T_INTEGER:
+	  // if (item != NULL)
+	   //  item -> type = s_integer;
+	   if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
+	   return SYNTAX_OK;
+	   break;
 	case T_REAL:
+	 //  if (item != NULL)
+	   //  item -> type = s_real;
+	   if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
+	   return SYNTAX_OK;
+	   break;
 	case T_STRING:
+	 // if (item != NULL)
+	   // item -> type = s_string;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
 	  return SYNTAX_OK;
 	  break;
@@ -178,7 +199,7 @@ int n_declaration(){/*<N_DECLARATION>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type();
+	  result = type(NULL);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -217,7 +238,7 @@ int function(){/*<FUNCTION>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type();
+	  result = type(NULL);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -249,7 +270,7 @@ int parameter(){/*<PARAMETER>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type();
+	  result = type(NULL);
 	  if (result != SYNTAX_OK) return result;
 	  result = n_parameter();
 	  if (result != SYNTAX_OK) return result;
@@ -279,7 +300,7 @@ int n_parameter(){/*<N_PARAMETER>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type();
+	  result = type(NULL);
 	  if (result != SYNTAX_OK) return result;
 	  result = n_parameter();
 	  if (result != SYNTAX_OK) return result;
@@ -783,7 +804,7 @@ int assign_int_to_token(int token){
 }
 
 
-int table(int x, int y, PtrStack Stack){/*Realizace tabulky*/
+int table_symbols(int x, int y, PtrStack Stack){/*Realizace tabulky*/
 /*x je token na vrcholu zasobniku*/
 /*y je vstupni token*/
   
@@ -862,7 +883,7 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
   
   
   do{
-    if ((result = table(STop(Stack), token, Stack)) == SYNTAX_ERROR) return SYNTAX_ERROR;
+    if ((result = table_symbols(STop(Stack), token, Stack)) == SYNTAX_ERROR) return SYNTAX_ERROR;
     switch (result){
    
       case SHIFT:

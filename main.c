@@ -3,9 +3,12 @@
 #include "str.h"
 #include "scaner.h"
 #include "parser.h"
+#include "ial.h"
 
 int main(int argc, char** argv)
 {
+
+   int error;
    FILE *f;
    if (argc == 1)
    {
@@ -24,15 +27,17 @@ int main(int argc, char** argv)
    }
 
    setSourceFile(f);
-   /*tSymbolTable ST;
-   tableInit(&ST); // inicializace tabulky symbolu*/
+   struct symbol_table* table = symbol_table_init(&error);
+   if (table == NULL)
+     return INTERNAL_ERR;
+
 
    /*tListOfInstr instrList;
    listInit(&instrList); // inicializace seznamu instrukci*/
 
    int result;
 
-   result = parse(); // provedeme syntaktickou analyzu
+   result = parse(table); // provedeme syntaktickou analyzu
 
 
    switch (result)

@@ -39,7 +39,7 @@ int n_element();
 int select_element();
 int expression();
 int assign_int_to_token(int token);
-int table(int x, int y, PtrStack Stack);
+int table_symbols(int x, int y, PtrStack Stack);
 int parse_expression();
 
 /*Funkce pro zasobnik*/
