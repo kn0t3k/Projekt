@@ -498,13 +498,17 @@
                {
                    return LEX_ERROR;
                }
-               else strAddChar(attr, c);
+               else
+               {
+                   if(c >= 31) strAddChar(attr, c);
+                   else return LEX_ERROR;
+               }
             break;
 
            case 14:
                if(c == APS) //dva apostrofy za sebou
                {
-                   //printf("nacitam: %c\n", APS);
+                   //printf("\n  APOSTROF nacitam: %c\n", APS);
                    strAddChar(attr, APS);
                    state = 13;
                }
