@@ -211,8 +211,9 @@ struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error)
 	newitem->func_table = s_table->local;
 	newitem->initialized = false;
 	newitem->index = -1; //fce budou mit index -1
-	if(add_var(name, struct symbol_table* s_table, error) == NULL){ //do lokalni tabulky fce je pridana promenna s jejim jmenem == return promenna fce
-	
+	if(add_var(name, s_table, error) == NULL){ //do lokalni tabulky fce je pridana promenna s jejim jmenem == return promenna fce
+		*error = INTERNAL_ERR;
+		return NULL;
 	}
 	//kazda fce musi mit ukazatel na sve navesti...dodelat!!
 	
