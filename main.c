@@ -1,9 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "err.h"
 #include "str.h"
 #include "scaner.h"
 #include "parser.h"
 #include "ial.h"
+
 
 int main(int argc, char** argv)
 {
@@ -27,9 +29,13 @@ int main(int argc, char** argv)
    }
 
    setSourceFile(f);
+   
    struct symbol_table* table = symbol_table_init(&error);
    if (table == NULL)
      return INTERNAL_ERR;
+	 
+   PtrStack Stack;
+   if ((Stack = (PtrStack) malloc(sizeof(struct StructStack))) == NULL) return INTERNAL_ERR;
 
 
    /*tListOfInstr instrList;
@@ -37,9 +43,12 @@ int main(int argc, char** argv)
 
    int result;
 
-   result = parse(table); // provedeme syntaktickou analyzu
-
-
+   result = parse(table, Stack); // provedeme syntaktickou analyzu
+   
+   
+   SEmpty(Stack);/*Zasobnik se vyprazdni, pokud doslo k chybe nekde v prubehu precedencni syntakticke analyzy*/   
+   free(Stack);
+	 
    switch (result)
    {
      case LEX_ERROR:

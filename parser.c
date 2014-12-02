@@ -75,6 +75,7 @@ switch (vysledek)
 
 int token;/*Globalni promena*/
 struct symbol_table* table;
+PtrStack Stack;
 string attr;
 
 
@@ -82,10 +83,11 @@ string attr;
  
 /*Funkce, ktere predstavuji nonterminaly*/
 
-int parse(struct symbol_table* table_main){
+int parse(struct symbol_table* table_main, PtrStack Stack_main){
   
   int result;
   table = table_main;
+  Stack = Stack_main;
   strInit(&attr);
   if ((token = getNextToken(&attr)) == LEX_ERROR)
      result = LEX_ERROR;
@@ -125,8 +127,8 @@ int program(){ /*<PROGRAM>*/
 
 int declaration(){/*<DECLARATION>*/
 
-  int result;
-  //struct htab_item *item;
+  int result, error;
+  struct htab_item *item;
   
 
   switch (token){
@@ -134,12 +136,12 @@ int declaration(){/*<DECLARATION>*/
 	case VAR:
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != ID) return SYNTAX_ERROR;  
-	 // if ((item = add_var(attr.str, table, &error)) == NULL)
-     //   return error;	  
+	  if ((item = add_var(attr.str, table, &error)) == NULL)
+        return error;	  
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type(NULL);
+	  result = type(item);
       if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -165,23 +167,29 @@ int type(struct htab_item *item){/*<TYPE>*/
   switch (token){
     /*<TYPE> -> T_INTEGER, pro ostatni case analogicky*/  
     case T_INTEGER:
-	  // if (item != NULL)
-	   //  item -> type = s_integer;
-	   if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
-	   return SYNTAX_OK;
-	   break;
-	case T_REAL:
-	 //  if (item != NULL)
-	   //  item -> type = s_real;
-	   if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
-	   return SYNTAX_OK;
-	   break;
-	case T_STRING:
-	 // if (item != NULL)
-	   // item -> type = s_string;
+	  if (item != NULL)
+	    item -> type = s_integer;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
 	  return SYNTAX_OK;
 	  break;
+	case T_REAL:
+	  if (item != NULL)
+	    item -> type = s_real;
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
+	  return SYNTAX_OK;
+	  break;
+	case T_STRING:
+	  if (item != NULL)
+	    item -> type = s_string;
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
+	  return SYNTAX_OK;
+	  break;
+	/*case T_BOOLEAN:
+	  if (item != NULL)
+	    item -> type = s_boolean;
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  return SYNTAX_OK;
+	  break;*/
 	  
 	default:
       return SYNTAX_ERROR;
@@ -191,15 +199,18 @@ int type(struct htab_item *item){/*<TYPE>*/
 
 int n_declaration(){/*<N_DECLARATION>*/
   
-  int result;
+  int result, error;
+  struct htab_item *item;
   
   switch (token){
     /*<N_DECLARATION> -> ID COLON <TYPE> SEMICOLON <N_DECLARATION>*/
     case ID:
+	  if ((item = add_var(attr.str, table, &error)) == NULL)
+        return error;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type(NULL);
+	  result = type(item);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -480,11 +491,16 @@ int n_element(){/*<N_ELEMENT>*/
 
 int callfunass(){/*<CALLFUNASS>*/
   
-  int result;
+  int result, error;
+  struct htab_item *item;
   
   switch (token){
     /*<CALLFUNASS> -> ID ASS <CALLORASS>*/
     case ID:
+	  if ((item = search_var(attr.str, table, &error)) == NULL)
+        return error;
+	  else
+	    item -> initialized = 1;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != ASS) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -508,6 +524,7 @@ int callorass(){
     case ID:
 	case INTEGER:
 	case STRING:
+	//case BOOLEAN:
 	case DES_INT:
 	case DES_EXP:
 	case DES_EXP_NEG:
@@ -544,14 +561,15 @@ int variable(){
   
   switch (token){
     /*<VARIABLE> -> <VALUE> <N_VARIABLE>*/
+	case ID:
 	case INTEGER:
 	case STRING:
+	//case BOOLEAN:
 	case DES_INT:
 	case DES_EXP:
 	case DES_EXP_NEG:
 	case EXP:
 	case EXP_NEG:
-	case ID:
 	  result = value();
 	  if (result != SYNTAX_OK) return result;
 	  result = n_variable();
@@ -576,6 +594,7 @@ int value(){
     /*<VALUE> -> INTEGER, analogicky pro zbytek*/
 	case INTEGER:
 	case STRING:
+	//case BOOLEAN:
 	case DES_INT:
 	case DES_EXP:
 	case DES_EXP_NEG:
@@ -714,12 +733,20 @@ int function_write(){/*<FUNCTION_WRITE>*/
 
 int expression(){/*<EXPRESSION>*/
 
-  int result;
+  int result, error;
+  struct htab_item* item;
 
   switch (token){
     case ID:
+	  if ((item = search_var(attr.str, table, &error)) == NULL)
+        return error;
+	  else{
+	    if (item -> initialized != 1)
+	      return SEM_ERROR;
+	    }	
 	case INTEGER:
 	case STRING:
+	//case BOOLEAN:
 	case DES_INT:
 	case DES_EXP:
 	case DES_EXP_NEG:
@@ -780,6 +807,7 @@ int assign_int_to_token(int token){
     case ID:
 	case INTEGER:
 	case STRING:
+//	case BOOLEAN:
 	case DES_INT:
 	case DES_EXP:
 	case DES_EXP_NEG:
@@ -875,12 +903,10 @@ int table_symbols(int x, int y, PtrStack Stack){/*Realizace tabulky*/
 int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
   printf("\n\nPrecedencni syntakticka analyza vyrazu\n");
   /*Inicializace zasobniku*/
-  PtrStack Stack;
-  if ((Stack = (PtrStack) malloc(sizeof(struct StructStack))) == NULL) return INTERNAL_ERR;
   SInit(Stack);
   
-  int result;
-  
+  int result, error;
+  struct htab_item* item;
   
   do{
     if ((result = table_symbols(STop(Stack), token, Stack)) == SYNTAX_ERROR) return SYNTAX_ERROR;
@@ -891,6 +917,14 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 	    if ((SPush(Stack, token)) != INTERNAL_OK) return INTERNAL_ERR;
 		printf("\nDalsi token bude:");
 	    if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+		if (token == ID){
+		  if ((item = search_var(attr.str, table, &error)) == NULL)
+            return error;
+	      else{
+	        if (item -> initialized != 1)
+	          return SEM_ERROR;
+	        }
+		  }
 	    break;
 	  
       case REDUCE:
@@ -899,6 +933,7 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 	      case ID:
 	      case INTEGER:
 	      case STRING:
+	//	  case BOOLEAN:
 	      case DES_INT:
 	      case DES_EXP:
 	      case DES_EXP_NEG:
@@ -950,7 +985,6 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
   printf("\n");
   printf("\nKonec precedencni syntakticke analyzy vyrazu");
   printf("\n");
-  free(Stack);
   return SYNTAX_OK;  
   
 }
