@@ -11,7 +11,7 @@
     // promenna pro ulozeni vstupniho souboru
     FILE *source;
     short obs = 0;   //kontorla, zda ciselne exponentu, nebo cisla obsahuji nejakou hodnotu
-    int *pom;
+    string *pom;
 
 
     void setSourceFile(FILE *f)
@@ -19,7 +19,7 @@
       source = f;
     }
 
-    void prilep(int z, int y)   //jako parametr dostane dve cisla, ktere prevede na jedno, napr prilep(1, 2) => 12
+    /*void prilep(int z, int y)   //jako parametr dostane dve cisla, ktere prevede na jedno, napr prilep(1, 2) => 12
     {
         int moc = 10;   //zaklad ciselne desitkove soustavy
         int x = z-48;   //48 = posun hodnot znaku cisel v ascii, znak s hodnotou 50 je cislo 2
@@ -28,7 +28,7 @@
             moc *= 10;
         }
         *pom = (x*moc + y);
-    }
+    }*/
 
     int getNextToken(string *attr)//tuto funkci vola praser a ona vola printtoken aby mohla vytisknout tokeny, potom zmenit
     {
@@ -112,6 +112,7 @@
        {
          // nacteni dalsiho znaku
          c = getc(source);
+
          switch (state)
          {
 
@@ -173,7 +174,7 @@
              else
              if(c == ':') state = 12;
              else
-             if(c == APS) state = 13;   //39 = ascii hodnota apostrofu
+             if(c == APS) state = 13;   //APS = 39 = ascii hodnota apostrofu
              else return LEX_ERROR;
             break;
 
@@ -486,49 +487,56 @@
 
            case 13:
                /* rozsirit o povolene/nepovolene znaky  */
-               if(isalnum(c))
+               printf("cyklim...\n");
+               if(isalnum(c) || (c == ' '))
                {
                    strAddChar(attr, c);
                    printf("nacitam: %c\n", c);
                }
-               if(c == APS)  //APS = 39 = ascii hodnota apostrofu
+               else if(c == APS)  //APS = 39 = ascii hodnota apostrofu
                {
                    state = 14;
                }
+               else return LEX_ERROR;
             break;
 
            case 14:
-               /*if(c == '\n')    //doslo k ukonceni cteni retezce
-               {
-                   return STRING;
-               }*/
                if(c == APS) //dva apostrofy za sebou
                {
+                   printf("nacitam: %c\n", APS);
                    strAddChar(attr, APS);
                    state = 13;
                }
-               if(c == '#') //escape sekvence
+               else if(c == '#') //escape sekvence
                {
                    state = 15;
                }
                else
                {
-                   printf("vracim retezec \n");
-                    ungetc(c, source);
-                   return STRING;
+                   if((c == '\n') || (c == ';') || (c == ' ') )
+                   {
+                       printf("vracim retezec \n");
+                        ungetc(c, source);
+                        return STRING;
+                   }
+                   else
+                    return LEX_ERROR;
+
                }
             break;
 
            case 15: //escape sekvence
                if(c>='0' && c<= '9')    //obsahuje nejake cisla, ty ulozim do pom a potom je vypisu jako jeden znak
                 {
-                    prilep(c, *pom);
+                    printf("lepim...\n");
+                    strAddChar(pom, c);
                     obs = 1;
                 }
-                if(c == APS)
+                else if(c == APS)
                 {
                     if (obs == 0) return LEX_ERROR;
-                    strAddChar(attr, *pom);
+                    //printf("sekvence je: %s\n", pom);
+                    strAddChar(attr, 010);
                     state = 13;
                 }
                 else return LEX_ERROR;

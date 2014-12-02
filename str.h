@@ -8,6 +8,8 @@ typedef struct
 } string;
 
 
+
+
 int strInit(string *s);
 void strFree(string *s);
 
