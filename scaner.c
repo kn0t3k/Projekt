@@ -490,17 +490,15 @@
 
            case 13:
                /* rozsirit o povolene/nepovolene znaky  */
-               //printf("cyklim...\n");
-               if(isalnum(c) || (c == ' '))
-               {
-                   strAddChar(attr, c);
-                   //printf("nacitam: %c\n", c);
-               }
-               else if(c == APS)  //APS = 39 = ascii hodnota apostrofu
+               if(c == APS)
                {
                    state = 14;
+                }
+               else if(c == '\n')  //APS = 39 = ascii hodnota apostrofu
+               {
+                   return LEX_ERROR;
                }
-               else return LEX_ERROR;
+               else strAddChar(attr, c);
             break;
 
            case 14:
@@ -516,7 +514,7 @@
                }
                else
                {
-                   if((c == '\n') || (c == ';') || (c == ' ') )
+                   if(!(isalnum(c)) || (c == ' '))
                    {
                        //printf("vracim retezec \n");
                         ungetc(c, source);
