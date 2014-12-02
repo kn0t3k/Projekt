@@ -78,8 +78,8 @@
 #define LEX_ERROR    1
 
 enum s_table_type{ //enum typu pro tabulku, to "s_" je tam, abych se vyhnul kolizim (napr. string ve str.h)
-s_integer;
-s_real;
-s_string;
-s_boolean;
-}
+s_integer,
+s_real,
+s_string,
+s_boolean
+};
