@@ -80,5 +80,4 @@
 //chybove hlasky
 #define LEX_ERROR    1
 
-//enum typu pro tabulku, to "s_" je tam, abych se vyhnul kolizim (napr. string ve str.h)
-enum s_table_type {s_integer,s_real,s_string,s_boolean};
+
