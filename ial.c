@@ -212,7 +212,7 @@ void htab_remove(htab_t *t, const char *name)
 
 
 
-
+/*
 
 /************************************************/
 /* vraci delku stringu	                        */
@@ -436,6 +436,6 @@ void partition(char *A, int left, int right, int *i, int *j)
 	} while ((*i) <= (*j));
 }
 
-
+*/
 
 
