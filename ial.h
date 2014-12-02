@@ -5,7 +5,7 @@
 * Datum:   19.11.2014		  *
 * 							          *
 ***************************/
-#include "err.h"
+
 #include <stdbool.h>
 
 //----------------------------------- HLAVICKOVY SOUBOR ial.h ------------------------------------
@@ -51,13 +51,13 @@ typedef struct htab_t{
 
 
 //pouze pomocne fce, vetsina zmizi
-unsigned int hash_function(const char *str, unsigned htab_size); //bude v samostatnem modulu pro jednodussi zmenu hashovaci fce
+unsigned int hash_function(const char *str, unsigned htab_size); 
+
 htab_t* htab_init(unsigned int htab_size);  //inicializace tabulky na pozadovanou velikost
 void htab_free(htab_t* t); //kompletni uvolneni
 htab_item* htab_search(htab_t *t,const char *name); //vzhleda prvek podle name, pokud neni vraci NULL
 void htab_remove(htab_t *t, const char *name);  //fce odstrani prvek specifikovany argumentem name
 htab_item* htab_add(htab_t *t,char *name); //prida prvek, nejspis bude potreba predelat bud pro vice argumentu nebo predavat cely novy prvek pro pridani pres ukazatel
-
 
 
 //hlavni fce pro obsluhu tabulky
