@@ -500,7 +500,8 @@
                }
                else
                {
-                   if(c >= 31) strAddChar(attr, c);
+                   if(c >= 31) strAddChar(attr, c); /*ascii znaky vetsi nez 31 se zapisuji primo, krom APS,
+                   ostatni musi podle escape sekvence, podle zadani*/
                    else return LEX_ERROR;
                }
             break;
