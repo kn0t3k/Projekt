@@ -8,37 +8,34 @@
 
 
 
-
-
-
-//git pokus
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "htable.h"
-#include "err.h"
 
 
 
 
-variable_table* variable_table_init(int* error){
-	struct variable_table* new = (struct variable_table*)malloc(sizeof(struct variable_table));
+
+struct symbol_table* symbol_table_init(int* error){
+	
+	struct symbol_table* new = (struct symbol_table*) malloc(sizeof(struct symbol_table)); //vytvoreni tabulky symbolu
 	if(new == NULL){
 		*error = 99;
 		return NULL;
 	}
-	new->global = (struct vartab_listitem*) malloc(sizeof(struct vartab_listitem));
+	
+	new->global = (struct symbol_table_item*) malloc(sizeof(struct symbol_table_item)); //vytvoreni globalni polozky v tabulce
 	if(new->global == NULL){
 		*error = 99;
 		return NULL;
 	}
-	new->local = new->global;
+	new->local = new->global; //lokalni neexistuje -> za lokalni se povazuje globalni
 	
 	
 	new->global->next = NULL;
-	new->global->table = htab_init(SIZE); //inicializace tabulky
-	
+	new->global->table = htab_init(SIZE); //inicializace samotne tabulky
 	if(new->global->table == NULL){
 		*error = 99;
 		return NULL;
@@ -48,34 +45,91 @@ variable_table* variable_table_init(int* error){
 	return new;
 }
 
-void add_local_listitem(variable_table* v_table, int* error){
-	if(v_table == NULL || v_table->global==NULL || v_table->local==NULL){ //kontrola argumentu
+void add_local_table(struct symbol_table* s_table, int* error){
+	if(s_table == NULL || s_table->global==NULL || s_table->local==NULL){ //kontrola argumentu
 		*error = 99;
-		printf("spatne argumenty v add_local_listitem()\n");
+		printf("spatne argumenty v add_local_table()\n");
 		return;
 	}
 		
-	v_table->local->next = (struct vartab_listitem*) malloc(sizeof(struct vartab_listitem)); //alokace nove lokalni polozky ve spojovem seznamu
-	if(v_table->local->next == NULL){ //kontrola alokace
+	struct symbol_table_item* new = (struct symbol_table_item*) malloc(sizeof(struct symbol_table_item)); //alokace nove lokalni polozky ve spojovem seznamu
+	if(new == NULL){ //kontrola alokace
 		*error = 99;
 		return;
 	}
-	v_table->local = v_table->global->next; //presun ukazatele "local" na nove vytvorenou polozku
+		
+	new->table = htab_init(SIZE); //nove polozce se vytvori nova hashovaci tabulka
+	if(new->table == NULL){
+		*error = 99;
+		return;
+	}
 	
-	v_table->local->table = htab_init(SIZE); //nove polozce se vytvori nova hashovaci tabulka
-	v_table->local->next=NULL;
+	struct symbol_table_item* tmp = s_table->global->next;
+	s_table->global->next = new;
+	s_table->local = new;
+	s_table->local->next = tmp;
 	
 	*error = 0;
+	return;
 }	
 
+void remove_local_table(struct symbol_table* s_table, int* error){
 
+	if(s_table == NULL || s_table->global==NULL || s_table->local==NULL){ //kontrola argumentu
+		*error = 99;
+		printf("spatne argumenty vremove_local_table()\n");
+		return;
+	}
+	
+	s_table->local = s_table->global;
+	
+	*error = 0;
+	return; 
+}
+
+struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
+	
+	struct htab_item *tmp = s_table->local->table->ptr[hash_function(name, SIZE)];
+
+	if(s_table->local == s_table->global){ 
+	//jedna se o globalni promennou == do globalni tabulky
+	// nesmi se shodovat s zadnou promennou v globalni tabulce a s zadnou funkci
+	
+	
+	}
+	else {
+	 //jedna se o lokalni promennou == do lokalni tabulky
+	 //nesmi se shodovat s promenou se jmenem ZADNE fce (takova promena tam jiz stejne bude pro return hodnotu)
+	 //nesmi se shodovat s zadnou lokalni promennou
+	 
+	}
+	
+	
+	
+	while(tmp!=NULL)
+	{
+		if(strcmp(name,tmp->name) == 0) 
+		{
+			*error = SEM_ERROR;  //na stejne urovni se nesmi shodovat jmena promennych
+			return NULL;
+		}		
+		tmp = tmp->next;	
+	}	
+}
+
+
+struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error);{
+//podivat se do globalni tabulky, pokud uz tam fce je -> error
+//jinak vytvorit novou lokalni promennou se stejnym jmenem //nemuze dojit ke kolizi, protoze tabulka bude prazdna (add_local_table se musi volat tesne pred touhle fci)
+//
+}
 
 //-----------------htab_init---------------------------------------------
 htab_t* htab_init(unsigned int htab_size)
 //funkce alokuje misto pro tabulku, vraci ukazatel na ni
 //pri chybe vraci NULL
 {
-	htab_t *t = malloc(sizeof (struct htab_t) + sizeof ( htab_listitem* [htab_size] )); //alokuje pozadovanou velikost tabulky
+	htab_t *t = malloc(sizeof (struct htab_t) + sizeof ( htab_item* [htab_size] )); //alokuje pozadovanou velikost tabulky
 	if(t!=NULL) 
 	{
 		t->htab_size = htab_size;
@@ -97,7 +151,7 @@ void htab_free(htab_t* t)
 {
 	for(int i=0; i < t->htab_size; i++)
 	{
-		struct htab_listitem *item = t->ptr[i], *tmp = NULL;
+		struct htab_item *item = t->ptr[i], *tmp = NULL;
 		while(item!=NULL)
 		{
 			tmp = item;
@@ -112,14 +166,14 @@ void htab_free(htab_t* t)
 }
 
 //-----------------htab_search---------------------------------------------
-htab_listitem* htab_search(htab_t *t,const char *key)
+htab_item* htab_search(htab_t *t,const char *name)
 //funkce hleda v tabulce pod ukazatelem t prvek s klicem k
 //pokud ho najde, vraci ukazatel na nej, pokud ne, vraci NULL
 {
-	struct htab_listitem *tmp = t->ptr[hash_function(key, SIZE)];
+	struct htab_item *tmp = t->ptr[hash_function(name, SIZE)];
 	while(tmp!=NULL)
 	{
-		if(strcmp(key,tmp->key) == 0) 
+		if(strcmp(name,tmp->name) == 0) 
 		{
 			return tmp;
 		}		
@@ -131,36 +185,36 @@ htab_listitem* htab_search(htab_t *t,const char *key)
 
 
 //-----------------htab_add---------------------------------------------
-htab_listitem* htab_add(htab_t *t,char *key)
-//funkce vztvori a zaradi do tabulky novy prvek s klicem key
+htab_item* htab_add(htab_t *t,char *name)
+//funkce vztvori a zaradi do tabulky novy prvek s klicem name
 //pokud alokace selze, vraci NULL
 {
-	struct htab_listitem *newitem = (struct htab_listitem*) malloc(sizeof(struct htab_listitem));
+	struct htab_item *newitem = (struct htab_item*) malloc(sizeof(struct htab_item));
 	if(newitem==NULL) return NULL;
 		
-	newitem->key = key;
+	newitem->name = name;
 	//		newitem->type = xxxx;
 	//		newitem->value = xxxx;
 	
-	newitem->next = t->ptr[hash_function(key, SIZE)];
-	t->ptr[hash_function(key, SIZE)] = newitem;
+	newitem->next = t->ptr[hash_function(name, SIZE)];
+	t->ptr[hash_function(name, SIZE)] = newitem;
 	
 	return newitem;
 }
 
 
 //-----------------htab_remove---------------------------------------------
-void htab_remove(htab_t *t, const char *key)
+void htab_remove(htab_t *t, const char *name)
 //funkce odstrani pozadovany prvek z tabulky
 {
-	int h_num = hash_function(key, SIZE);
-	struct htab_listitem *tmp = t->ptr[h_num];
+	int h_num = hash_function(name, SIZE);
+	struct htab_item *tmp = t->ptr[h_num];
 	if(tmp==NULL)
 	{
 		return; 
 	}
-	struct htab_listitem *previous = NULL;
-	while((tmp!=NULL) && (strcmp(key,tmp->key)!=0) )
+	struct htab_item *previous = NULL;
+	while((tmp!=NULL) && (strcmp(name,tmp->name)!=0) )
 	{
 		previous = tmp;
 		tmp = tmp->next;
