@@ -17,7 +17,8 @@ unsigned int hash_function(const char *str, unsigned htab_size)
  		h = 65599*h + *p;
  return h % htab_size;
 }
- 
+
+//-----------------symbol_table_init---------------------------------------------
 struct symbol_table* symbol_table_init(){	
 	struct symbol_table* new = (struct symbol_table*) malloc(sizeof(struct symbol_table)); //vytvoreni tabulky symbolu
 	if(new == NULL){
@@ -32,7 +33,7 @@ struct symbol_table* symbol_table_init(){
 	
 	
 	new->global->next = NULL;
-	new->global->table = htab_init(SIZE); //inicializace samotne tabulky
+	new->global->table = htab_init(SIZE); //inicializace jeji hashovaci tabulky
 	if(new->global->table == NULL){
 		return NULL;
 	}
@@ -40,6 +41,7 @@ struct symbol_table* symbol_table_init(){
 	return new;
 }
 
+//-----------------add_local_table---------------------------------------------
 void add_local_table(struct symbol_table* s_table, int* error){
 	if(s_table == NULL || s_table->global==NULL || s_table->local==NULL){ //kontrola argumentu
 		*error = SEM_ERROR;
@@ -70,6 +72,7 @@ void add_local_table(struct symbol_table* s_table, int* error){
 	return;
 }	
 
+//-----------------remove_local_table---------------------------------------------
 void remove_local_table(struct symbol_table* s_table, int* error){
 
 	if(s_table == NULL || s_table->global==NULL || s_table->local==NULL){ //kontrola argumentu
@@ -176,7 +179,7 @@ struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
 	}	
 }
 
-
+//-----------------add_func---------------------------------------------
 struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error){
 //podivat se do globalni tabulky, pokud uz tam fce je -> error
 //jinak vytvorit novou lokalni promennou se stejnym jmenem //nemuze dojit ke kolizi, protoze tabulka bude prazdna (add_local_table se musi volat tesne pred touhle fci)
@@ -221,6 +224,7 @@ struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error)
 	return newitem;
 }
 
+//-----------------search_func---------------------------------------------
 struct htab_item* search_func(char *name, struct symbol_table* s_table, int* error){
 	struct htab_item *tmp = s_table->global->table->ptr[hash_function(name, SIZE)]; //ukazatel na globalni tabulku
 	while(tmp!=NULL)
@@ -235,6 +239,7 @@ struct htab_item* search_func(char *name, struct symbol_table* s_table, int* err
 	return NULL;
 }
 
+//-----------------search_var---------------------------------------------
 struct htab_item* search_var(char *name, struct symbol_table* s_table, int* error){
 	struct htab_item *tmp = s_table->local->table->ptr[hash_function(name, SIZE)]; //ukazatel na lokalni tabulku
 	while(tmp!=NULL)
