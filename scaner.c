@@ -12,7 +12,6 @@
     FILE *source;
     short obs = 0;   //kontorla, zda ciselne exponentu, nebo cisla obsahuji nejakou hodnotu
     int *pom;
-    int radek, znak;
 
     void tiskni_radky()
     {
@@ -35,9 +34,17 @@
         *pom = (x*moc + y);
     }
 
-
-
     int getNextToken(string *attr)
+    {
+        int vysledek = printToken(attr);
+        switch (vysledek)
+            case ID: printf("ID\n");break;
+
+        return vysledek;
+    }
+
+
+    int printToken(string *attr)
     // hlavni funkce lexikalniho analyzatoru
     {
 
@@ -51,14 +58,6 @@
        {
          // nacteni dalsiho znaku
          c = getc(source);
-         /*znak++;
-         if(c == '\n' || c== '\0')
-             {
-                 //znak = 0;
-                 radek ++;
-             }*/
-
-         //printf("pocet\n");
          switch (state)
          {
 
