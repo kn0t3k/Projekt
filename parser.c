@@ -6,6 +6,72 @@
 #include "err.h"
 
 
+void vypis(int vysledek){
+
+switch (vysledek)
+        {
+            case ID: printf("ID");break;
+            case SHIFT:printf("SHIFT");break;
+            case REDUCE:printf("REDUCE");break;
+            case EQUAL:printf("EQUAL");break;
+            case DOLLAR:printf("DOLLAR");break;
+            case ID_FUNCTION:printf("ID_FUNCTION");break;
+            case BEGIN:printf("BEGIN");break;
+            case BOOLEAN:printf("BOOLEAN");break;
+            case DO:printf("DO");break;
+            case ELSE:printf("ELSE");break;
+            case END:printf("END");break;
+            case FALSE:printf("FALSE");break;
+            case FIND:printf("FIND");break;
+            case FORWARD:printf("FORWARD");break;
+            case FUNCTION:printf("FUNCTION");break;
+            case IF:printf("IF");break;
+            case T_INTEGER:printf("T_INTEGER");break;
+            case READLN:printf("READLN");break;
+            case T_REAL:printf("T_REAL");break;
+            case SORT:printf("SORT");break;
+            case T_STRING:printf("T_STRING");break;
+            case THEN:printf("THEN");break;
+            case TRUE:printf("TRUE");break;
+            case VAR:printf("VAR");break;
+            case WHILE:printf("WHLE");break;
+            case WRITE:printf("WRITE");break;
+            case STRING:printf("STRING");break;
+            case INTEGER:printf("INTEGER");break;
+            case REAL:printf("REAL");break;
+            case COPY:printf("COPY");break;
+            case LENGHT:printf("LENGHT");break;
+            case EXPRESSION:printf("EXPRESSION");break;
+            case ADD:printf("ADD");break;
+            case DIF:printf("DIF");break;
+            case MUL:printf("MUL");break;
+            case DIV:printf("DIV");break;
+            case EQ:printf("EQ");break;
+            case L:printf("L");break;
+            case S:printf("S");break;
+            case LE:printf("LE");break;
+            case SE:printf("SE");break;
+            case SL:printf("SL");break;
+            case ASS:printf("ASS");break;
+            case DES_INT:printf("DES_INT");break;
+            case DES_EXP:printf("DES_EXP");break;
+            case DES_EXP_NEG:printf("DES_EXP_NEG");break;
+            case EXP:printf("EXP");break;
+            case EXP_NEG:printf("EXP_NEG");break;
+            case LEFT_VINCULUM:printf("LEFT_VINCULUM");break;
+            case RIGHT_VINCULUM:printf("RIGHT_VINCULUM");break;
+            case SEMICOLON:printf("SEMICOLON");break;
+            case APS:printf("APS");break;
+            case L_BRACKET:printf("L_BRAKET");break;
+            case R_BRACKET:printf("R_BRACKET");break;
+            case COLON:printf("COLON");break;
+            case COMMA:printf("COMA");break;
+            case DOT:printf("DOT");break;
+        }
+}
+
+
+
 int token;/*Globalni promena*/
 string attr;
  
@@ -26,6 +92,7 @@ int parse(){
 
 int program(){ /*<PROGRAM>*/
   
+  
   int result;
   
   switch (token){
@@ -37,7 +104,7 @@ int program(){ /*<PROGRAM>*/
 	  if (result != SYNTAX_OK) return result;/*<DECLARATION>*/
       result = function();	  
 	  if (result != SYNTAX_OK) return result;/*<FUNCTION>*/
-      result = body();	  
+	  result = body();	  
 	  if (result != SYNTAX_OK) return result;/*BODY*/  
 	  if (token != DOT) return SYNTAX_ERROR;/*DOT*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -720,8 +787,10 @@ int table(int x, int y, PtrStack Stack){/*Realizace tabulky*/
 /*x je token na vrcholu zasobniku*/
 /*y je vstupni token*/
   
-  printf("\nNa vrcholu zasobniku je token: %d", x);
-  printf("\nAktualni token na vstupu je: %d", y); 
+  printf("\nNa vrcholu zasobniku je token: ");
+  vypis(x);
+  printf("\nAktualni token na vstupu je: "); 
+  vypis(y);
 
   if ((x = assign_int_to_token(x)) == SYNTAX_ERROR) return SYNTAX_ERROR;  
   if ((y = assign_int_to_token(y)) == SYNTAX_ERROR) return SYNTAX_ERROR;
@@ -799,6 +868,7 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
       case SHIFT:
 	    printf("\nSHIFT");
 	    if ((SPush(Stack, token)) != INTERNAL_OK) return INTERNAL_ERR;
+		printf("\nDalsi token bude:");
 	    if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	    break;
 	  
@@ -856,6 +926,9 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
   
   printf("\n\nVyprazdneni zasobniku");
   SEmpty(Stack);
+  printf("\n");
+  printf("\nKonec precedencni syntakticke analyzy vyrazu");
+  printf("\n");
   free(Stack);
   return SYNTAX_OK;  
   
@@ -884,7 +957,9 @@ void SInit(PtrStack Stack){
 int SPush(PtrStack Stack, int data){
 
   PtrElement tmp;
-  printf("\n**push %d",data);
+  printf("\n**push ");
+  vypis(data);
+  
   if ((tmp = (PtrElement) malloc(sizeof(struct Element))) == NULL) return INTERNAL_ERR;
   tmp -> data = data;
   tmp -> Next = Stack -> Top;
@@ -915,7 +990,8 @@ void SPop(PtrStack Stack){
 
   if (Stack -> Top != NULL){
     tmp = Stack -> Top;
-	printf("\n**pop %d",Stack -> Top -> data);
+	printf("\n**pop ");
+	vypis(Stack -> Top -> data);
     Stack -> Top = Stack -> Top -> Next;
 	free(tmp);
 	}
