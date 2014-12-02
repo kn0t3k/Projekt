@@ -193,6 +193,7 @@
                         ungetc(c, source);
                         return ID_FUNCTION;
                     }
+                    ungetc(c, source);
                     return COPY;
                 }
                 else
@@ -203,6 +204,7 @@
                         ungetc(c, source);
                         return ID_FUNCTION;
                     }
+                    ungetc(c, source);
                     return LENGHT;
                 }
                 else
