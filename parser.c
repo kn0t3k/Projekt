@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include "str.h"
 #include "scaner.h"
@@ -717,6 +716,7 @@ int assign_int_to_token(int token){
 	  return 113;
 	  break;
 	default:
+	  printf("\nSpatny token u prirazovani int tokenum: %d",token);
 	  return SYNTAX_ERROR;
 	  break;
     }
@@ -728,22 +728,29 @@ int assign_int_to_token(int token){
 int table(int x, int y, PtrStack Stack){/*Realizace tabulky*/
 /*x je token na vrcholu zasobniku*/
 /*y je vstupni token*/
-  printf("\njkl");
-  printf ("%d",x);
+  
+  
+
   if ((x = assign_int_to_token(x)) == SYNTAX_ERROR) return SYNTAX_ERROR;  
   if ((y = assign_int_to_token(y)) == SYNTAX_ERROR) return SYNTAX_ERROR;
   
+  printf("\npriradil sem int tokenum");
   
   
   if ((y <= 109) || (y == 111)){/*Vstupni token je operator, nebo prava zavorka, musime overit, ze na vrcholu zasobniku je vyraz*/
-    if (!(STopExpression(Stack))){
+    if (((STopExpression(Stack)) == NEPRAVDA) && (STop(Stack) != ID) && (STop(Stack) != R_BRACKET)){
 	  return SYNTAX_ERROR;
 	  }
     }
-printf("\nzdar");
+	
+  if (x <= 109){
+    if (y == 113)
+	  return SYNTAX_ERROR;
+    }
+  
+  printf("\nprosel sem prvni podminkou");
   if ((y == 110) || (y == 112)){/*Vstupni token je leva zavorka, nebo hodnota, musime overit, ze na vrcholu zasobniku neni vyraz*/
-	if (!(STopExpression(Stack))){
-	  printf("\nzdar");
+	if ((STopExpression(Stack)) == PRAVDA){
 	  return SYNTAX_ERROR;
 	  }
     }
@@ -794,14 +801,15 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
   
   int result;
   
+  printf("\nparse_expression - token: %d", token);
+  
   do{
-    printf("\njoj");
     if ((result = table(STop(Stack), token, Stack)) == SYNTAX_ERROR) return SYNTAX_ERROR;
     switch (result){
    
       case SHIFT:
 	    printf("\nSHIFT");
-	    if (STopExpression(Stack)){
+	    if (STopExpression(Stack) == PRAVDA){
 		  SPop(Stack);
 		  if ((SPush(Stack, SHIFT)) != INTERNAL_OK) return INTERNAL_ERR;
 		  if ((SPush(Stack, EXPRESSION)) != INTERNAL_OK) return INTERNAL_ERR;
@@ -811,7 +819,7 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 		  }
 	    SPush(Stack, token);
 	    if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-		printf("%d",token);
+		printf("\ndalsi token: %d",token);
 	    break;
 	  
       case REDUCE:
@@ -825,7 +833,6 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 	      case DES_EXP_NEG:
 	      case EXP:
 	      case EXP_NEG:
-		    printf("\nID"); 
             SPop(Stack);
             SPop(Stack);
             if ((SPush(Stack, EXPRESSION)) != INTERNAL_OK) return INTERNAL_ERR;
@@ -842,10 +849,10 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
           case EQ:
           case SL:
 		  case R_BRACKET:
-		    printf("\nOPERATOR");
 		    SPop(Stack);
             SPop(Stack);
 		    SPop(Stack);
+			SPop(Stack);
             if ((SPush(Stack, EXPRESSION)) != INTERNAL_OK) return INTERNAL_ERR;
 		    break;  
 		  
@@ -906,16 +913,20 @@ int SPush(PtrStack Stack, int data){
 
 }
 
-bool STopExpression(PtrStack Stack){
+int STopExpression(PtrStack Stack){
   
   if (Stack -> Top != NULL){
-    if (Stack -> Top -> data == EXPRESSION)
-      return TRUE;
+    if (Stack -> Top -> data == EXPRESSION){
+	  printf("\nna vrcholu je expression");
+      return PRAVDA;
+	  }
     else
-      return FALSE;
+      return NEPRAVDA;
 	}
-  else 
-    return FALSE;
+  else{ 
+    printf("\nna vrcholu neni expression");
+	return NEPRAVDA;
+	}
 
 }
 
@@ -923,13 +934,15 @@ bool STopExpression(PtrStack Stack){
 void SPop(PtrStack Stack){
   
   PtrElement tmp;
-  
+
   if (Stack -> Top != NULL){
     tmp = Stack -> Top;
 	printf("\n**pop %d",Stack -> Top -> data);
     Stack -> Top = Stack -> Top -> Next;
 	free(tmp);
 	}
+   else
+     printf("\nnemam co popnout");
 }
 
 /*Precteni hodnoty, ktera je na vrcholu zasobniku*/
@@ -959,6 +972,7 @@ void SEmpty(PtrStack Stack){
     }
 
 }
+
 
 
 

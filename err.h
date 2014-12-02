@@ -8,6 +8,9 @@
 #define ERROR 89
 #define DOLLAR 78
 
+#define PRAVDA 200
+#define NEPRAVDA 201
+
 #define INTERNAL_ERR 99
 #define INTERNAL_OK 98
 
