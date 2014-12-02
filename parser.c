@@ -40,10 +40,8 @@ int program(){ /*<PROGRAM>*/
       result = body();	  
 	  if (result != SYNTAX_OK) return result;/*BODY*/  
 	  if (token != DOT) return SYNTAX_ERROR;/*DOT*/
-	  printf("\nDOT");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != END_OF_FILE) return SYNTAX_ERROR;
-	  printf("\nEOL");
 	  return SYNTAX_OK;/*Pokud zadne z pravidel nevrati SYNTAX_ERROR, LEX_ERROR nebo SEM_ERROR*/
 	  break;
 	
@@ -60,18 +58,14 @@ int declaration(){/*<DECLARATION>*/
   switch (token){
     /*<DECLARATION> -> VAR ID COLON <TYPE> SEMICOLON <N_DECLARATION>*/
 	case VAR:
-	  printf("\nVAR");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  if (token != ID) return SYNTAX_ERROR;
-      printf("\nID");	  
+	  if (token != ID) return SYNTAX_ERROR;  
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
-	  printf("\nCOLON");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = type();
       if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
-	  printf("\nSEMICOLON");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = n_declaration();
 	  if (result != SYNTAX_OK) return result;
@@ -97,7 +91,6 @@ int type(){/*<TYPE>*/
     case T_INTEGER:
 	case T_REAL:
 	case T_STRING:
-	  printf("\nTYPE");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
 	  return SYNTAX_OK;
 	  break;
@@ -275,12 +268,10 @@ int body(){/*<BODY>*/
   switch (token){
     /*<BODY> -> BEGIN <ELEMENT> END*/
     case BEGIN:
-	  printf("\nBEGIN");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = element();
 	  if (result != SYNTAX_OK) return result;
 	  if (token != END) return SYNTAX_ERROR;
-	  printf("\nEND");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  return SYNTAX_OK;
 	  break;
@@ -729,12 +720,11 @@ int table(int x, int y, PtrStack Stack){/*Realizace tabulky*/
 /*x je token na vrcholu zasobniku*/
 /*y je vstupni token*/
   
-  
+  printf("\nNa vrcholu zasobniku je token: %d", x);
+  printf("\nAktualni token na vstupu je: %d", y); 
 
   if ((x = assign_int_to_token(x)) == SYNTAX_ERROR) return SYNTAX_ERROR;  
   if ((y = assign_int_to_token(y)) == SYNTAX_ERROR) return SYNTAX_ERROR;
-  
-  printf("\npriradil sem int tokenum");
   
   
   if ((y <= 109) || (y == 111)){/*Vstupni token je operator, nebo prava zavorka, musime overit, ze na vrcholu zasobniku je vyraz*/
@@ -744,17 +734,17 @@ int table(int x, int y, PtrStack Stack){/*Realizace tabulky*/
     }
 	
   if (x <= 109){
-    if (y == 113)
+    if ((y == 113) && ((STopExpression(Stack)) == NEPRAVDA))
 	  return SYNTAX_ERROR;
     }
   
-  printf("\nprosel sem prvni podminkou");
+
   if ((y == 110) || (y == 112)){/*Vstupni token je leva zavorka, nebo hodnota, musime overit, ze na vrcholu zasobniku neni vyraz*/
 	if ((STopExpression(Stack)) == PRAVDA){
 	  return SYNTAX_ERROR;
 	  }
     }
-  printf("\ntable");
+  printf("\nPodle tabulky rozhodnu co mam delat:");
   if (((x <= 101) && (y <= 109))||
       ((x > 101) && (x <= 103) && (y > 101) && (y <= 109))||
       ((x > 103) && (x <= 109) && (y > 103) && (y <= 109))||
@@ -793,7 +783,7 @@ int table(int x, int y, PtrStack Stack){/*Realizace tabulky*/
 }
 
 int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
-
+  printf("\n\nPrecedencni syntakticka analyza vyrazu\n");
   /*Inicializace zasobniku*/
   PtrStack Stack;
   if ((Stack = (PtrStack) malloc(sizeof(struct StructStack))) == NULL) return INTERNAL_ERR;
@@ -801,7 +791,6 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
   
   int result;
   
-  printf("\nparse_expression - token: %d", token);
   
   do{
     if ((result = table(STop(Stack), token, Stack)) == SYNTAX_ERROR) return SYNTAX_ERROR;
@@ -809,17 +798,8 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
    
       case SHIFT:
 	    printf("\nSHIFT");
-	    if (STopExpression(Stack) == PRAVDA){
-		  SPop(Stack);
-		  if ((SPush(Stack, SHIFT)) != INTERNAL_OK) return INTERNAL_ERR;
-		  if ((SPush(Stack, EXPRESSION)) != INTERNAL_OK) return INTERNAL_ERR;
-		  }
-		else{
-		  if ((SPush(Stack, SHIFT)) != INTERNAL_OK) return INTERNAL_ERR;
-		  }
-	    SPush(Stack, token);
+	    if ((SPush(Stack, token)) != INTERNAL_OK) return INTERNAL_ERR;
 	    if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-		printf("\ndalsi token: %d",token);
 	    break;
 	  
       case REDUCE:
@@ -833,7 +813,6 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 	      case DES_EXP_NEG:
 	      case EXP:
 	      case EXP_NEG:
-            SPop(Stack);
             SPop(Stack);
             if ((SPush(Stack, EXPRESSION)) != INTERNAL_OK) return INTERNAL_ERR;
 		    break;
@@ -849,7 +828,6 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
           case EQ:
           case SL:
 		  case R_BRACKET:
-		    SPop(Stack);
             SPop(Stack);
 		    SPop(Stack);
 			SPop(Stack);
@@ -876,7 +854,9 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
       }
     }while (!((STop(Stack) == DOLLAR) && ((token == THEN) || (token == DO) || (token == SEMICOLON) || (token == END))));
   
+  printf("\n\nVyprazdneni zasobniku");
   SEmpty(Stack);
+  free(Stack);
   return SYNTAX_OK;  
   
 }
@@ -917,14 +897,12 @@ int STopExpression(PtrStack Stack){
   
   if (Stack -> Top != NULL){
     if (Stack -> Top -> data == EXPRESSION){
-	  printf("\nna vrcholu je expression");
       return PRAVDA;
 	  }
     else
       return NEPRAVDA;
 	}
   else{ 
-    printf("\nna vrcholu neni expression");
 	return NEPRAVDA;
 	}
 
