@@ -97,6 +97,7 @@
             case COMMA:printf("\n**COMA");break;
             case DOT:printf("\n**DOT");break;
         }
+        strFree(&pom);
         return vysledek;
     }
 
@@ -107,8 +108,10 @@
 
        int state = 0;
        int c;
+       int plusko = NEPRAVDA;
 
        strClear(attr);
+       strClear(&pom);
 
 
        while (1)
@@ -215,7 +218,16 @@
                 else
                 if (strCmpConstStr(attr, "FALSE") == 0) return FALSE;
                 else
-                if (strCmpConstStr(attr, "FIND") == 0) return FIND;
+                if (strCmpConstStr(attr, "FIND") == 0)
+                {
+                    if((c=getc(source)) == '(') //v kodu mam find(...)
+                    {
+                        ungetc(c, source);
+                        return ID_FUNCTION; //vratim attr = find, token = id_function, obdobne pro ostatni fce i obecne
+                    }
+                    ungetc(c, source);
+                    return FIND;
+                }
                 else
                 if (strCmpConstStr(attr, "FORWARD") == 0) return FORWARD;
                 else
@@ -229,7 +241,16 @@
                 else
                 if (strCmpConstStr(attr, "REAL") == 0) return T_REAL;
                 else
-                if (strCmpConstStr(attr, "SORT") == 0) return SORT;
+                if (strCmpConstStr(attr, "SORT") == 0)
+                {
+                    if((c=getc(source)) == '(')
+                    {
+                        ungetc(c, source);
+                        return ID_FUNCTION;
+                    }
+                    ungetc(c, source);
+                    return SORT;
+                }
                 else
                 if (strCmpConstStr(attr, "STRING") == 0) return T_STRING;
                 else
@@ -417,19 +438,15 @@
                 }
             break;
 
-        /*  pozor e na neco predelat, zacina to jako slovo a potom
-            prejde do cisel, pridat stavy
-            */
-           case 10: //pouze e^(neco)
+           case 10: //pouze X.e^(neco)
+
                if(c>='0' && c<='9')
                 {
-
-                    strAddChar(attr, c);
                     obs = 1;
+                    strAddChar(attr, c);
                 }
                else
                {
-
                    if(c == '-') //e^-neco
                    {
                         strAddChar(attr, c);
@@ -438,10 +455,13 @@
                    }
                    else
                    {
-
                        if(c == '+')
                        {
-                           obs = 0;
+                           //printf("\n\ntady u pluska\n");
+                           if(plusko == PRAVDA) return LEX_ERROR;
+                           else plusko = PRAVDA;
+
+                            obs = 0;
                            state = 10; //e^+neco
                        }
                        else
@@ -515,6 +535,7 @@
                }
                else if(c == '#') //escape sekvence
                {
+                   obs = 0;
                    state = 15;
                }
                else
@@ -543,20 +564,21 @@
                     if (obs == 0) return LEX_ERROR;
                     //printf("tisknu prilepeny znak: %c\n", atoi((&pom)->str));
                     strAddChar(attr, atoi((&pom)->str));
-                    strFree(&pom);
+                    //strFree(&pom);
                     state = 13;
                 }
                 else
                 {
-                    strFree(&pom);
+                    //strFree(&pom);
                     return LEX_ERROR;
                 }
             break;
 
            case 16:
-                if( !(c>='0' && c<='9') || (c!= '-') || (c!='+'))
+                if( !(c>='0' && c<='9') && (c!= '-') && (c!='+'))
                 {
                     strAddChar(attr, c);
+                    //printf("slovo zacinajici na e\n");
                     state = 2;
                 }
                 else
