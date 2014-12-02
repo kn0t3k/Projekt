@@ -13,10 +13,6 @@
     short obs = 0;   //kontorla, zda ciselne exponentu, nebo cisla obsahuji nejakou hodnotu
     int *pom;
 
-    void tiskni_radky()
-    {
-        printf("%d:%d\n", radek, znak);
-    }
 
     void setSourceFile(FILE *f)
     {
@@ -38,7 +34,7 @@
     {
         int vysledek = printToken(attr);
         switch (vysledek)
-            case ID: printf("ID\n");break;
+            case ID: printf("ID\n");
 
         return vysledek;
     }
