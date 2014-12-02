@@ -1,3 +1,4 @@
+#include <stdbool.h>
 
 /*Struktury pro zasobnik*/
 typedef struct Element{
@@ -5,7 +6,7 @@ typedef struct Element{
   struct Element * Next;
 }*PtrElement;
 
-typedef struct Stack{
+typedef struct StructStack{
   PtrElement Top;
 }*PtrStack;
 
@@ -42,8 +43,9 @@ int table(int x, int y, PtrStack Stack);
 int parse_expression();
 
 /*Funkce pro zasobnik*/
-void SPush(PtrStack Stack, int data);
-int STopExpression(PtrStack Stack);
+void SInit(PtrStack Stack);
+int SPush(PtrStack Stack, int data);
+bool STopExpression(PtrStack Stack);
 void SPop(PtrStack Stack);
 int STop(PtrStack Stack);
 void SEmpty(PtrStack Stack);

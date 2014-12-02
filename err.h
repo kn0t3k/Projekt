@@ -9,6 +9,7 @@
 #define DOLLAR 78
 
 #define INTERNAL_ERR 99
+#define INTERNAL_OK 98
 
 #define ID       0
 #define ID_FUNCTION 75

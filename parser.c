@@ -6,6 +6,7 @@
 #include "parser.h"
 #include "err.h"
 
+
 int token;/*Globalni promena*/
 string attr;
  
@@ -275,7 +276,7 @@ int body(){/*<BODY>*/
   switch (token){
     /*<BODY> -> BEGIN <ELEMENT> END*/
     case BEGIN:
-	  printf("\nBODY");
+	  printf("\nBEGIN");
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = element();
 	  if (result != SYNTAX_OK) return result;
@@ -301,6 +302,8 @@ int element(){/*<ELEMENT>*/
 	case ID:
 	case WHILE:
 	case IF:
+	case WRITE:
+	case READLN:
 	  result = select_element();
 	  if (result != SYNTAX_OK) return result;
 	  result = n_element();
@@ -432,6 +435,7 @@ int callorass(){
 	case DES_EXP_NEG:
 	case EXP:
 	case EXP_NEG:
+	case L_BRACKET:
 	  result = expression();
 	  if (result != SYNTAX_OK) return result;
 	  return SYNTAX_OK;
@@ -778,7 +782,8 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 
   /*Inicializace zasobniku*/
   PtrStack Stack;
-  Stack = NULL;
+  if ((Stack = (PtrStack) malloc(sizeof(struct StructStack))) == NULL) return INTERNAL_ERR;
+  SInit(Stack);
   
   int result;
   
@@ -786,20 +791,20 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
     if ((result = table(STop(Stack), token, Stack)) == SYNTAX_ERROR) return SYNTAX_ERROR;
     switch (result){
    
-     case SHIFT:
+      case SHIFT:
 	    if (STopExpression(Stack)){
 		  SPop(Stack);
-		  SPush(Stack, SHIFT);
-		  SPush(Stack, EXPRESSION);
+		  if ((SPush(Stack, SHIFT)) != INTERNAL_OK) return INTERNAL_ERR;
+		  if ((SPush(Stack, EXPRESSION)) != INTERNAL_OK) return INTERNAL_ERR;
 		  }
 		else{
-		  SPush(Stack, SHIFT);
+		  if ((SPush(Stack, SHIFT)) != INTERNAL_OK) return INTERNAL_ERR;
 		  }
 	    SPush(Stack, token);
 	    if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	    break;
 	  
-     case REDUCE:
+      case REDUCE:
 	    switch (STop(Stack)){
 	      case ID:
 	      case INTEGER:
@@ -811,7 +816,7 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 	      case EXP_NEG:
             SPop(Stack);
             SPop(Stack);
-            SPush(Stack, EXPRESSION);
+            if ((SPush(Stack, EXPRESSION)) != INTERNAL_OK) return INTERNAL_ERR;
 		    break;
 		
 	      case MUL:
@@ -828,13 +833,16 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 		    SPop(Stack);
             SPop(Stack);
 		    SPop(Stack);
-            SPush(Stack, EXPRESSION);
+            if ((SPush(Stack, EXPRESSION)) != INTERNAL_OK) return INTERNAL_ERR;
 		    break;  
+		  
+		  default:
+            break;		  
 	      }
 	    break;
 	
 	  case EQUAL:
-	    SPush(Stack, token);
+	    if ((SPush(Stack, token)) != INTERNAL_OK) return INTERNAL_ERR;
 	    if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	    break;
 	  
@@ -842,6 +850,7 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 	    SEmpty(Stack);
 	    return SYNTAX_ERROR;
 	    break;
+	  
 	  default:
 	    break;
       }
@@ -864,27 +873,36 @@ Zasobnik se pouziva k precedencni syntakticke analyze
 
 
 /*Vlozeni prvku na zasobnik*/
-void SPush(PtrStack Stack, int data){
 
-  PtrElement tmp;
-  
-  if ((tmp = (PtrElement) malloc(sizeof(struct Element))) == NULL) return;
-  tmp -> data = data;
-  tmp -> Next = Stack -> Top;
-  Stack -> Top = tmp;
+void SInit(PtrStack Stack){
+
+  if (Stack != NULL)
+    Stack -> Top = NULL; 
 
 }
 
-int STopExpression(PtrStack Stack){
+int SPush(PtrStack Stack, int data){
+
+  PtrElement tmp;
+  
+  if ((tmp = (PtrElement) malloc(sizeof(struct Element))) == NULL) return INTERNAL_ERR;
+  tmp -> data = data;
+  tmp -> Next = Stack -> Top;
+  Stack -> Top = tmp;
+  return INTERNAL_OK;
+
+}
+
+bool STopExpression(PtrStack Stack){
   
   if (Stack -> Top != NULL){
     if (Stack -> Top -> data == EXPRESSION)
-      return 1;
+      return TRUE;
     else
-      return 0;
+      return FALSE;
 	}
   else 
-    return 0;
+    return FALSE;
 
 }
 
