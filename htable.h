@@ -5,8 +5,8 @@
 * Datum:   19.11.2014		*
 * 							*
 ****************************/
-
-
+#include "err.h"
+#include <stdbool.h>
 
 //----------------------------------- HLAVICKOVY SOUBOR htable.h ------------------------------------
 
@@ -19,34 +19,34 @@
 *		Zvolena prvociselna hodnota pro lepsi rozptyleni vysledku hash funkce. (Zdroj http://en.wikipedia.org/wiki/Hash_table#Choosing_a_good_hash_function
 *
 */
-typedef struct variable_table{
-	struct vartab_listitem* global;
-	struct vartab_listitem* local;
-	} variable_table;
+typedef struct symbol_table{
+	struct symbol_table_item* global;
+	struct symbol_table_item* local;
+	} symbol_table;
 	
-typedef struct vartab_listitem{
+typedef struct symbol_table_item{
 	struct htab_t* table;
- 	struct vartab_listitem* next;
-	} vartab_listitem;
+ 	struct symbol_table_item* next;
+	} symbol_table_item;
 
-typedef union value_union{
-	int integer;
-	int boolean;
-	char *string;
-	double real;
-	} value_union;	
 
-typedef struct htab_listitem{ 
-	char *key;  //doplnit, co bude potreba
-	//typ    	//nejaky enum typ, ktery se nejspis includne z jineho souboru
-	int initialized;
-	union value_union value;
-	struct htab_listitem* next;
-	} htab_listitem;
+
+typedef struct htab_item{ 
+	char *name;
+	enum s_table_type type;    	
+	char* func_data;
+	bool global;
+	bool function;
+	bool initialized;
+	int index;
+	struct symbol_table_item* func_table; 	
+	struct htab_item* next;
+	} htab_item;
 
 typedef struct htab_t{ 
 	unsigned int htab_size;
-	htab_listitem* ptr[]; 
+	htab_item* ptr[];
+	unsigned int item_count; 
 	} htab_t;
 
 
@@ -54,16 +54,17 @@ typedef struct htab_t{
 unsigned int hash_function(const char *str, unsigned htab_size); //bude v samostatnem modulu pro jednodussi zmenu hashovaci fce
 htab_t* htab_init(unsigned int htab_size);  //inicializace tabulky na pozadovanou velikost
 void htab_free(htab_t* t); //kompletni uvolneni
-htab_listitem* htab_search(htab_t *t,const char *key); //vzhleda prvek podle key, pokud neni vraci NULL
-void htab_remove(htab_t *t, const char *key);  //fce odstrani prvek specifikovany argumentem key
-htab_listitem* htab_add(htab_t *t,char *key); //prida prvek, nejspis bude potreba predelat bud pro vice argumentu nebo predavat cely novy prvek pro pridani pres ukazatel
+htab_item* htab_search(htab_t *t,const char *name); //vzhleda prvek podle name, pokud neni vraci NULL
+void htab_remove(htab_t *t, const char *name);  //fce odstrani prvek specifikovany argumentem name
+htab_item* htab_add(htab_t *t,char *name); //prida prvek, nejspis bude potreba predelat bud pro vice argumentu nebo predavat cely novy prvek pro pridani pres ukazatel
 
 
 
 
-variable_table* variable_table_init(int* error);
-void add_local_listitem(variable_table* v_table, int* error);
-void remove_local_listitem(variable_table* v_table, int* error);
+struct symbol_table* symbol_table_init(int* error);
+void add_local_table(struct symbol_table* s_table, int* error);
+void remove_local_table(struct symbol_table* s_table, int* error);
+struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error);
+struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error);
 
 					
-
