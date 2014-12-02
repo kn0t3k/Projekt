@@ -31,10 +31,9 @@ typedef struct symbol_table{
 	
 typedef struct symbol_table_item{
 	struct htab_t* table;
+	unsigned int item_count;
  	struct symbol_table_item* next;
 	} symbol_table_item;
-
-
 
 typedef struct htab_item{ 
 	char *name;
@@ -50,14 +49,12 @@ typedef struct htab_item{
 
 typedef struct htab_t{ 
 	unsigned int htab_size;
-	unsigned int item_count;
 	htab_item* ptr[]; 
 	} htab_t;
 
 
-//pouze pomocne fce, vetsina zmizi
-unsigned int hash_function(const char *str, unsigned htab_size); 
 
+unsigned int hash_function(const char *str, unsigned htab_size); //bude v samostatnem modulu pro jednodussi zmenu hashovaci fce
 htab_t* htab_init(unsigned int htab_size);  //inicializace tabulky na pozadovanou velikost
 void htab_free(htab_t* t); //kompletni uvolneni
 htab_item* htab_search(htab_t *t,const char *name); //vzhleda prvek podle name, pokud neni vraci NULL
@@ -65,11 +62,14 @@ void htab_remove(htab_t *t, const char *name);  //fce odstrani prvek specifikova
 htab_item* htab_add(htab_t *t,char *name); //prida prvek, nejspis bude potreba predelat bud pro vice argumentu nebo predavat cely novy prvek pro pridani pres ukazatel
 
 
-//hlavni fce pro obsluhu tabulky
-struct symbol_table* symbol_table_init(int* error);
+
+
+struct symbol_table* symbol_table_init();
 void add_local_table(struct symbol_table* s_table, int* error);
 void remove_local_table(struct symbol_table* s_table, int* error);
 struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error);
 struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error);
-//search
+struct htab_item* search_func(char *name, struct symbol_table* s_table, int* error);
+struct htab_item* search_var(char *name, struct symbol_table* s_table, int* error);
+
 					
