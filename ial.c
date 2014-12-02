@@ -18,7 +18,6 @@ unsigned int hash_function(const char *str, unsigned htab_size)
  return h % htab_size;
 }
 
-//-----------------symbol_table_init---------------------------------------------
 struct symbol_table* symbol_table_init(){	
 	struct symbol_table* new = (struct symbol_table*) malloc(sizeof(struct symbol_table)); //vytvoreni tabulky symbolu
 	if(new == NULL){
@@ -30,10 +29,10 @@ struct symbol_table* symbol_table_init(){
 		return NULL;
 	}
 	new->local = new->global; //lokalni neexistuje -> za lokalni se povazuje globalni
-	
+	new->global->item_count = 0;
 	
 	new->global->next = NULL;
-	new->global->table = htab_init(SIZE); //inicializace jeji hashovaci tabulky
+	new->global->table = htab_init(SIZE); //inicializace samotne tabulky
 	if(new->global->table == NULL){
 		return NULL;
 	}
@@ -41,7 +40,6 @@ struct symbol_table* symbol_table_init(){
 	return new;
 }
 
-//-----------------add_local_table---------------------------------------------
 void add_local_table(struct symbol_table* s_table, int* error){
 	if(s_table == NULL || s_table->global==NULL || s_table->local==NULL){ //kontrola argumentu
 		*error = SEM_ERROR;
@@ -72,9 +70,9 @@ void add_local_table(struct symbol_table* s_table, int* error){
 	return;
 }	
 
-//-----------------remove_local_table---------------------------------------------
-void remove_local_table(struct symbol_table* s_table, int* error){
 
+
+void remove_local_table(struct symbol_table* s_table, int* error){
 	if(s_table == NULL || s_table->global==NULL || s_table->local==NULL){ //kontrola argumentu
 		*error = SEM_ERROR;
 		printf("spatne argumenty vremove_local_table()\n");
@@ -87,8 +85,9 @@ void remove_local_table(struct symbol_table* s_table, int* error){
 	return; 
 }
 
-struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
-	
+
+
+struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){	
 	struct htab_item *tmp = NULL;
 
 	if(s_table->local == s_table->global){ 
@@ -99,7 +98,7 @@ struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
 		//prohleda prvky v globalni tabulce, diva se po shodnych jmenech u promennych a fci, pokud najde -> SEM_ERROR
 		while(tmp!=NULL)
 			{
-				if(strcmp(name,tmp->name) == 0) 
+				if(strcmp(name, tmp->name) == 0) 
 				{
 					*error = SEM_ERROR;  //na globalni urovni se nesmi shodovat jmena promennych ani fci
 					return NULL;
@@ -113,7 +112,13 @@ struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
 		}
 				
 		//vlozime informace o promenne do jeji struktury
-		newitem->name = name;
+		int size = sizeof(char)*strlen(name)+1;
+		newitem->name = (char*)malloc(size);
+		if(newitem->name == NULL){
+			*error = INTERNAL_ERR;
+			return NULL;
+		}
+		strncpy(newitem->name, name, size);
 		newitem->global = true;
 		newitem->function = false;
 		newitem->func_data = NULL;
@@ -161,7 +166,13 @@ struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
 		}
 		
 		//vlozime informace o promenne do jeji struktury
-		newitem->name = name;
+		int size = sizeof(char)*strlen(name)+1;
+		newitem->name = (char*)malloc(size);
+		if(newitem->name == NULL){
+			*error = INTERNAL_ERR;
+			return NULL;
+		}
+		strncpy(newitem->name, name, size);
 		newitem->global = false;
 		newitem->function = false;
 		newitem->func_data = NULL;
@@ -179,7 +190,7 @@ struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
 	}	
 }
 
-//-----------------add_func---------------------------------------------
+
 struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error){
 //podivat se do globalni tabulky, pokud uz tam fce je -> error
 //jinak vytvorit novou lokalni promennou se stejnym jmenem //nemuze dojit ke kolizi, protoze tabulka bude prazdna (add_local_table se musi volat tesne pred touhle fci)
@@ -204,7 +215,13 @@ struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error)
 	}
 	
 	//vlozime informace o fci do jeji struktury
-	newitem->name = name;
+	int size = sizeof(char)*strlen(name)+1;
+	newitem->name = (char*)malloc(size);
+	if(newitem->name == NULL){
+			*error = INTERNAL_ERR;
+			return NULL;
+	}
+	strncpy(newitem->name, name, size);
 	newitem->global = true;
 	newitem->function = true;
 	newitem->func_data = NULL;
@@ -225,7 +242,6 @@ struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error)
 	return newitem;
 }
 
-//-----------------search_func---------------------------------------------
 struct htab_item* search_func(char *name, struct symbol_table* s_table, int* error){
 	struct htab_item *tmp = s_table->global->table->ptr[hash_function(name, SIZE)]; //ukazatel na globalni tabulku
 	while(tmp!=NULL)
@@ -240,7 +256,6 @@ struct htab_item* search_func(char *name, struct symbol_table* s_table, int* err
 	return NULL;
 }
 
-//-----------------search_var---------------------------------------------
 struct htab_item* search_var(char *name, struct symbol_table* s_table, int* error){
 	struct htab_item *tmp = s_table->local->table->ptr[hash_function(name, SIZE)]; //ukazatel na lokalni tabulku
 	while(tmp!=NULL)
@@ -260,11 +275,47 @@ struct htab_item* search_var(char *name, struct symbol_table* s_table, int* erro
 		}		
 		tmp = tmp->next;	
 	}
+	
 	//pokud jsem nic nenasel, vratim null == semanticka chyba
 	*error = SEM_ERROR;
 	return NULL;
 }
 
+
+void symbol_table_free(struct symbol_table* s_table){
+	s_table->local = NULL;
+	struct symbol_table_item * tmp_symbol_table_item = NULL;
+	
+	while(s_table->global != NULL){
+		tmp_symbol_table_item = s_table->global;
+		s_table->global = s_table->global->next;
+		
+		
+		
+		for(int i=0; i < tmp_symbol_table_item->table->htab_size; i++)
+		{
+			struct htab_item *item = tmp_symbol_table_item->table->ptr[i], *tmp = NULL;
+			
+			while(item!=NULL)
+			{
+				tmp = item;
+				item = item->next;
+				if(tmp->name != NULL) free(tmp->name);
+				if(tmp->func_data != NULL) free(tmp->func_data);
+				free(tmp);
+			}
+			tmp_symbol_table_item->table->ptr[i]=NULL;
+		}
+		
+		free(tmp_symbol_table_item->table);
+		tmp_symbol_table_item->table=NULL;
+		
+		free(tmp_symbol_table_item);
+		printf("cyklim\n");
+	}
+	
+	free(s_table);
+}
 
 
 //-----------------htab_init---------------------------------------------
