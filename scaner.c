@@ -279,7 +279,7 @@
 
            case 4:
             //mensi
-            if ((c == '_')||(isalnum(c)))
+            if ((c == '_')||(isalnum(c)) || (c == ' '))
             {
                 ungetc(c, source);
                 return S;//mensitko
@@ -293,7 +293,7 @@
 
            case 5:
                //vetsi
-            if((c == '_')||(isalnum(c)))
+            if((c == '_')||(isalnum(c))||(c == ' '))
             {
                 ungetc(c, source);
                 return L;//vetsitko
@@ -540,9 +540,14 @@
                     if (obs == 0) return LEX_ERROR;
                     //printf("tisknu prilepeny znak: %c\n", atoi((&pom)->str));
                     strAddChar(attr, atoi((&pom)->str));
+                    strFree(&pom);
                     state = 13;
                 }
-                else return LEX_ERROR;
+                else
+                {
+                    strFree(&pom);
+                    return LEX_ERROR;
+                }
             break;
 
            case 16:
