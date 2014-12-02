@@ -18,22 +18,14 @@ unsigned int hash_function(const char *str, unsigned htab_size)
  return h % htab_size;
 }
  
-
-/************************************************/
-/* inicializace a alokace nove tabulky symbolu	*/
-/* 						*/
-/************************************************/
-struct symbol_table* symbol_table_init(int* error){
-	
+struct symbol_table* symbol_table_init(){	
 	struct symbol_table* new = (struct symbol_table*) malloc(sizeof(struct symbol_table)); //vytvoreni tabulky symbolu
 	if(new == NULL){
-		*error = 99;
 		return NULL;
 	}
 	
 	new->global = (struct symbol_table_item*) malloc(sizeof(struct symbol_table_item)); //vytvoreni globalni polozky v tabulce
 	if(new->global == NULL){
-		*error = 99;
 		return NULL;
 	}
 	new->local = new->global; //lokalni neexistuje -> za lokalni se povazuje globalni
@@ -42,37 +34,32 @@ struct symbol_table* symbol_table_init(int* error){
 	new->global->next = NULL;
 	new->global->table = htab_init(SIZE); //inicializace samotne tabulky
 	if(new->global->table == NULL){
-		*error = 99;
 		return NULL;
 	}
 	
-	*error = 0;
 	return new;
 }
 
-
-/************************************************/
-/* alokuje novou lokalni tabulku		*/
-/* 						*/
-/************************************************/
 void add_local_table(struct symbol_table* s_table, int* error){
 	if(s_table == NULL || s_table->global==NULL || s_table->local==NULL){ //kontrola argumentu
-		*error = 99;
+		*error = SEM_ERROR;
 		printf("spatne argumenty v add_local_table()\n");
 		return;
 	}
 		
 	struct symbol_table_item* new = (struct symbol_table_item*) malloc(sizeof(struct symbol_table_item)); //alokace nove lokalni polozky ve spojovem seznamu
 	if(new == NULL){ //kontrola alokace
-		*error = 99;
+		*error = INTERNAL_ERR;
 		return;
 	}
 		
 	new->table = htab_init(SIZE); //nove polozce se vytvori nova hashovaci tabulka
 	if(new->table == NULL){
-		*error = 99;
+		*error = SEM_ERROR;
 		return;
 	}
+	
+	new->item_count = 0;
 	
 	struct symbol_table_item* tmp = s_table->global->next;
 	s_table->global->next = new;
@@ -81,16 +68,12 @@ void add_local_table(struct symbol_table* s_table, int* error){
 	
 	*error = 0;
 	return;
-}
+}	
 
-/************************************************/
-/* "zappomene" na aktualni lokalni tabulku      */
-/* a ukazatel se vrati zpatky na globaln	*/
-/************************************************/
 void remove_local_table(struct symbol_table* s_table, int* error){
 
 	if(s_table == NULL || s_table->global==NULL || s_table->local==NULL){ //kontrola argumentu
-		*error = 99;
+		*error = SEM_ERROR;
 		printf("spatne argumenty vremove_local_table()\n");
 		return;
 	}
@@ -100,6 +83,182 @@ void remove_local_table(struct symbol_table* s_table, int* error){
 	*error = 0;
 	return; 
 }
+
+struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
+	
+	struct htab_item *tmp = NULL;
+
+	if(s_table->local == s_table->global){ 
+	//jedna se o globalni promennou == do globalni tabulky
+	// nesmi se shodovat s zadnou promennou v globalni tabulce a s zadnou funkci
+	
+		tmp = s_table->global->table->ptr[hash_function(name, SIZE)];
+		//prohleda prvky v globalni tabulce, diva se po shodnych jmenech u promennych a fci, pokud najde -> SEM_ERROR
+		while(tmp!=NULL)
+			{
+				if(strcmp(name,tmp->name) == 0) 
+				{
+					*error = SEM_ERROR;  //na globalni urovni se nesmi shodovat jmena promennych ani fci
+					return NULL;
+				}		
+				tmp = tmp->next;	
+			}
+		struct htab_item *newitem = (struct htab_item*) malloc(sizeof(struct htab_item));  //alokace pro novou polozku v tabulce
+		if(newitem==NULL){
+			*error = INTERNAL_ERR;
+			return NULL;
+		}
+				
+		//vlozime informace o promenne do jeji struktury
+		newitem->name = name;
+		newitem->global = true;
+		newitem->function = false;
+		newitem->func_data = NULL;
+		newitem->func_table = NULL;
+		newitem->initialized = false;
+		newitem->index = s_table->global->item_count; //dostane index rovny aktualni hodnote pocitadla
+		s_table->global->item_count++; //pocitadlo promenych se zvetsi o 1;
+		
+		//pripojime strukturu do tabulky
+		newitem->next = s_table->global->table->ptr[hash_function(name, SIZE)];
+		s_table->global->table->ptr[hash_function(name, SIZE)] = newitem;
+	
+		//vrati ukazatel (pro dalsi upravy, napr. inicializovanost)
+		return newitem;
+	
+	}
+	else {
+		 //jedna se o lokalni promennou == do lokalni tabulky
+		 //nesmi se shodovat s promenou se jmenem ZADNE fce (takova promena tam jiz stejne bude pro return hodnotu)
+		 //nesmi se shodovat s zadnou lokalni promennou
+		tmp = s_table->local->table->ptr[hash_function(name, SIZE)]; //ukazatel na lokalni tabulku
+		while(tmp!=NULL)
+			{
+				if(strcmp(name,tmp->name) == 0) //kolize jmen fci na lokalni urovni
+				{
+					*error = SEM_ERROR;  
+					return NULL;
+				}		
+				tmp = tmp->next;	
+			}	 
+		tmp = s_table->global->table->ptr[hash_function(name, SIZE)]; //ukazatel na globalni tabulku
+		while(tmp!=NULL)
+		{
+			if((strcmp(name,tmp->name) == 0) && (tmp->function == true)) //kolize jmen fci na globalni urovni
+			{
+				*error = SEM_ERROR;  
+				return NULL;
+			}		
+			tmp = tmp->next;	
+		}
+		struct htab_item *newitem = (struct htab_item*) malloc(sizeof(struct htab_item));  //alokace pro novou polozku v tabulce
+		if(newitem==NULL){
+			*error = INTERNAL_ERR;
+			return NULL;
+		}
+		
+		//vlozime informace o promenne do jeji struktury
+		newitem->name = name;
+		newitem->global = false;
+		newitem->function = false;
+		newitem->func_data = NULL;
+		newitem->func_table = NULL;
+		newitem->initialized = false;
+		newitem->index = s_table->local->item_count; //dostane index rovny aktualni hodnote pocitadla
+		s_table->local->item_count++; //pocitadlo promenych se zvetsi o 1;
+		
+		//pripojime strukturu do tabulky
+		newitem->next = s_table->local->table->ptr[hash_function(name, SIZE)];
+		s_table->local->table->ptr[hash_function(name, SIZE)] = newitem;
+	
+		//vrati ukazatel (pro dalsi upravy, napr. inicializovanost)
+		return newitem;
+	}	
+}
+
+
+struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error){
+//podivat se do globalni tabulky, pokud uz tam fce je -> error
+//jinak vytvorit novou lokalni promennou se stejnym jmenem //nemuze dojit ke kolizi, protoze tabulka bude prazdna (add_local_table se musi volat tesne pred touhle fci)
+//vlozi odkaz na tuhle tabulku
+//musi si zapamatovat navesti
+
+	struct htab_item *tmp = s_table->global->table->ptr[hash_function(name, SIZE)]; //ukazatel na globalni tabulku
+	while(tmp!=NULL)
+	{
+		if((strcmp(name,tmp->name) == 0)) //kolize jmen fci nebo promennych na globalni urovni
+		{
+			*error = SEM_ERROR;  
+			return NULL;
+		}		
+		tmp = tmp->next;	
+	}
+
+	struct htab_item *newitem = (struct htab_item*) malloc(sizeof(struct htab_item));  //alokace pro novou polozku v tabulce
+	if(newitem==NULL){
+		*error = INTERNAL_ERR;
+		return NULL;
+	}
+	
+	//vlozime informace o fci do jeji struktury
+	newitem->name = name;
+	newitem->global = true;
+	newitem->function = true;
+	newitem->func_data = NULL;
+	newitem->func_table = s_table->local;
+	newitem->initialized = false;
+	newitem->index = -1; //fce budou mit index -1
+	if(add_var(name, struct symbol_table* s_table, error) == NULL){ //do lokalni tabulky fce je pridana promenna s jejim jmenem == return promenna fce
+	
+	}
+	//kazda fce musi mit ukazatel na sve navesti...dodelat!!
+	
+	//pripojime strukturu do tabulky
+	newitem->next = s_table->global->table->ptr[hash_function(name, SIZE)];
+	s_table->global->table->ptr[hash_function(name, SIZE)] = newitem;
+	
+	//vrati ukazatel (pro dalsi upravy, napr. inicializovanost)
+	return newitem;
+}
+
+struct htab_item* search_func(char *name, struct symbol_table* s_table, int* error){
+	struct htab_item *tmp = s_table->global->table->ptr[hash_function(name, SIZE)]; //ukazatel na globalni tabulku
+	while(tmp!=NULL)
+	{
+		if((strcmp(name,tmp->name) == 0) && (tmp->function == true)) //kolize jmen fci nebo promennych na globalni urovni
+		{  
+			return tmp;
+		}		
+		tmp = tmp->next;	
+	}
+	*error = SEM_ERROR;
+	return NULL;
+}
+
+struct htab_item* search_var(char *name, struct symbol_table* s_table, int* error){
+	struct htab_item *tmp = s_table->local->table->ptr[hash_function(name, SIZE)]; //ukazatel na lokalni tabulku
+	while(tmp!=NULL)
+	{
+		if(strcmp(name,tmp->name) == 0)  //kolize jmen fci nebo promennych na globalni urovni
+		{  
+			return tmp;
+		}		
+		tmp = tmp->next;	
+	}
+	tmp = s_table->global->table->ptr[hash_function(name, SIZE)]; //pote se divam do globalni tabulky
+	while(tmp!=NULL)
+	{
+		if((strcmp(name,tmp->name) == 0) && (tmp->function == false)) //kolize jmen fci nebo promennych na globalni urovni
+		{  
+			return tmp;
+		}		
+		tmp = tmp->next;	
+	}
+	//pokud jsem nic nenasel, vratim null == semanticka chyba
+	*error = SEM_ERROR;
+	return NULL;
+}
+
 
 
 //-----------------htab_init---------------------------------------------
