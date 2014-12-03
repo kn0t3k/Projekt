@@ -120,6 +120,7 @@ struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
 		}
 		strncpy(newitem->name, name, size);
 		newitem->global = true;
+		newitem->type = s_default;
 		newitem->function = false;
 		newitem->func_data = NULL;
 		newitem->func_table = NULL;
@@ -175,6 +176,7 @@ struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
 		strncpy(newitem->name, name, size);
 		newitem->global = false;
 		newitem->function = false;
+		newitem->type = s_default;
 		newitem->func_data = NULL;
 		newitem->func_table = NULL;
 		newitem->initialized = false;
@@ -223,6 +225,7 @@ struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error)
 	}
 	strncpy(newitem->name, name, size);
 	newitem->global = true;
+	newitem->type = s_default;
 	newitem->function = true;
 	newitem->func_data = NULL;
 	newitem->func_table = s_table->local;
@@ -290,8 +293,6 @@ void symbol_table_free(struct symbol_table* s_table){
 		tmp_symbol_table_item = s_table->global;
 		s_table->global = s_table->global->next;
 		
-		
-		
 		for(int i=0; i < tmp_symbol_table_item->table->htab_size; i++)
 		{
 			struct htab_item *item = tmp_symbol_table_item->table->ptr[i], *tmp = NULL;
@@ -311,9 +312,7 @@ void symbol_table_free(struct symbol_table* s_table){
 		tmp_symbol_table_item->table=NULL;
 		
 		free(tmp_symbol_table_item);
-		printf("cyklim\n");
 	}
-	
 	free(s_table);
 }
 
