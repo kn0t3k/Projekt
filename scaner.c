@@ -13,24 +13,10 @@
     short obs = 0;   //kontorla, zda ciselne exponentu, nebo cisla obsahuji nejakou hodnotu
     string pom;
 
-
-
-
     void setSourceFile(FILE *f)
     {
       source = f;
     }
-
-    /*void prilep(int z, int y)   //jako parametr dostane dve cisla, ktere prevede na jedno, napr prilep(1, 2) => 12
-    {
-        int moc = 10;   //zaklad ciselne desitkove soustavy
-        int x = z-48;   //48 = posun hodnot znaku cisel v ascii, znak s hodnotou 50 je cislo 2
-        while(y >= moc)
-        {
-            moc *= 10;
-        }
-        *pom = (x*moc + y);
-    }*/
 
     int getNextToken(string *attr)//tuto funkci vola praser a ona vola printtoken aby mohla vytisknout tokeny, potom zmenit
     {
@@ -46,6 +32,7 @@
             case DOLLAR:printf("\n**DOLLAR");break;
             case ID_FUNCTION:printf("\n**ID_FUNCTION");break;
             case BEGIN:printf("\n**BEGIN");break;
+            case T_BOOLEAN:printf("\n**T_BOOLEAN");break;
             case BOOLEAN:printf("\n**BOOLEAN");break;
             case DO:printf("\n**DO");break;
             case ELSE:printf("\n** ELSE");break;
@@ -208,7 +195,7 @@
                 // kontrola, zda se nejedna o klicove slovo
                 if (strCmpConstStr(attr, "BEGIN") == 0) return BEGIN;
                 else
-                if (strCmpConstStr(attr, "BOOLEAN") == 0) return BOOLEAN;
+                if (strCmpConstStr(attr, "BOOLEAN") == 0) return T_BOOLEAN;
                 else
                 if (strCmpConstStr(attr, "DO") == 0) return DO;
                 else
@@ -216,7 +203,7 @@
                 else
                 if (strCmpConstStr(attr, "END") == 0) return END;
                 else
-                if (strCmpConstStr(attr, "FALSE") == 0) return FALSE;
+                if (strCmpConstStr(attr, "FALSE") == 0) return BOOLEAN;
                 else
                 if (strCmpConstStr(attr, "FIND") == 0)
                 {
@@ -256,7 +243,7 @@
                 else
                 if (strCmpConstStr(attr, "THEN") == 0) return THEN;
                 else
-                if (strCmpConstStr(attr, "TRUE") == 0) return TRUE;
+                if (strCmpConstStr(attr, "TRUE") == 0) return BOOLEAN;
                 else
                 if (strCmpConstStr(attr, "VAR") == 0) return VAR;
                 else

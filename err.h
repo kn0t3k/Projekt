@@ -18,7 +18,7 @@
 #define ID_FUNCTION 75
 
 #define BEGIN 10
-#define BOOLEAN    11
+#define T_BOOLEAN    11
 #define DO   12
 #define ELSE   13
 #define END   14
@@ -43,6 +43,7 @@
 #define COPY 76
 #define LENGHT 77
 #define EXPRESSION 79
+#define BOOLEAN 80
 
 
 #define ADD     30
