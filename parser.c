@@ -371,6 +371,9 @@ int parameter(struct htab_item *func_item){/*<PARAMETER>*/
     }
   else{/*Jinak pridavame parametry, musime do polozky pro funkci v globalni tabulce zapsat retezec obsahujici parametry*/
     if (counter != 0){
+	
+/*TADY JE TO PRIRAZENI*/	 
+	 
 	  func_item -> func_data = str_parameters.str;
 	  }
 	} 
