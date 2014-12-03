@@ -376,7 +376,7 @@ int parameter(struct htab_item *func_item){/*<PARAMETER>*/
 	 
 	  func_item -> func_data = (char*) malloc(sizeof(char)*(strlen(str_parameters.st)+1));
 	  if(func_item -> func_data == NULL){
-		return  INTERNAL_ERR;;
+		return  INTERNAL_ERR;
 	  }
 	  strncpy(func_item -> func_data, str_parameters.st, sizeof(char)*(strlen(str_parameters.st)+1));
 	  }
