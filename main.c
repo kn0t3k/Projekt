@@ -45,6 +45,7 @@ int main(int argc, char** argv)
 
    result = parse(table, Stack); // provedeme syntaktickou analyzu
    
+   symbol_table_free(table);
    
    SEmpty(Stack);/*Zasobnik se vyprazdni, pokud doslo k chybe nekde v prubehu precedencni syntakticke analyzy*/   
    free(Stack);
