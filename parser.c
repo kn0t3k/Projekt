@@ -196,7 +196,7 @@ int type(struct htab_item *item, string* str_parameters){/*<TYPE>*/
 	  break;
   }
   if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-    return SYNTAX_OK;  
+  return SYNTAX_OK;  
 }
 
 int n_declaration(){/*<N_DECLARATION>*/
@@ -264,9 +264,39 @@ int function(){/*<FUNCTION>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  
 	  if ((item = search_var(func_item -> name, table, &result)) == NULL)
 	    return result;
-	  result = type(item, NULL);
+		
+	  if (func_item -> fwd == 1){
+	    switch(token){
+		  case T_INTEGER:
+		    if (item -> type != s_integer)
+			  return SEM_ERROR;
+			break;
+          
+		  case T_REAL:
+ 		    if (item -> type != s_real)
+			  return SEM_ERROR;
+			break;
+		
+		  case T_STRING:
+		    if (item -> type != s_string)
+			  return SEM_ERROR;
+			break;
+			
+		  case T_BOOLEAN:
+		    if (item -> type != s_boolean)
+			  return SEM_ERROR;
+			break;
+		  }
+		if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+		result = SYNTAX_OK;  
+		}
+	  else{
+	    result = type(item, NULL);
+		}
+		
 	  if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -295,6 +325,8 @@ int parameter(struct htab_item *func_item){/*<PARAMETER>*/
   int porovnani = 0;/*Predstavuje boolean, pokud uz je funkce deklarovana, pouze srovnamvame parametry u definice*/ 
   struct htab_item *item;
   string str_parameters;
+  
+  strInit(&str_parameters);
   
   switch (token){
     /*<PARAMETER> -> ID COLON <TYPE> <N_PARAMETER>*/
@@ -335,13 +367,11 @@ int parameter(struct htab_item *func_item){/*<PARAMETER>*/
   
   if (porovnani){
     if (strcmp(func_item -> func_data, str_parameters.str) != 0)
-        return SEM_ERROR;
-    strFree(&str_parameters);		
+        return SEM_ERROR;		
     }
   else{/*Jinak pridavame parametry, musime do polozky pro funkci v globalni tabulce zapsat retezec obsahujici parametry*/
     if (counter != 0){
 	  func_item -> func_data = str_parameters.str;
-	  strFree(&str_parameters);
 	  }
 	} 
   return SYNTAX_OK;
@@ -588,6 +618,7 @@ int callfunass(){/*<CALLFUNASS>*/
 int callorass(){
 
   int result;
+  struct htab_item *func_item;
   
   switch (token){
     /*<CALLORASS> -> <EXPRESSION>*/
@@ -608,8 +639,12 @@ int callorass(){
 	 
     /*<CALLORASS> -> ID_FUNCTION L_BRACKET <VARIABLE> R_BRACKET*/  
 	case ID_FUNCTION:
-	  if ((search_func(attr.str, table, &result) == NULL))
+	  if ((func_item = search_func(attr.str, table, &result)) == NULL)
 	    return result;
+	  else{
+	    if (func_item -> initialized != 1)
+		  return SEM_ERROR;
+	    } 
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != L_BRACKET) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
