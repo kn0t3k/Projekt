@@ -112,7 +112,7 @@ struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
 		}
 				
 		//vlozime informace o promenne do jeji struktury
-		int size = sizeof(char)*strlen(name)+1;
+		int size = sizeof(char)*(strlen(name)+1);
 		newitem->name = (char*)malloc(size);
 		if(newitem->name == NULL){
 			*error = INTERNAL_ERR;
@@ -167,7 +167,7 @@ struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
 		}
 		
 		//vlozime informace o promenne do jeji struktury
-		int size = sizeof(char)*strlen(name)+1;
+		int size = sizeof(char)*(strlen(name)+1);
 		newitem->name = (char*)malloc(size);
 		if(newitem->name == NULL){
 			*error = INTERNAL_ERR;
@@ -217,7 +217,7 @@ struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error)
 	}
 	
 	//vlozime informace o fci do jeji struktury
-	int size = sizeof(char)*strlen(name)+1;
+	int size = sizeof(char)*(strlen(name)+1);
 	newitem->name = (char*)malloc(size);
 	if(newitem->name == NULL){
 			*error = INTERNAL_ERR;
