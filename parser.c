@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "str.h"
 #include "scaner.h"
 #include "parser.h"
@@ -141,7 +142,7 @@ int declaration(){/*<DECLARATION>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type(item);
+	  result = type(item, NULL);
       if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -162,39 +163,40 @@ int declaration(){/*<DECLARATION>*/
   }
 }
 
-int type(struct htab_item *item){/*<TYPE>*/
+int type(struct htab_item *item, string* str_parameters){/*<TYPE>*/
 
   switch (token){
     /*<TYPE> -> T_INTEGER, pro ostatni case analogicky*/  
     case T_INTEGER:
-	  if (item != NULL)
-	    item -> type = s_integer;
-	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
-	  return SYNTAX_OK;
+      if (str_parameters != NULL)
+        strAddChar(str_parameters, 'i');
+	  item -> type = s_integer;		
 	  break;
+	  
 	case T_REAL:
-	  if (item != NULL)
-	    item -> type = s_real;
-	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
-	  return SYNTAX_OK;
+	  if (str_parameters != NULL)
+        strAddChar(str_parameters, 'r');
+	  item -> type = s_real;		
 	  break;
+	  
 	case T_STRING:
-	  if (item != NULL)
-	    item -> type = s_string;
-	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;/*Pokud dane pravidlo pokryje nejaky token, vola dalsi*/
-	  return SYNTAX_OK;
+      if (str_parameters != NULL)
+        strAddChar(str_parameters, 's');
+	  item -> type = s_string;		
 	  break;
-	/*case T_BOOLEAN:
-	  if (item != NULL)
-	    item -> type = s_boolean;
-	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  return SYNTAX_OK;
-	  break;*/
+	  
+	case T_BOOLEAN:
+      if (str_parameters != NULL)
+        strAddChar(str_parameters, 'b');
+	  item -> type = s_boolean;		
+	  break;
 	  
 	default:
       return SYNTAX_ERROR;
 	  break;
-  }	  
+  }
+  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+    return SYNTAX_OK;  
 }
 
 int n_declaration(){/*<N_DECLARATION>*/
@@ -210,7 +212,7 @@ int n_declaration(){/*<N_DECLARATION>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type(item);
+	  result = type(item, NULL);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -234,26 +236,41 @@ int n_declaration(){/*<N_DECLARATION>*/
 int function(){/*<FUNCTION>*/
 
   int result;
+  struct htab_item *func_item;
+  struct htab_item *item;
   
   switch (token){
     /*<FUNCTION> -> FUNCTION ID_FUNCTION L_BRACKET <PARAMETER> R_BRACKET COLON <TYPE> SEMICOLON <FUNCTION_BODY> <FUNCTION>*/
     case FUNCTION:
+	  if (result == INTERNAL_ERR) return result;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != ID_FUNCTION) return SYNTAX_ERROR;
+	  if ((func_item = search_func(attr.str, table, &result)) != NULL){
+		if (func_item -> initialized == 1)
+		  return SEM_ERROR;
+		table -> local = func_item -> func_table;
+        }
+      else{
+  	    add_local_table(table, &result);
+	    if ((func_item = add_func(attr.str, table, &result)) == NULL)
+	      return result;
+		  }
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != L_BRACKET) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = parameter();
+	  result = parameter(func_item);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != R_BRACKET) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type(NULL);
+	  if ((item = search_var(func_item -> name, table, &result)) == NULL)
+	    return result;
+	  result = type(item, NULL);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = function_body();
+	  result = function_body(func_item);
 	  if (result != SYNTAX_OK) return result;
 	  result = function();
 	  if (result != SYNTAX_OK) return result;
@@ -271,49 +288,94 @@ int function(){/*<FUNCTION>*/
 	}
 }
 
-int parameter(){/*<PARAMETER>*/
+int parameter(struct htab_item *func_item){/*<PARAMETER>*/
 
   int result;
+  int counter = 0;/*Citac parametru*/
+  int porovnani = 0;/*Predstavuje boolean, pokud uz je funkce deklarovana, pouze srovnamvame parametry u definice*/ 
+  struct htab_item *item;
+  string str_parameters;
   
   switch (token){
     /*<PARAMETER> -> ID COLON <TYPE> <N_PARAMETER>*/
-	case ID: 
+	case ID:
+	  if (func_item -> fwd == 1){
+	    porovnani = 1;
+	    if ((item = search_var(attr.str, table, &result)) != NULL){
+		  counter = 1;
+          if (item -> index != counter)
+		    return SEM_ERROR;
+			}
+		else
+		  return SEM_ERROR;
+	    }
+      else{
+        if ((item = add_var(attr.str, table, &result)) == NULL)
+          return result;
+        }	  	
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type(NULL);
+	  result = type(item, &str_parameters);
 	  if (result != SYNTAX_OK) return result;
-	  result = n_parameter();
+	  result = n_parameter(func_item, &str_parameters, &counter);
 	  if (result != SYNTAX_OK) return result;
-	  return SYNTAX_OK;
 	  break;
 	
 	/*<PARAMETER> -> eps*/
 	case R_BRACKET:
-	  return SYNTAX_OK;
 	  break;
 	  
 	default: 
 	  return SYNTAX_ERROR;
 	  break;
     }
+  
+  /*Pokud jsme delali porovnani srovname, jestli se retezce parametru shoduji*/
+  
+  if (porovnani){
+    if (strcmp(func_item -> func_data, str_parameters.str) != 0)
+        return SEM_ERROR;
+    strFree(&str_parameters);		
+    }
+  else{/*Jinak pridavame parametry, musime do polozky pro funkci v globalni tabulce zapsat retezec obsahujici parametry*/
+    if (counter != 0){
+	  func_item -> func_data = str_parameters.str;
+	  strFree(&str_parameters);
+	  }
+	} 
+  return SYNTAX_OK;
 }
 
-int n_parameter(){/*<N_PARAMETER>*/
+int n_parameter(struct htab_item *func_item, string* str_parameters,int* counter){/*<N_PARAMETER>*/
 
   int result;
+  struct htab_item *item;
   
   switch (token){
     /*<N_PARAMETER> -> SEMICOLON ID COLON <TYPE> <N_PARAMETER>*/
 	case SEMICOLON:
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != ID) return SYNTAX_ERROR;
+	  if (func_item -> fwd == 1){
+	    if ((item = search_var(attr.str, table, &result)) != NULL){
+		  (*counter)++;
+          if (item -> index != *counter)
+		    return SEM_ERROR;
+			}
+		else
+		  return SEM_ERROR;
+	    }
+      else{
+        if ((item = add_var(attr.str, table, &result)) == NULL)
+        return result;
+        }	  	
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type(NULL);
+	  result = type(item, str_parameters);
 	  if (result != SYNTAX_OK) return result;
-	  result = n_parameter();
+	  result = n_parameter(func_item, str_parameters, counter);
 	  if (result != SYNTAX_OK) return result;
 	  return SYNTAX_OK;
 	  break;
@@ -329,13 +391,17 @@ int n_parameter(){/*<N_PARAMETER>*/
     }
 }
 
-int function_body(){/*<FUNCTION_BODY>*/
+int function_body(struct htab_item *func_item){/*<FUNCTION_BODY>*/
 
   int result;
   
   switch (token){
     /*<FUNCTION_BODY> -> FORWARD SEMICOLON*/
     case FORWARD:
+	  if (func_item -> fwd == 1)
+        return SEM_ERROR;
+      else
+        func_item -> fwd = 1;	  
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -345,6 +411,10 @@ int function_body(){/*<FUNCTION_BODY>*/
 	/*<FUNCTION_BODY> -> <DECLARATION> <BODY> SEMICOLON*/
 	case VAR:
 	case BEGIN:
+	  if (func_item -> initialized == 1)
+	    return SEM_ERROR;
+	  else
+	    func_item -> initialized = 1;
 	  result = declaration();
 	  if (result != SYNTAX_OK) return result;
 	  result = body();
@@ -524,7 +594,7 @@ int callorass(){
     case ID:
 	case INTEGER:
 	case STRING:
-	//case BOOLEAN:
+	case BOOLEAN:
 	case DES_INT:
 	case DES_EXP:
 	case DES_EXP_NEG:
@@ -538,6 +608,8 @@ int callorass(){
 	 
     /*<CALLORASS> -> ID_FUNCTION L_BRACKET <VARIABLE> R_BRACKET*/  
 	case ID_FUNCTION:
+	  if ((search_func(attr.str, table, &result) == NULL))
+	    return result;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != L_BRACKET) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -564,7 +636,7 @@ int variable(){
 	case ID:
 	case INTEGER:
 	case STRING:
-	//case BOOLEAN:
+	case BOOLEAN:
 	case DES_INT:
 	case DES_EXP:
 	case DES_EXP_NEG:
@@ -594,7 +666,7 @@ int value(){
     /*<VALUE> -> INTEGER, analogicky pro zbytek*/
 	case INTEGER:
 	case STRING:
-	//case BOOLEAN:
+	case BOOLEAN:
 	case DES_INT:
 	case DES_EXP:
 	case DES_EXP_NEG:
@@ -746,7 +818,7 @@ int expression(){/*<EXPRESSION>*/
 	    }	
 	case INTEGER:
 	case STRING:
-	//case BOOLEAN:
+	case BOOLEAN:
 	case DES_INT:
 	case DES_EXP:
 	case DES_EXP_NEG:
@@ -807,7 +879,7 @@ int assign_int_to_token(int token){
     case ID:
 	case INTEGER:
 	case STRING:
-//	case BOOLEAN:
+    case BOOLEAN:
 	case DES_INT:
 	case DES_EXP:
 	case DES_EXP_NEG:
@@ -933,7 +1005,7 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 	      case ID:
 	      case INTEGER:
 	      case STRING:
-	//	  case BOOLEAN:
+	      case BOOLEAN:
 	      case DES_INT:
 	      case DES_EXP:
 	      case DES_EXP_NEG:

@@ -42,6 +42,7 @@ typedef struct htab_item{
 	bool global;
 	bool function;
 	bool initialized;
+	bool fwd;
 	int index;
 	struct symbol_table_item* func_table; 	
 	struct htab_item* next;
