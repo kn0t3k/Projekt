@@ -1,5 +1,6 @@
 //jednoducha knihovna pro praci s nekonecne dlouhymi retezci
 #include <string.h>
+#include <strings.h>
 #include <malloc.h>
 #include "str.h"
 
