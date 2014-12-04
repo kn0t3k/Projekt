@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <ctype.h>
 #include <stdbool.h>
 #include "ial.h"
@@ -98,7 +99,7 @@ struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
 		//prohleda prvky v globalni tabulce, diva se po shodnych jmenech u promennych a fci, pokud najde -> SEM_ERROR
 		while(tmp!=NULL)
 			{
-				if(strcmp(name, tmp->name) == 0) 
+				if(strcasecmp(name, tmp->name) == 0) 
 				{
 					*error = SEM_ERROR;  //na globalni urovni se nesmi shodovat jmena promennych ani fci
 					return NULL;
@@ -143,18 +144,18 @@ struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
 		 //nesmi se shodovat s zadnou lokalni promennou
 		tmp = s_table->local->table->ptr[hash_function(name, SIZE)]; //ukazatel na lokalni tabulku
 		while(tmp!=NULL)
+		{
+			if(strcasecmp(name,tmp->name) == 0) //kolize jmen fci na lokalni urovni
 			{
-				if(strcmp(name,tmp->name) == 0) //kolize jmen fci na lokalni urovni
-				{
-					*error = SEM_ERROR;  
-					return NULL;
-				}		
-				tmp = tmp->next;	
-			}	 
+				*error = SEM_ERROR;  
+				return NULL;
+			}		
+			tmp = tmp->next;	
+		}	 
 		tmp = s_table->global->table->ptr[hash_function(name, SIZE)]; //ukazatel na globalni tabulku
 		while(tmp!=NULL)
 		{
-			if((strcmp(name,tmp->name) == 0) && (tmp->function == true)) //kolize jmen fci na globalni urovni
+			if((strcasecmp(name,tmp->name) == 0) && (tmp->function == true)) //kolize jmen fci na globalni urovni
 			{
 				*error = SEM_ERROR;  
 				return NULL;
@@ -204,7 +205,7 @@ struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error)
 	struct htab_item *tmp = s_table->global->table->ptr[hash_function(name, SIZE)]; //ukazatel na globalni tabulku
 	while(tmp!=NULL)
 	{
-		if((strcmp(name,tmp->name) == 0)) //kolize jmen fci nebo promennych na globalni urovni
+		if((strcasecmp(name,tmp->name) == 0)) //kolize jmen fci nebo promennych na globalni urovni
 		{
 			*error = SEM_ERROR;  
 			return NULL;
@@ -252,7 +253,7 @@ struct htab_item* search_func(char *name, struct symbol_table* s_table, int* err
 	struct htab_item *tmp = s_table->global->table->ptr[hash_function(name, SIZE)]; //ukazatel na globalni tabulku
 	while(tmp!=NULL)
 	{
-		if((strcmp(name,tmp->name) == 0) && (tmp->function == true)) //kolize jmen fci nebo promennych na globalni urovni
+		if((strcasecmp(name,tmp->name) == 0) && (tmp->function == true)) //kolize jmen fci nebo promennych na globalni urovni
 		{  
 			return tmp;
 		}		
@@ -266,7 +267,7 @@ struct htab_item* search_var(char *name, struct symbol_table* s_table, int* erro
 	struct htab_item *tmp = s_table->local->table->ptr[hash_function(name, SIZE)]; //ukazatel na lokalni tabulku
 	while(tmp!=NULL)
 	{
-		if(strcmp(name,tmp->name) == 0)  //kolize jmen fci nebo promennych na globalni urovni
+		if(strcasecmp(name,tmp->name) == 0)  //kolize jmen fci nebo promennych na globalni urovni
 		{  
 			return tmp;
 		}		
@@ -275,7 +276,7 @@ struct htab_item* search_var(char *name, struct symbol_table* s_table, int* erro
 	tmp = s_table->global->table->ptr[hash_function(name, SIZE)]; //pote se divam do globalni tabulky
 	while(tmp!=NULL)
 	{
-		if((strcmp(name,tmp->name) == 0) && (tmp->function == false)) //kolize jmen fci nebo promennych na globalni urovni
+		if((strcasecmp(name,tmp->name) == 0) && (tmp->function == false)) //kolize jmen fci nebo promennych na globalni urovni
 		{  
 			return tmp;
 		}		
