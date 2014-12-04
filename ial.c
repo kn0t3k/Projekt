@@ -628,9 +628,9 @@ int find(char *s, char *search, int s_len, int search_len)
 int sort(string *s, string *dest)
 {
 	/* kopie vstupu */
-	if (strCopyString(dest, s) == STR_ERROR)
+	if (strCopyString(dest, s) == 1)
 	{
-		return STR_ERROR;
+		return 1; /* kontrolovat v interpretu */
 	}
 	/* hlavni funkce */
 	sort_main(dest->str, 0, (dest->length)-1);
