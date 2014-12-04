@@ -1580,5 +1580,8 @@ int interpret(symbol_table_item *GTable, tList *L)
 		}
 		NextIns(L);
 	}
-	//!!!! UVOLNIT UKAZATELE !!!!
+	free(index_temp);
+	free(size_temp);
+	free(type_temp);
+	free(scope_temp);
 }
