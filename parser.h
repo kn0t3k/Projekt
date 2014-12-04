@@ -2,7 +2,8 @@
 
 /*Struktury pro zasobnik*/
 typedef struct Element{
-  int data;  
+  int data;
+  struct htab_item * item;  
   struct Element * Next;
 }*PtrElement;
 
@@ -26,7 +27,7 @@ int function_body(struct htab_item *func_item);
 int function_readln();
 int function_write();
 int callfunass();
-int callorass();
+int callorass(int expected_type_of_result);
 int id_function();
 int value();
 int variable();
@@ -37,14 +38,15 @@ int body();
 int element();
 int n_element();
 int select_element();
-int expression();
+int expression(int expected_type_of_result);
 int assign_int_to_token(int token);
 int table_symbols(int x, int y, PtrStack Stack);
-int parse_expression();
+int parse_expression(int expected_type_of_result);
+int type_control(struct htab_item* operand_1, int operator, struct htab_item* operand_2);
 
 /*Funkce pro zasobnik*/
 void SInit(PtrStack Stack);
-int SPush(PtrStack Stack, int data);
+int SPush(PtrStack Stack, int data, struct htab_item * item);
 int STopExpression(PtrStack Stack);
 void SPop(PtrStack Stack);
 int STop(PtrStack Stack);

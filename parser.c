@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "str.h"
 #include "scaner.h"
 #include "parser.h"
@@ -72,13 +73,29 @@ switch (vysledek)
 }
 
 
-
-int token;/*Globalni promena*/
+/*Globalni promenne*/
+int token;
+int counterVar = 1;
 struct symbol_table* table;
 PtrStack Stack;
 string attr;
 string *str_parameters = NULL;
 
+
+void generateVariable(string *var)
+
+{
+  strClear(var);
+  strAddChar(var, '$');
+  int i;
+  i = counterVar;
+  while (i != 0)
+  {
+    strAddChar(var, (char)(i % 10 + '0'));
+    i = i / 10;
+  }
+  counterVar ++;
+} 
 
 
  
@@ -118,6 +135,7 @@ int program(){ /*<PROGRAM>*/
 	  if (result != SYNTAX_OK) return result;/*<DECLARATION>*/
       result = function();	  
 	  if (result != SYNTAX_OK) return result;/*<FUNCTION>*/
+	  if (funcs_defined(table) == SEM_ERROR) return SEM_ERROR;
 	  result = body();	  
 	  if (result != SYNTAX_OK) return result;/*BODY*/  
 	  if (token != DOT) return SYNTAX_ERROR;/*DOT*/
@@ -301,6 +319,7 @@ int function(){/*<FUNCTION>*/
 		}
 	  else{
 	    result = type(item);
+		func_item -> type = item -> type;
 		}
 		
 	  if (result != SYNTAX_OK) return result;
@@ -625,7 +644,7 @@ int callfunass(){/*<CALLFUNASS>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != ASS) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = callorass();
+	  result = callorass(item -> type);
 	  if (result != SYNTAX_OK) return result;
 	  return SYNTAX_OK;
 	  break;
@@ -636,7 +655,7 @@ int callfunass(){/*<CALLFUNASS>*/
     }
 }
 
-int callorass(){
+int callorass(int expected_type_of_result){
 
   int result;
   struct htab_item *func_item;
@@ -653,7 +672,7 @@ int callorass(){
 	case EXP:
 	case EXP_NEG:
 	case L_BRACKET:
-	  result = expression();
+	  result = expression(expected_type_of_result);
 	  if (result != SYNTAX_OK) return result;
 	  return SYNTAX_OK;
 	  break;
@@ -663,7 +682,9 @@ int callorass(){
 	  if ((func_item = search_func(attr.str, table, &result)) == NULL)
 	    return result;
 	  else{
-	    if (func_item -> initialized != 1)
+	    if (func_item -> fwd != 1)
+		  return SEM_ERROR;
+		if (func_item -> type != expected_type_of_result)
 		  return SEM_ERROR;
 	    } 
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -773,7 +794,7 @@ int while_condition(){/*<WHILE_CONDITION>*/
     /*<WHILE_CONDITION> -> WHILE EXPRESSION DO <BODY>*/
     case WHILE:
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = expression();
+	  result = expression(3);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != DO) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -796,7 +817,7 @@ int if_condition(){/*<IF_CONDITION>*/
     /*<IF_CONDITION> -> IF EXPRESSION THEN <BODY> ELSE <BODY>*/
 	case IF:
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = expression();
+	  result = expression(3);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != THEN) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -859,19 +880,12 @@ int function_write(){/*<FUNCTION_WRITE>*/
     }
 }
 
-int expression(){/*<EXPRESSION>*/
+int expression(int expected_type_of_result){/*<EXPRESSION>*/
 
-  int result, error;
-  struct htab_item* item;
+  int result;
 
   switch (token){
     case ID:
-	  if ((item = search_var(attr.str, table, &error)) == NULL)
-        return error;
-	  else{
-	    if (item -> initialized != 1)
-	      return SEM_ERROR;
-	    }	
 	case INTEGER:
 	case STRING:
 	case BOOLEAN:
@@ -881,7 +895,7 @@ int expression(){/*<EXPRESSION>*/
 	case EXP:
 	case EXP_NEG:
 	case L_BRACKET:
-      result = parse_expression();
+      result = parse_expression(expected_type_of_result);
 	  if (result != SYNTAX_OK) return result;
 	  return SYNTAX_OK;
       break;
@@ -1030,7 +1044,7 @@ int table_symbols(int x, int y, PtrStack Stack){/*Realizace tabulky*/
    */
 }
 
-int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
+int parse_expression(int expected_type_of_result){/*Precedencni syntakticka analyza vyrazu*/
   printf("\n\nPrecedencni syntakticka analyza vyrazu\n");
   /*Inicializace zasobniku*/
   SInit(Stack);
@@ -1043,23 +1057,116 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
     switch (result){
    
       case SHIFT:
+	    ;
+		string new_variable;
+	    switch (token){
+          case ID:/*Pokud jde o ID vyhleda se v aktualni tabulce, jestli je tam a pak se zkontroluje inicializace*/
+	        if ((item = search_var(attr.str, table, &error)) == NULL)
+              return error;
+	        else{
+	          if (item -> initialized != 1)
+	            return SEM_ERROR;
+	          }
+            break;
+			
+	      case INTEGER:/*Pokud je to int, tak se vytvori novy jedinecny nazev, a pridame do tabulky polozku s timto nazvem + data + typ*/
+	        ;
+			int *value_i;
+			if ((value_i = (int *) malloc(sizeof(int))) == NULL)/*Alokace mista pro hodnotu promenne*/
+			  return INTERNAL_ERR;
+			*value_i = atoi(attr.str);
+			strInit(&new_variable);
+			generateVariable(&new_variable);
+			if ((item = add_var(new_variable.str, table, &result)) == NULL){
+			  strFree(&new_variable);
+			  free(value_i);
+			  return result;
+			  }
+			strFree(&new_variable);	
+			item -> type = s_integer;
+			//generateInstruction(I_ASSIGN,(void *) value, NULL, item);
+			free(value_i);/*Po zprovozneni instrukci oddelat!!!*/	
+			break;
+			
+		  case STRING:
+		    ;
+			char *value_s;
+			if ((value_s = (char*) malloc(sizeof(char)*(strlen(attr.str)+1))) == NULL)/*Alokace mista pro hodnotu promenne*/
+			  return INTERNAL_ERR;
+			strncpy(value_s, attr.str, sizeof(char)*(strlen(attr.str)+1));  
+			strInit(&new_variable);
+			generateVariable(&new_variable);
+			if ((item = add_var(new_variable.str, table, &result)) == NULL){
+			  strFree(&new_variable);
+			  free(value_s);
+			  return result;
+			  }
+			strFree(&new_variable);
+            item -> type = s_string;
+            //generateInstruction(I_ASSIGN,(void *) value, NULL, item);
+			free(value_s);/*Po zprovozneni instrukci oddelat!!!*/			
+			break;
+			
+	      case BOOLEAN:
+		    ;
+			bool *value_b;
+			if ((value_b = (bool *) malloc(sizeof(bool))) == NULL)/*Alokace mista pro hodnotu promenne*/
+			  return INTERNAL_ERR;
+			if (strcmp(attr.str, "true") == 0)
+			  *value_b = TRUE;
+			else
+			  *value_b = FALSE;
+			strInit(&new_variable);
+			generateVariable(&new_variable);
+			if ((item = add_var(new_variable.str, table, &result)) == NULL){
+			  strFree(&new_variable);
+			  free(value_b);
+			  return result;
+			  }
+			strFree(&new_variable);	
+			item -> type = s_boolean;
+			//generateInstruction(I_ASSIGN,(void *) value, NULL, item);
+			free(value_b);/*Po zprovozneni instrukci oddelat!!!*/
+			break;
+			
+	      case DES_INT:
+	      case DES_EXP:
+	      case DES_EXP_NEG:
+	      case EXP:
+	      case EXP_NEG:
+		    ;
+			float *value_f;
+			if ((value_f = (float *) malloc(sizeof(float))) == NULL)/*Alokace mista pro hodnotu promenne*/
+			  return INTERNAL_ERR;
+			*value_f = atof(attr.str);
+			strInit(&new_variable);
+			generateVariable(&new_variable);
+			if ((item = add_var(new_variable.str, table, &result)) == NULL){
+			  strFree(&new_variable);
+			  free(value_f);
+			  return result;
+			  }
+			strFree(&new_variable);	
+			item -> type = s_real;
+			//generateInstruction(I_ASSIGN,(void *) value, NULL, item);
+			free(value_f);/*Po zprovozneni instrukci oddelat!!!*/
+			break;
+	  
+	      default:
+		    item = NULL;/*Nejedna se o hodnotu*/
+	        break;
+	      }
+		  
 	    printf("\nSHIFT");
-	    if ((SPush(Stack, token)) != INTERNAL_OK) return INTERNAL_ERR;
+	    if ((SPush(Stack, token, item)) != INTERNAL_OK) return INTERNAL_ERR;
 		printf("\nDalsi token bude:");
 	    if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-		if (token == ID){
-		  if ((item = search_var(attr.str, table, &error)) == NULL)
-            return error;
-	      else{
-	        if (item -> initialized != 1)
-	          return SEM_ERROR;
-	        }
-		  }
 	    break;
 	  
       case REDUCE:
 	    printf("\nREDUCE");
 	    switch (STop(Stack)){
+		  /*Zpracovani hodnoty, pouze se prepise na vyraz*/
 	      case ID:
 	      case INTEGER:
 	      case STRING:
@@ -1069,8 +1176,7 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
 	      case DES_EXP_NEG:
 	      case EXP:
 	      case EXP_NEG:
-            SPop(Stack);
-            if ((SPush(Stack, EXPRESSION)) != INTERNAL_OK) return INTERNAL_ERR;
+            Stack -> Top -> data = EXPRESSION;
 		    break;
 		
 	      case MUL:
@@ -1083,20 +1189,59 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
           case LE:
           case EQ:
           case SL:
-		  case R_BRACKET:
-            SPop(Stack);
-		    SPop(Stack);
-			SPop(Stack);
-            if ((SPush(Stack, EXPRESSION)) != INTERNAL_OK) return INTERNAL_ERR;
+		    ;
+		    struct htab_item *operand_1;
+			struct htab_item *operand_2;
+			int operator;
+			
+			
+            operand_2 = Stack -> Top -> item;/*Druhy operand bude prvni na zasobniku*/ 			
+            SPop(Stack);/*Vyhodime operand ze zasobniku*/
+			operator = Stack -> Top -> data;/*Zapamatujeme si operator*/
+		    SPop(Stack);/*Vyhodime operator ze zasobniku*/
+			operand_1 = Stack -> Top -> item;/*Zapamatujeme si prvni operand*/
+			SPop(Stack);/*Vyhodime prvni operand ze zasobniku*/
+			/*Vytvorime novou promenou, pro ni vytvorime polozku v tabulce a jeji typ nastavime na typ vysledku, kterou nam da funkce type_control*/
+			string new_variable;
+			strInit(&new_variable);
+			generateVariable(&new_variable);
+			if ((item = add_var(new_variable.str, table, &result)) == NULL){
+			  strFree(&new_variable);
+			  return result;
+			  }
+			strFree(&new_variable);
+			/*Zavolame funkci type_control, ktera zkontroluje typy a vrati typ vysledku*/
+			/*Pokud vrati funkce type_control SEM_ERROR, tak nastala semanticka chyba*/
+            if ((result = type_control(operand_1, operator, operand_2)) == SEM_ERROR_TYPE){
+				return SEM_ERROR_TYPE;
+                }				
+			item -> type = result;
+			//generateInstruction - case podle operatoru
+			//dodelat alokaci pameti pro instrukce
+			/*Po zprovozneni instrukci oddelat!!!*/
+            if ((SPush(Stack, EXPRESSION, item)) != INTERNAL_OK) return INTERNAL_ERR;
 		    break;  
+		  
+		  case R_BRACKET:/*Zpracovavame vyraz (EXPRESSION), musime se zbavit zavorek*/
+		    ;
+			struct htab_item *item;
+			
+			SPop(Stack);/*Vyhodime pravou zavorku*/
+			item = Stack -> Top -> item; /*Zapamatujem si vyraz*/
+			SPop(Stack);/*Vyhodime vyraz*/
+			SPop(Stack);/*Vyhodime levou zavorku*/
+			if ((SPush(Stack, EXPRESSION, item)) != INTERNAL_OK) return INTERNAL_ERR;/*Puvodni vyraz nahrajem zpatky*/
+			break;
 		  
 		  default:
             break;		  
 	      }
 	    break;
-	
+		
+		
+	  /*Jsme ve stavu (E, potrebujeme pridat pravou zavorku*/
 	  case EQUAL:
-	    if ((SPush(Stack, token)) != INTERNAL_OK) return INTERNAL_ERR;
+	    if ((SPush(Stack, token, NULL)) != INTERNAL_OK) return INTERNAL_ERR;/*Pridame pravou zavorku*/
 	    if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	    break;
 	  
@@ -1111,6 +1256,8 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
     }while (!((STop(Stack) == DOLLAR) && ((token == THEN) || (token == DO) || (token == SEMICOLON) || (token == END))));
   
   printf("\n\nVyprazdneni zasobniku");
+  if (Stack -> Top -> item -> type != expected_type_of_result)
+    return SEM_ERROR;
   SEmpty(Stack);
   printf("\n");
   printf("\nKonec precedencni syntakticke analyzy vyrazu");
@@ -1118,6 +1265,184 @@ int parse_expression(){/*Precedencni syntakticka analyza vyrazu*/
   return SYNTAX_OK;  
   
 }
+
+int type_control(struct htab_item* operand_1, int operator, struct htab_item* operand_2){
+  /*Typ operatoru (operator -> type) oznacuji cisla, a to nasledovne:
+    0..integer
+	1..real
+	2..string
+	3..boolean
+	4..default (typ nebyl nastaven)
+  */
+  
+  int type_of_result = 4;
+  
+  if (operand_1 -> type == 4 || operand_2 -> type == 4)/*Tato situace nemuze prakticky nastat*/
+    return SEM_ERROR_TYPE;
+  
+  /*Zkontrolujeme, zda s danyma operandame, muzeme provest danou operaci*/
+  switch (operator){
+    
+	/*NASOBENI*/
+	case MUL:
+	  /*Druhy, ani prvni operand nesmi byt retezec, nebo boolean*/
+	  switch (operand_1 -> type){
+	    /*INTIGER*/
+		case 0:	
+          if (operand_2 -> type == 0)
+		    type_of_result = 0;
+		  else{	
+		    if (operand_2 -> type == 1)
+		      type_of_result = 1;
+			else
+			  return SEM_ERROR_TYPE;
+			  }
+          break;			
+		/*REAL*/
+		case 1:
+		  if (operand_2 -> type == 0 || operand_2 -> type == 1)
+		    type_of_result = 1;
+		  else
+		    return SEM_ERROR_TYPE;
+          break;			 
+
+		default:
+		  return SEM_ERROR_TYPE;
+		  break;
+	    }	
+	  break;
+	
+	/*DELENI*/  
+	case DIV:
+	  /*Druhy, ani prvni operand nesmi byt retezec, nebo boolean*/
+	  switch (operand_1 -> type){
+	    /*INTIGER*/
+	    case 0:				
+		/*REAL*/
+		case 1:
+		  if (operand_2 -> type == 0 || operand_2 -> type == 1)
+		    type_of_result = 1;/*Vysledek deleni je vzdy real*/
+	      else
+		    return SEM_ERROR_TYPE;
+          break;			 
+		
+		default:
+		  return SEM_ERROR_TYPE;
+		  break;
+	    }
+	  break;
+	
+	/*SCITANI*/
+    case ADD:
+	  /*Druhy, ani prvni operand nesmi byt boolean*/
+	  switch (operand_1 -> type){
+	    /*INTIGER*/
+	    case 0:	
+          if (operand_2 -> type == 0)
+            type_of_result = 0;
+          else{
+            if (operand_2 -> type == 1)
+			  type_of_result = 1;
+			else
+			  return SEM_ERROR_TYPE;
+            }
+          break;			
+		/*REAL*/
+		case 1:
+		  if (operand_2 -> type == 0 || operand_2 -> type == 1)
+		    type_of_result = 1;
+	      else
+		    return SEM_ERROR_TYPE;
+          break;
+        /*STRING*/
+        case 2:
+          if (operand_2 -> type == 2)/*Konkatenace retezce*/
+            type_of_result = 2;
+          else 
+            return SEM_ERROR_TYPE;	
+          break;			
+		
+		default:
+		  return SEM_ERROR_TYPE;
+		  break;
+	    }
+	  break;
+    
+    /*MINUS*/	
+	case DIF:
+	  /*Druhy, ani prvni operand nesmi byt retezec, nebo boolean*/
+	  switch (operand_1 -> type){
+	    /*INTIGER*/
+	    case 0:	
+          if (operand_2 -> type == 0)
+            type_of_result = 0;
+          else{
+            if (operand_2 -> type == 1)
+			  type_of_result = 1;
+			else
+			  return SEM_ERROR_TYPE;
+            }
+          break;			
+		/*REAL*/
+		case 1:
+		  if (operand_2 -> type == 0 || operand_2 -> type == 1)
+		    type_of_result = 1;
+	      else
+		    return SEM_ERROR_TYPE;
+          break;	  
+		
+		default:
+		  return SEM_ERROR_TYPE;
+		  break;
+	    }
+	  break;
+	
+    /*POROVNAVANI*/	
+    case S:
+	case L:
+    case SE:
+    case LE:
+    case EQ:
+    case SL: 
+    /*Pri porovnani musi byt operandy stejneho typu a vysledek je vzdy bool*/	
+	  switch (operand_1 -> type){
+	    /*INTIGER*/
+	    case 0:	
+          if (operand_2 -> type != 0)
+            return SEM_ERROR_TYPE;
+          break;			
+		/*REAL*/
+		case 1:
+		  if (operand_2 -> type != 1)
+		    return SEM_ERROR_TYPE;
+          break;
+        /*STRING*/
+        case 2:
+          if (operand_2 -> type != 2)
+            return SEM_ERROR_TYPE;
+          break;		  
+		
+		case 3:
+		  if (operand_2 -> type != 3)
+		    return SEM_ERROR_TYPE;
+		  break;
+		  
+		default:
+		  return SEM_ERROR_TYPE;
+		  break;
+	    }
+	  type_of_result = 3;/*Vysledek porovnani je vzdy bool*/	
+	  break;
+    }
+  /*Pokud kontrola probehla spravne, vratime typ vysledku*/
+  return type_of_result;
+}
+
+
+
+
+
+
 
 
 
@@ -1139,7 +1464,7 @@ void SInit(PtrStack Stack){
 
 }
 
-int SPush(PtrStack Stack, int data){
+int SPush(PtrStack Stack, int data, struct htab_item *item){
 
   PtrElement tmp;
   printf("\n**push ");
@@ -1147,6 +1472,7 @@ int SPush(PtrStack Stack, int data){
   
   if ((tmp = (PtrElement) malloc(sizeof(struct Element))) == NULL) return INTERNAL_ERR;
   tmp -> data = data;
+  tmp -> item = item;
   tmp -> Next = Stack -> Top;
   Stack -> Top = tmp;
   return INTERNAL_OK;
