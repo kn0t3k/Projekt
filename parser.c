@@ -351,6 +351,8 @@ int parameter(struct htab_item *func_item){/*<PARAMETER>*/
       else{
         if ((item = add_var(attr.str, table, &result)) == NULL)
           return result;
+		else
+		  item -> initialized = 1;
         }	  	
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
@@ -415,7 +417,9 @@ int n_parameter(struct htab_item *func_item,int* counter){/*<N_PARAMETER>*/
 	    }
       else{
         if ((item = add_var(attr.str, table, &result)) == NULL)
-        return result;
+          return result;
+		else
+          item -> initialized = 1;		
         }	  	
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
