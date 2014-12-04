@@ -120,6 +120,7 @@ struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
 		}
 		strncpy(newitem->name, name, size);
 		newitem->global = true;
+		newitem->fwd = false;
 		newitem->type = s_default;
 		newitem->function = false;
 		newitem->func_data = NULL;
@@ -176,6 +177,7 @@ struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
 		strncpy(newitem->name, name, size);
 		newitem->global = false;
 		newitem->function = false;
+		newitem->fwd = false;
 		newitem->type = s_default;
 		newitem->func_data = NULL;
 		newitem->func_table = NULL;
@@ -225,6 +227,7 @@ struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error)
 	}
 	strncpy(newitem->name, name, size);
 	newitem->global = true;
+	newitem->fwd = false;
 	newitem->type = s_default;
 	newitem->function = true;
 	newitem->func_data = NULL;
