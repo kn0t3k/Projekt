@@ -338,11 +338,11 @@ int parameter(struct htab_item *func_item){/*<PARAMETER>*/
   switch (token){
     /*<PARAMETER> -> ID COLON <TYPE> <N_PARAMETER>*/
 	case ID:
+	  counter = 1;	  	
 	  if (func_item -> fwd == 1){
 	    porovnani = 1;
 		printf("\n%s", func_item -> func_data);
 	    if ((item = search_var(attr.str, table, &result)) != NULL){
-		  counter = 1;
           if (item -> index != counter)
 		    return SEM_ERROR;
 			}
@@ -385,11 +385,13 @@ int parameter(struct htab_item *func_item){/*<PARAMETER>*/
 		return  INTERNAL_ERR;;
 	    }
 	  strncpy(func_item -> func_data, str_parameters -> str, sizeof(char)*(strlen(str_parameters -> str)+1));
+	  printf("\n%s", func_item -> func_data);
 	  }
 	}
-  printf("\n%s",str_parameters -> str);
   strFree(str_parameters);	
-  free(str_parameters); 
+  free(str_parameters);
+  str_parameters = NULL;  
+  
   return SYNTAX_OK;
 }
 
