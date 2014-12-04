@@ -5,7 +5,6 @@
 #include "scaner.h"
 #include "parser.h"
 #include "err.h"
-#include "ial.h"
 
 
 void vypis(int vysledek){
@@ -78,6 +77,7 @@ int token;/*Globalni promena*/
 struct symbol_table* table;
 PtrStack Stack;
 string attr;
+string *str_parameters = NULL;
 
 
 
@@ -95,6 +95,12 @@ int parse(struct symbol_table* table_main, PtrStack Stack_main){
   else
      result = program();
   strFree(&attr);
+  
+  if (str_parameters != NULL){
+    strFree(str_parameters);
+    free(str_parameters);
+    }	
+  
   return result;
 }
 
@@ -142,7 +148,7 @@ int declaration(){/*<DECLARATION>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type(item, NULL);
+	  result = type(item);
       if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -163,14 +169,15 @@ int declaration(){/*<DECLARATION>*/
   }
 }
 
-int type(struct htab_item *item, string* str_parameters){/*<TYPE>*/
+int type(struct htab_item *item){/*<TYPE>*/
 
   switch (token){
     /*<TYPE> -> T_INTEGER, pro ostatni case analogicky*/  
     case T_INTEGER:
-      if (str_parameters != NULL)
+      if (str_parameters != NULL){
         strAddChar(str_parameters, 'i');
-	  item -> type = s_integer;		
+		}
+	  item -> type = s_integer;	  
 	  break;
 	  
 	case T_REAL:
@@ -212,7 +219,7 @@ int n_declaration(){/*<N_DECLARATION>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type(item, NULL);
+	  result = type(item);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -242,7 +249,6 @@ int function(){/*<FUNCTION>*/
   switch (token){
     /*<FUNCTION> -> FUNCTION ID_FUNCTION L_BRACKET <PARAMETER> R_BRACKET COLON <TYPE> SEMICOLON <FUNCTION_BODY> <FUNCTION>*/
     case FUNCTION:
-	  if (result == INTERNAL_ERR) return result;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != ID_FUNCTION) return SYNTAX_ERROR;
 	  if ((func_item = search_func(attr.str, table, &result)) != NULL){
@@ -294,7 +300,7 @@ int function(){/*<FUNCTION>*/
 		result = SYNTAX_OK;  
 		}
 	  else{
-	    result = type(item, NULL);
+	    result = type(item);
 		}
 		
 	  if (result != SYNTAX_OK) return result;
@@ -324,15 +330,17 @@ int parameter(struct htab_item *func_item){/*<PARAMETER>*/
   int counter = 0;/*Citac parametru*/
   int porovnani = 0;/*Predstavuje boolean, pokud uz je funkce deklarovana, pouze srovnamvame parametry u definice*/ 
   struct htab_item *item;
-  string str_parameters;
-  
-  strInit(&str_parameters);
+
+  if((str_parameters = (string *) malloc(sizeof(*str_parameters))) == NULL)
+    return INTERNAL_ERR;
+  strInit(str_parameters);
   
   switch (token){
     /*<PARAMETER> -> ID COLON <TYPE> <N_PARAMETER>*/
 	case ID:
 	  if (func_item -> fwd == 1){
 	    porovnani = 1;
+		printf("\n%s", func_item -> func_data);
 	    if ((item = search_var(attr.str, table, &result)) != NULL){
 		  counter = 1;
           if (item -> index != counter)
@@ -348,9 +356,9 @@ int parameter(struct htab_item *func_item){/*<PARAMETER>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type(item, &str_parameters);
+	  result = type(item);
 	  if (result != SYNTAX_OK) return result;
-	  result = n_parameter(func_item, &str_parameters, &counter);
+	  result = n_parameter(func_item, &counter);
 	  if (result != SYNTAX_OK) return result;
 	  break;
 	
@@ -366,25 +374,26 @@ int parameter(struct htab_item *func_item){/*<PARAMETER>*/
   /*Pokud jsme delali porovnani srovname, jestli se retezce parametru shoduji*/
   
   if (porovnani){
-    if (strcmp(func_item -> func_data, str_parameters.str) != 0)
+    printf("\n%s", func_item -> func_data);
+    if (strcmp(func_item -> func_data, str_parameters -> str) != 0)
         return SEM_ERROR;		
     }
   else{/*Jinak pridavame parametry, musime do polozky pro funkci v globalni tabulce zapsat retezec obsahujici parametry*/
     if (counter != 0){
-	
-/*TADY JE TO PRIRAZENI*/	 
-	 
-	  func_item -> func_data = (char*) malloc(sizeof(char)*(strlen(str_parameters.st)+1));
+	  func_item -> func_data = (char*) malloc(sizeof(char)*(strlen(str_parameters -> str)+1));
 	  if(func_item -> func_data == NULL){
-		return  INTERNAL_ERR;
+		return  INTERNAL_ERR;;
+	    }
+	  strncpy(func_item -> func_data, str_parameters -> str, sizeof(char)*(strlen(str_parameters -> str)+1));
 	  }
-	  strncpy(func_item -> func_data, str_parameters.st, sizeof(char)*(strlen(str_parameters.st)+1));
-	  }
-	} 
+	}
+  printf("\n%s",str_parameters -> str);
+  strFree(str_parameters);	
+  free(str_parameters); 
   return SYNTAX_OK;
 }
 
-int n_parameter(struct htab_item *func_item, string* str_parameters,int* counter){/*<N_PARAMETER>*/
+int n_parameter(struct htab_item *func_item,int* counter){/*<N_PARAMETER>*/
 
   int result;
   struct htab_item *item;
@@ -410,9 +419,9 @@ int n_parameter(struct htab_item *func_item, string* str_parameters,int* counter
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type(item, str_parameters);
+	  result = type(item);
 	  if (result != SYNTAX_OK) return result;
-	  result = n_parameter(func_item, str_parameters, counter);
+	  result = n_parameter(func_item, counter);
 	  if (result != SYNTAX_OK) return result;
 	  return SYNTAX_OK;
 	  break;
