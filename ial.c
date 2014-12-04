@@ -446,13 +446,11 @@ void htab_remove(htab_t *t, const char *name)
 }
 
 
-/*
-
-
-/************************************************/
-/* vraci delku stringu	                        */
-/* v interpretu radeji rovnou strlen (rychlost) */
-/************************************************/
+/**
+* Funkce vraci delku retezce
+* @param *s ukazatel na retezec ze struktury string (dest->str)
+* @return delka retezce
+*/
 
 int length(char *s)
 {
@@ -460,54 +458,64 @@ int length(char *s)
 }
 
 
-/************************************************/
-/* vraci kopii n znaku od pozice i ze stringu s */
-/************************************************/
+/**
+* Funkce vraci kopii n znaku od pozice i ze stringu s 
+* @param *s ukazatel na puvodni retezec ze struktury string (string->str)
+* @param *dest ukazatel na strukturu string (kvuli funkcim s alokaci), TAM BUDE VYSLEDEK
+* @param i od jake pozice kopirujeme
+* @param n kolik znaku chceme kopirovat
+* @param s_len delka retezce s (string->length)
+* @return chyba nebo uspech
+*/
 
-char *copy(char *s, int i, int n) 
+int copy(char *s, string *dest, int i, int n, int s_len) 
 {
-	if (s == NULL || i < 1 || n < 1 || i > strlen(s))
+	if (s == NULL || i < 1)
 	{
-		return SEM_ERROR;
+		return SEM_ERROR; /* kontrolovat v interpretu */
+	}
+	else if (n < 1 || i > s_len) /* neni co delat */
+	{
+		return 0;
 	}
 
-	if ((i+n) > (strlen(s)+1))
+	if ((i+n) > (s_len+1))
 	{
-		n = n-(n+i-strlen(s))+1; /* orezani retezce, kdyz presahuje hranice */
+		n = n-(n+i-s_len)+1; /* orezani retezce, kdyz presahuje hranice */
 	}
-
-	/* vyresit alokaci a praci s ukazatelem!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
-	char *ret = (char *) malloc(sizeof(char) * (n+1)); /* +1 kvuli '\0' */
 
 	int j = i-1;
 	int count = 0;
 
-	while(count < n)
+	while(count < n) /* kopirujeme jen tolik kolik chceme */
 	{
- 		ret[count] = s[j];
+ 		strAddChar(dest, s[j]);
         j++;
         count++;
 	}
-	ret[n] = '\0';
 
-	return ret;
+	return 0;
 }
 
 
-/**********************************************/
-/* vraci pozici podretezce search z retezce s */
-/**********************************************/
+/**
+* Funkce hleda podretezec a vraci jeho index
+* @param *s ukazatel na puvodni retezec (retezec ze struktury string (string->str))
+* @param *search ukazatel na hledany podretezec (retezec ze struktury string (string->str))
+* @param s_len delka puvodniho retezce (string->length)
+* @param search_len delka hledaneho retezce (string->length)
+* @return index nebo chyba
+*/
 
-int find(char *s, char *search)
+int find(char *s, char *search, int s_len, int search_len)
 {
-	int search_len = strlen(search);
-	int s_len = strlen(s);
 	int ascii = 256; /* podle ascii tabulky */
 	int max = 0;
+	int return_s_len = s_len;
 
 	if (s == NULL || search == NULL) /* neplatne ukazatele */
 	{
-		return SEM_ERROR;
+		return SEM_ERROR; /* v interpretu kontrolovat navratovou hodnotu */
 	}
 	else if (search_len == 0) /* prazdny retezec se vzdy nachazi na pozici 1 */
 	{
@@ -604,37 +612,40 @@ int find(char *s, char *search)
 		}
 		else
 		{
-			return strlen(s)+1;	
+			return return_s_len+1;	
 		}  		
 	}
 }
 
 
-/**********************************************/
-/* seradi vstupni retezec A vzestupne a vraci */ 
-/* novy retezec (ten vstupni se nemeni)       */
-/**********************************************/
+/**
+* Funkce vytvari kopii vstupu, kterou pak seradi
+* @param *s ukazatel na strukturu string puvodniho retezce
+* @param *dest ukazatel na strukturu string, KDE BUDE VYSLEDEK
+* @return chyba nebo uspech
+*/
 
-/* vyresit malloc...kdyz si vytvorim vstupni retezec */
-/* a namallocuju si misto pro jeho serazenou kopii   */
-/* a spustim nad tim tuto funkci tak funguje!        */
-void sort(char *A, int left, int right) /* zmenit navratovou hodnotu */
+int sort(string *s, string *dest)
 {
-	int r = right;
-	int l = left;
-	int *i = &l;
-	int *j = &r;
-
-	partition(A, left, right, i, j);
-
-	if (left < *j) sort(A, left, *j);
-	if (*i < right) sort(A, *i, right);
+	/* kopie vstupu */
+	if (strCopyString(dest, s) == STR_ERROR)
+	{
+		return STR_ERROR;
+	}
+	/* hlavni funkce */
+	sort_main(dest->str, 0, (dest->length)-1);
+	return 0;
 }
 
 
-/***************************************/
-/* pomocna rozdelovaci funkce pro sort */
-/***************************************/
+/**
+* Funkce rozdeluje pole
+* @param *A ukazatel na retezec ktery se rozdeluje
+* @param left index prvniho prvku
+* @param right index posledniho prvku
+* @param *i pomocny index (left)
+* @param *j pomocny index (right)
+*/
 
 void partition(char *A, int left, int right, int *i, int *j)
 {
@@ -671,6 +682,25 @@ void partition(char *A, int left, int right, int *i, int *j)
 	} while ((*i) <= (*j));
 }
 
+
+/**
+* Funkce seradi vzestupne znaky
+* @param *A ukazatel na retezec ktery se bude radit
+* @param left index prvniho prvku
+* @param right index posledniho prvku
 */
 
+void sort_main(char *A, int left, int right)
+{
+	int r = right;
+	int l = left;
+	int *i = &l;
+	int *j = &r;
 
+	/* rozdelovaci funkce */
+	partition(A, left, right, i, j);
+
+	/* rekurzivni volani */
+	if (left < *j) sort_main(A, left, *j);
+	if (*i < right) sort_main(A, *i, right);
+}
