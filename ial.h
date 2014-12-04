@@ -74,5 +74,6 @@ struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error)
 struct htab_item* search_func(char *name, struct symbol_table* s_table, int* error);
 struct htab_item* search_var(char *name, struct symbol_table* s_table, int* error);
 void symbol_table_free(struct symbol_table* s_table);
+int funcs_defined(struct symbol_table* s_table); //overi, zda vsechny deklarovane fce v tabulce byly i definovane. pokud ne -> return SEM_ERROR
 
 					
