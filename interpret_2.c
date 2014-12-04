@@ -21,26 +21,37 @@ void loadarray(void **array, symbol_table_item *TB)
 		while (iptr != NULL)
 		{
 			int type = iptr->type;
-			switch (type)
+			if (!(iptr->function))
 			{
-				case INT_INT:
-					array[iptr->index] = malloc(sizeof(int));
-					break;
+				switch (type)
+				{
+					case INT_INT:
+					{
+						array[iptr->index] = malloc(sizeof(int));
+						break;
+					}
 
-				case INT_REAL:
-					array[iptr->index] = malloc(sizeof(double));
-					break;
+					case INT_REAL:
+					{
+						array[iptr->index] = malloc(sizeof(double));
+						break;
+					}
 
-				case INT_STRING:
-					array[iptr->index] = malloc(sizeof(char));
-					break;
+					case INT_STRING:
+					{
+						array[iptr->index] = malloc(sizeof(char));
+						break;
+					}
 
-				case INT_BOOLEAN:
-					array[iptr->index] = malloc(sizeof(bool));
-					break;
+					case INT_BOOLEAN:
+					{
+						array[iptr->index] = malloc(sizeof(bool));
+						break;
+					}
 
-				default:
-					break;
+					default:
+						break;
+				}
 			}
 			iptr = iptr->next;
 		}
@@ -115,12 +126,12 @@ int interpret(symbol_table_item *GTable, tList *L)
 				{
 					if (scope1 == 0)
 					{
-						if (!(l_arr[index1]))
+						if (!(*((bool*) l_arr[index1])))
 							GoToItem(L,((tItem*) I->addr3)); //melo by fungovat...
 					}
 					else
 					{
-						if (!(g_arr[index1]))
+						if (!(*((bool*) g_arr[index1])))
 							GoToItem(L,((tItem*) I->addr3));
 					}
 				}
