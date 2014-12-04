@@ -1,4 +1,4 @@
-
+#include "ial.h"
 
 /*Struktury pro zasobnik*/
 typedef struct Element{
@@ -18,11 +18,11 @@ int parse();
 int program();
 int declaration();
 int n_declaration();
-int type();
+int type(struct htab_item *item);
 int function();
-int parameter();
-int n_parameter();
-int function_body();
+int parameter(struct htab_item *func_item);
+int n_parameter(struct htab_item *func_item,int* counter);
+int function_body(struct htab_item *func_item);
 int function_readln();
 int function_write();
 int callfunass();
