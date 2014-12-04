@@ -4,7 +4,6 @@
 #include "str.h"
 #include "scaner.h"
 #include "parser.h"
-#include "ial.h"
 
 
 int main(int argc, char** argv)
@@ -71,6 +70,15 @@ int main(int argc, char** argv)
        fclose(f);*/
          return -result;
      break;
+	 case INTERNAL_ERR:
+         //tiskni_radky();
+         printf("\nerr INTERNAL_ERR \n");
+       // nastala chyba v prubehu prekladu
+       /*tableFree(&ST);
+       listFree(&instrList);
+       fclose(f);*/
+         return -result;
+	 
      // jinak probehlo vse v poradku, muzeme provadet kod
    }
    printf("\n**vse OK**\n");
