@@ -974,12 +974,12 @@ int table_symbols(int x, int y, PtrStack Stack){/*Realizace tabulky*/
   
   
   if ((y <= 109) || (y == 111)){/*Vstupni token je operator, nebo prava zavorka, musime overit, ze na vrcholu zasobniku je vyraz*/
-    if (((STopExpression(Stack)) == NEPRAVDA) && (STop(Stack) != ID) && (STop(Stack) != R_BRACKET)){
+    if (((STopExpression(Stack)) == NEPRAVDA) && (x != 112) && (x != 111)){
 	  return SYNTAX_ERROR;
 	  }
     }
 	
-  if (x <= 109){
+  if (x <= 109){/*Vstupni token je DOLLAR, musime overit, ze na vrcholu zasobniku neni operator*/
     if ((y == 113) && ((STopExpression(Stack)) == NEPRAVDA))
 	  return SYNTAX_ERROR;
     }
@@ -990,6 +990,8 @@ int table_symbols(int x, int y, PtrStack Stack){/*Realizace tabulky*/
 	  return SYNTAX_ERROR;
 	  }
     }
+	
+
   printf("\nPodle tabulky rozhodnu co mam delat:");
   if (((x <= 101) && (y <= 109))||
       ((x > 101) && (x <= 103) && (y > 101) && (y <= 109))||
