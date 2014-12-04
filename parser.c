@@ -341,7 +341,6 @@ int parameter(struct htab_item *func_item){/*<PARAMETER>*/
 	  counter = 1;	  	
 	  if (func_item -> fwd == 1){
 	    porovnani = 1;
-		printf("\n%s", func_item -> func_data);
 	    if ((item = search_var(attr.str, table, &result)) != NULL){
           if (item -> index != counter)
 		    return SEM_ERROR;
@@ -374,7 +373,7 @@ int parameter(struct htab_item *func_item){/*<PARAMETER>*/
   /*Pokud jsme delali porovnani srovname, jestli se retezce parametru shoduji*/
   
   if (porovnani){
-    printf("\n%s", func_item -> func_data);
+    printf ("\nPorovnavam parametry funkci: forward = %s, aktualni = %s",func_item -> func_data, str_parameters -> str);
     if (strcmp(func_item -> func_data, str_parameters -> str) != 0)
         return SEM_ERROR;		
     }
@@ -384,8 +383,8 @@ int parameter(struct htab_item *func_item){/*<PARAMETER>*/
 	  if(func_item -> func_data == NULL){
 		return  INTERNAL_ERR;;
 	    }
+	  printf("\nPridavam parametry k funkci (%s) : %s", func_item -> name, str_parameters -> str);
 	  strncpy(func_item -> func_data, str_parameters -> str, sizeof(char)*(strlen(str_parameters -> str)+1));
-	  printf("\n%s", func_item -> func_data);
 	  }
 	}
   strFree(str_parameters);	
