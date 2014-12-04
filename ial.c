@@ -320,6 +320,23 @@ void symbol_table_free(struct symbol_table* s_table){
 }
 
 
+int funcs_defined(struct symbol_table* s_table){
+	struct htab_t *htab = s_table->global->table;
+	
+	for(int i = 0; i < htab->htab_size; i++)
+	{
+		struct htab_item *item = htab->ptr[i];
+		
+		while(item!=NULL)
+		{
+			if((item->function) && (!item->initialized))	//pokud je polozka funkce a neni inicializovana (coz nesmi) -> SEM_ERROR
+				return SEM_ERROR;
+			item = item->next; //na dalsi polozku
+		}
+	}
+	return SEM_OK;
+}
+
 //-----------------htab_init---------------------------------------------
 htab_t* htab_init(unsigned int htab_size)
 //funkce alokuje misto pro tabulku, vraci ukazatel na ni
