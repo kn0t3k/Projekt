@@ -163,4 +163,13 @@ if [ $realresult -ne $result ]; then
    		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
 fi
 #=========================================================
-
+#=========================================================
+file=testD1.txt
+result=3
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
