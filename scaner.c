@@ -396,10 +396,11 @@
                    }
                    else
                    {
-                       if (plusko == PRAVDA) return LEX_ERROR;
                        if(c == '+')
                         {
+                            if (plusko == PRAVDA) return LEX_ERROR;
                           state = 8;  //kladny exp nema vliv
+                          plusko = PRAVDA;
                         }
                        else
                        {
@@ -588,6 +589,7 @@
                     }
                     else if(c == '+')
                     {
+                        plusko = PRAVDA;
                         state = 10;
                         obs = 0;
                         strAddChar(attr, c);
