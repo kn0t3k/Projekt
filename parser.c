@@ -136,6 +136,7 @@ int program(){ /*<PROGRAM>*/
       result = function();	  
 	  if (result != SYNTAX_OK) return result;/*<FUNCTION>*/
 	  if (funcs_defined(table) == SEM_ERROR) return SEM_ERROR;
+	  remove_local_table(table, &result);
 	  result = body();	  
 	  if (result != SYNTAX_OK) return result;/*BODY*/  
 	  if (token != DOT) return SYNTAX_ERROR;/*DOT*/
