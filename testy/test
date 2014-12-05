@@ -1,8 +1,175 @@
 #!/bin/sh
-exe=project #nazev spustitelneho
+exe=project #nazev spustitelneho souboru
 
 
 
-
+#=========================================================
 file=test4.txt
 result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=app.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=block.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=block2.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=bool.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=div-zero.pas
+result=8
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=easy.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=minus.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=only-if.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=readln.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=sort.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=speed.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=test.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=test1.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=test2.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=test3.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=vars.pas
+result=2
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+fi
+#=========================================================
