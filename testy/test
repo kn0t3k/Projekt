@@ -1,0 +1,8 @@
+#!/bin/sh
+exe=project #nazev spustitelneho
+
+
+
+
+file=test4.txt
+result=0
