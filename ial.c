@@ -39,6 +39,66 @@ struct symbol_table* symbol_table_init(){
 		return NULL;
 	}
 	
+	
+	int error;
+	struct htab_item* builtin_func;
+	
+	
+	//--------------------------pridani vestavene fce length(s:string): integer;
+	builtin_func = add_func("length", new, &error);
+	if(builtin_func == NULL){
+		//nemuze dojit k zadnemu konfliktu s jinou fci, neni potreba kontrolovat error, muze nastat pouze typ 99
+		return NULL;
+	}
+	builtin_func->type=s_integer;
+	builtin_func->func_data = (char*)malloc(sizeof(char)*2); //2= 1char(1 parametr) + 1 ukoncovaci '\0'
+	if(builtin_func->func_data == NULL){ //kontrola alokace pro retezec
+		return NULL;
+	}
+	strcpy(builtin_func->func_data, "s"); //nakopirovani dat
+	
+	
+	//--------------------------pridani vestavene fce copy(s:string; i:integer; n:integer): string;
+	builtin_func = add_func("copy", new, &error);
+	if(builtin_func == NULL){
+		//nemuze dojit k zadnemu konfliktu s jinou fci, neni potreba kontrolovat error, muze nastat pouze typ 99
+		return NULL;
+	}
+	builtin_func->type=s_string;
+	builtin_func->func_data = (char*)malloc(sizeof(char)*4); //4= 3char(3 parametr) + 1 ukoncovaci '\0'
+	if(builtin_func->func_data == NULL){ //kontrola alokace pro retezec
+		return NULL;
+	}
+	strcpy(builtin_func->func_data, "sii"); //nakopirovani dat
+	
+	
+	//--------------------------pridani vestavene fce find(s:string; search:string;): integer;
+	builtin_func = add_func("find", new, &error);
+	if(builtin_func == NULL){
+		//nemuze dojit k zadnemu konfliktu s jinou fci, neni potreba kontrolovat error, muze nastat pouze typ 99
+		return NULL;
+	}
+	builtin_func->type=s_integer;
+	builtin_func->func_data = (char*)malloc(sizeof(char)*3); //3= 2char(2 parametr) + 1 ukoncovaci '\0'
+	if(builtin_func->func_data == NULL){ //kontrola alokace pro retezec
+		return NULL;
+	}
+	strcpy(builtin_func->func_data, "ss"); //nakopirovani dat
+		
+		
+	//--------------------------pridani vestavene fce sort(s:string): string;
+	builtin_func = add_func("sort", new, &error);
+	if(builtin_func == NULL){
+		//nemuze dojit k zadnemu konfliktu s jinou fci, neni potreba kontrolovat error, muze nastat pouze typ 99
+		return NULL;
+	}
+	builtin_func->type=s_string;
+	builtin_func->func_data = (char*)malloc(sizeof(char)*2); //2= 1char(1 parametr) + 1 ukoncovaci '\0'
+	if(builtin_func->func_data == NULL){ //kontrola alokace pro retezec
+		return NULL;
+	}
+	strcpy(builtin_func->func_data, "s"); //nakopirovani dat
+	
 	return new;
 }
 
