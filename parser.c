@@ -1262,6 +1262,7 @@ int parse_expression(int expected_type_of_result){/*Precedencni syntakticka anal
 		    struct htab_item *operand_1;
 			struct htab_item *operand_2;
 			int operator;
+			int type_of_result;
 			
 			
             operand_2 = Stack -> Top -> item;/*Druhy operand bude prvni na zasobniku*/ 			
@@ -1274,17 +1275,17 @@ int parse_expression(int expected_type_of_result){/*Precedencni syntakticka anal
 			string new_variable;
 			strInit(&new_variable);
 			generateVariable(&new_variable);
-			if ((item = add_var(new_variable.str, table, &result)) == NULL){
+			if ((item = add_var(new_variable.str, table, &error)) == NULL){
 			  strFree(&new_variable);
-			  return result;
+			  return error;
 			  }
 			strFree(&new_variable);
 			/*Zavolame funkci type_control, ktera zkontroluje typy a vrati typ vysledku*/
 			/*Pokud vrati funkce type_control SEM_ERROR, tak nastala semanticka chyba*/
-            if ((result = type_control(operand_1, operator, operand_2)) == SEM_ERROR_TYPE){
+            if ((type_of_result = type_control(operand_1, operator, operand_2)) == SEM_ERROR_TYPE){
 				return SEM_ERROR_TYPE;
                 }				
-			item -> type = result;
+			item -> type = type_of_result;
 			//generateInstruction - case podle operatoru
 			//dodelat alokaci pameti pro instrukce
 			/*Po zprovozneni instrukci oddelat!!!*/
@@ -1327,7 +1328,7 @@ int parse_expression(int expected_type_of_result){/*Precedencni syntakticka anal
   printf("\n\nVyprazdneni zasobniku");
   if (Stack -> Top -> item -> type != expected_type_of_result){
     printf("\nTyp vyrazu se neshoduje s promenou");
-	return SEM_ERROR;
+	return SEM_ERROR_TYPE;
 	}
   SEmpty(Stack);
   printf("\n");
