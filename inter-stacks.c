@@ -1,6 +1,6 @@
 /*--------------------------------------
 | Projekt: IFJ14						
-| Soubor: err.h						
+| Soubor: inter-stacks.c						
 | Autori: Denk Filip (xdenkf00)		
 |	  Jurica Tomas (xjuric22)		
 |	  Knotek Martin (xknote11)	
