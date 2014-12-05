@@ -482,7 +482,7 @@ int length(char *s)
 
 
 /**
-* Funkce vraci kopii n znaku od pozice i ze stringu s 
+* Funkce vraci kopii n znaku od pozice i ze stringu s
 * @param *s ukazatel na puvodni retezec ze struktury string (string->str)
 * @param *dest ukazatel na strukturu string (kvuli funkcim s alokaci), TAM BUDE VYSLEDEK
 * @param i od jake pozice kopirujeme
@@ -524,7 +524,7 @@ int copy(char *s, string *dest, int i, int n, int s_len)
 
 
 /**
-* Funkce hleda podretezec a vraci jeho index
+* Funkce hleda podretezec a vraci jeho index (Boyer-Mooreuv algoritmus, 1. heuristika + doplnky proti zacykleni)
 * @param *s ukazatel na puvodni retezec (retezec ze struktury string (string->str))
 * @param *search ukazatel na hledany podretezec (retezec ze struktury string (string->str))
 * @param s_len delka puvodniho retezce (string->length)
@@ -644,7 +644,7 @@ int find(char *s, char *search, int s_len, int search_len)
 
 
 /**
-* Funkce vytvari kopii vstupu, kterou pak seradi
+* Funkce vytvari kopii vstupu, kterou pak seradi (QuickSort - algoritmus z opory 14-Q)
 * @param *s ukazatel na strukturu string puvodniho retezce
 * @param *dest ukazatel na strukturu string, KDE BUDE VYSLEDEK
 * @return chyba nebo uspech
