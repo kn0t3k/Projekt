@@ -38,7 +38,7 @@
         strInit(&pom);
         int vysledek = printToken(attr);
 
-        switch (vysledek)
+        /*switch (vysledek)
         {
             case ID: printf("\n**ID");break;
             case SHIFT:printf("\n**SHIFT");break;
@@ -98,7 +98,7 @@
             case COLON:printf("\n**COLON");break;
             case COMMA:printf("\n**COMA");break;
             case DOT:printf("\n**DOT");break;
-        }
+        }*/
 
         strFree(&pom);
         return vysledek;
