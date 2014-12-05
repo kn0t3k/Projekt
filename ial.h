@@ -1,10 +1,14 @@
-/********* ial.h **********
-*							            *
-* Projekt: IFJ 				    *
-* Překladač: GCC 4.8.2-7	*
-* Datum:   19.11.2014		  *
-* 							          *
-***************************/
+/*--------------------------------------
+| Projekt: IFJ14						
+| Soubor: ial.h						
+| Autori: Denk Filip (xdenkf00)		
+|	  Jurica Tomas (xjuric22)		
+|	  Knotek Martin (xknote11)	
+|	  Kohut Jan (xkohut08)		
+|	  Piskula David (xpisku02)	
+| Prekladac: GCC 4.8.2-7				
+| Datum:   5.12.2014					
+|--------------------------------------*/
 
 #include <stdbool.h>
 
