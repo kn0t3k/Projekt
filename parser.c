@@ -640,13 +640,12 @@ int callfunass(){/*<CALLFUNASS>*/
     case ID:
 	  if ((item = search_var(attr.str, table, &error)) == NULL)
         return error;
-	  else
-	    item -> initialized = 1;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != ASS) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = callorass(item -> type);
 	  if (result != SYNTAX_OK) return result;
+	  item -> initialized = 1;
 	  return SYNTAX_OK;
 	  break;
     
