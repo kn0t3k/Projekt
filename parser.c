@@ -640,6 +640,8 @@ int callfunass(){/*<CALLFUNASS>*/
     case ID:
 	  if ((item = search_var(attr.str, table, &error)) == NULL)
         return error;
+	  if (item -> function == 1)
+        return SEM_ERROR;	  
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != ASS) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -911,6 +913,8 @@ int function_readln(){/*<FUNCTION_READLN>*/
 	  if (token != ID) return SYNTAX_ERROR;
 	  if ((item = search_var(attr.str, table, &result)) == NULL)
         return result;
+	  if (item -> function == 1)
+	    return SEM_ERROR;
 	  else
 	    item -> initialized = 1;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
