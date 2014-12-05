@@ -20,6 +20,7 @@ unsigned int hash_function(const char *str, unsigned htab_size)
  return h % htab_size;
 }
 
+//-----------------symbol_table_init()---------------------------------------------
 struct symbol_table* symbol_table_init(){	
 	struct symbol_table* new = (struct symbol_table*) malloc(sizeof(struct symbol_table)); //vytvoreni tabulky symbolu
 	if(new == NULL){
@@ -106,6 +107,7 @@ struct symbol_table* symbol_table_init(){
 	return new;
 }
 
+//-----------------add_local_table---------------------------------------------
 void add_local_table(struct symbol_table* s_table, int* error){
 	if(s_table == NULL || s_table->global==NULL || s_table->local==NULL){ //kontrola argumentu
 		*error = SEM_ERROR;
@@ -137,7 +139,7 @@ void add_local_table(struct symbol_table* s_table, int* error){
 }	
 
 
-
+//-----------------remove_local_table---------------------------------------------
 void remove_local_table(struct symbol_table* s_table, int* error){
 	if(s_table == NULL || s_table->global==NULL || s_table->local==NULL){ //kontrola argumentu
 		*error = SEM_ERROR;
@@ -152,10 +154,24 @@ void remove_local_table(struct symbol_table* s_table, int* error){
 }
 
 
-
-struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){	
+//-----------------add_var---------------------------------------------
+struct htab_item* add_var(char *name_notupper, struct symbol_table* s_table, int* error){	
 	struct htab_item *tmp = NULL;
-
+	
+	int i = 0;	
+	//do tabulky se vsechny promenne ukladaji s nazvem z velkych pismen, jazyk je case insensitive a case insensitive hashovaci funkce by ztracela na rychlosti
+	char* name = malloc(sizeof(char)*(strlen(name_notupper)+1));
+	if(name == NULL){
+		*error = INTERNAL_ERR;
+		return NULL;
+	}
+	while(name_notupper[i]){ //prekopirovani retezce a prevod na upper case
+		name[i]=toupper(name_notupper[i]);
+		i++;
+	}
+	name[i]= '\0';
+	
+	
 	if(s_table->local == s_table->global){ 
 	//jedna se o globalni promennou == do globalni tabulky
 	// nesmi se shodovat s zadnou promennou v globalni tabulce a s zadnou funkci
@@ -177,14 +193,7 @@ struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
 			return NULL;
 		}
 				
-		//vlozime informace o promenne do jeji struktury
-		int size = sizeof(char)*(strlen(name)+1);
-		newitem->name = (char*)malloc(size);
-		if(newitem->name == NULL){
-			*error = INTERNAL_ERR;
-			return NULL;
-		}
-		strncpy(newitem->name, name, size);
+		newitem->name = name;
 		newitem->global = true;
 		newitem->fwd = false;
 		newitem->type = s_default;
@@ -233,14 +242,8 @@ struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
 			return NULL;
 		}
 		
-		//vlozime informace o promenne do jeji struktury
-		int size = sizeof(char)*(strlen(name)+1);
-		newitem->name = (char*)malloc(size);
-		if(newitem->name == NULL){
-			*error = INTERNAL_ERR;
-			return NULL;
-		}
-		strncpy(newitem->name, name, size);
+
+		newitem->name = name;
 		newitem->global = false;
 		newitem->function = false;
 		newitem->fwd = false;
@@ -260,13 +263,25 @@ struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error){
 	}	
 }
 
-
-struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error){
+//-----------------add_func---------------------------------------------
+struct htab_item* add_func(char *name_notupper, struct symbol_table* s_table, int* error){
 //podivat se do globalni tabulky, pokud uz tam fce je -> error
 //jinak vytvorit novou lokalni promennou se stejnym jmenem //nemuze dojit ke kolizi, protoze tabulka bude prazdna (add_local_table se musi volat tesne pred touhle fci)
 //vlozi odkaz na tuhle tabulku
 //musi si zapamatovat navesti
-
+	int i = 0;	
+	//do tabulky se vsechny promenne ukladaji s nazvem z velkych pismen, jazyk je case insensitive a case insensitive hashovaci funkce by ztracela na rychlosti
+	char* name = malloc(sizeof(char)*(strlen(name_notupper)+1));
+	if(name == NULL){
+		*error = INTERNAL_ERR;
+		return NULL;
+	}
+	while(name_notupper[i]){ //prekopirovani retezce a prevod na upper case
+		name[i]=toupper(name_notupper[i]);
+		i++;
+	}
+	name[i]= '\0';
+	
 	struct htab_item *tmp = s_table->global->table->ptr[hash_function(name, SIZE)]; //ukazatel na globalni tabulku
 	while(tmp!=NULL)
 	{
@@ -284,14 +299,7 @@ struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error)
 		return NULL;
 	}
 	
-	//vlozime informace o fci do jeji struktury
-	int size = sizeof(char)*(strlen(name)+1);
-	newitem->name = (char*)malloc(size);
-	if(newitem->name == NULL){
-			*error = INTERNAL_ERR;
-			return NULL;
-	}
-	strncpy(newitem->name, name, size);
+	newitem->name = name;
 	newitem->global = true;
 	newitem->fwd = false;
 	newitem->type = s_default;
@@ -314,7 +322,18 @@ struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error)
 	return newitem;
 }
 
-struct htab_item* search_func(char *name, struct symbol_table* s_table, int* error){
+//-----------------search_func---------------------------------------------
+struct htab_item* search_func(char *name_notupper, struct symbol_table* s_table, int* error){
+	
+	int i = 0;	
+	//do tabulky se vsechny promenne ukladaji s nazvem z velkych pismen, jazyk je case insensitive a case insensitive hashovaci funkce by ztracela na rychlosti
+	char name[strlen(name_notupper)+1];
+	while(name_notupper[i]){ //prekopirovani retezce a prevod na upper case
+		name[i]=toupper(name_notupper[i]);
+		i++;
+	}
+	name[i]= '\0';
+	
 	struct htab_item *tmp = s_table->global->table->ptr[hash_function(name, SIZE)]; //ukazatel na globalni tabulku
 	while(tmp!=NULL)
 	{
@@ -328,7 +347,18 @@ struct htab_item* search_func(char *name, struct symbol_table* s_table, int* err
 	return NULL;
 }
 
-struct htab_item* search_var(char *name, struct symbol_table* s_table, int* error){
+//-----------------search_var---------------------------------------------
+struct htab_item* search_var(char *name_notupper, struct symbol_table* s_table, int* error){
+	
+	int i = 0;	
+	//do tabulky se vsechny promenne ukladaji s nazvem z velkych pismen, jazyk je case insensitive a case insensitive hashovaci funkce by ztracela na rychlosti
+	char name[strlen(name_notupper)+1];
+	while(name_notupper[i]){ //prekopirovani retezce a prevod na upper case
+		name[i]=toupper(name_notupper[i]);
+		i++;
+	}
+	name[i]= '\0';
+	
 	struct htab_item *tmp = s_table->local->table->ptr[hash_function(name, SIZE)]; //ukazatel na lokalni tabulku
 	while(tmp!=NULL)
 	{
@@ -353,7 +383,7 @@ struct htab_item* search_var(char *name, struct symbol_table* s_table, int* erro
 	return NULL;
 }
 
-
+//-----------------table_free---------------------------------------------
 void symbol_table_free(struct symbol_table* s_table){
 	s_table->local = NULL;
 	struct symbol_table_item * tmp_symbol_table_item = NULL;
@@ -370,8 +400,8 @@ void symbol_table_free(struct symbol_table* s_table){
 			{
 				tmp = item;
 				item = item->next;
-				if(tmp->name != NULL) free(tmp->name);
-				if(tmp->func_data != NULL) free(tmp->func_data);
+				free(tmp->name);
+				free(tmp->func_data);
 				free(tmp);
 			}
 			tmp_symbol_table_item->table->ptr[i]=NULL;
@@ -385,8 +415,9 @@ void symbol_table_free(struct symbol_table* s_table){
 	free(s_table);
 }
 
-
+//-----------------func_defined---------------------------------------------
 int funcs_defined(struct symbol_table* s_table){
+//konecna kontrola na zaver programu, zda vsechny deklarovane funkce byly i definovane, coz musi byt
 	struct htab_t *htab = s_table->global->table;
 	
 	for(int i = 0; i < htab->htab_size; i++)
@@ -424,92 +455,6 @@ htab_t* htab_init(unsigned int htab_size)
 }
 
 
-//-----------------htab_free---------------------------------------------
-void htab_free(htab_t* t)
-//funkce uvolni vsechny polozky v tabulce vcetne tabulky samotne
-{
-	for(int i=0; i < t->htab_size; i++)
-	{
-		struct htab_item *item = t->ptr[i], *tmp = NULL;
-		while(item!=NULL)
-		{
-			tmp = item;
-			item = item->next;
-			free(tmp);
-		}
-		t->ptr[i]=NULL;
-	}
-	free(t);
-	t=NULL;
-	return;
-}
-
-//-----------------htab_search---------------------------------------------
-htab_item* htab_search(htab_t *t,const char *name)
-//funkce hleda v tabulce pod ukazatelem t prvek s klicem k
-//pokud ho najde, vraci ukazatel na nej, pokud ne, vraci NULL
-{
-	struct htab_item *tmp = t->ptr[hash_function(name, SIZE)];
-	while(tmp!=NULL)
-	{
-		if(strcmp(name,tmp->name) == 0) 
-		{
-			return tmp;
-		}		
-		tmp = tmp->next;	
-	}
-	return NULL;	
-}
-
-
-
-//-----------------htab_add---------------------------------------------
-htab_item* htab_add(htab_t *t,char *name)
-//funkce vztvori a zaradi do tabulky novy prvek s klicem name
-//pokud alokace selze, vraci NULL
-{
-	struct htab_item *newitem = (struct htab_item*) malloc(sizeof(struct htab_item));
-	if(newitem==NULL) return NULL;
-		
-	newitem->name = name;
-	//		newitem->type = xxxx;
-	//		newitem->value = xxxx;
-	
-	newitem->next = t->ptr[hash_function(name, SIZE)];
-	t->ptr[hash_function(name, SIZE)] = newitem;
-	
-	return newitem;
-}
-
-
-//-----------------htab_remove---------------------------------------------
-void htab_remove(htab_t *t, const char *name)
-//funkce odstrani pozadovany prvek z tabulky
-{
-	int h_num = hash_function(name, SIZE);
-	struct htab_item *tmp = t->ptr[h_num];
-	if(tmp==NULL)
-	{
-		return; 
-	}
-	struct htab_item *previous = NULL;
-	while((tmp!=NULL) && (strcmp(name,tmp->name)!=0) )
-	{
-		previous = tmp;
-		tmp = tmp->next;
-	}
-	if(tmp==NULL) return; //nebyl nalezen
-	if (tmp == t->ptr[h_num]) //je na prvnim miste
-	{
-		t->ptr[h_num] = tmp->next;
-		free(tmp);
-	}
-	else //je uprostred nebo nakonci
-	{
-		previous->next = tmp->next;
-		free(tmp);		
-	}
-}
 
 
 /**
