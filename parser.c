@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "str.h"
-#include "scaner.h"
 #include "parser.h"
 #include "err.h"
+#include "str.h"
+#include "scaner.h"
 
 
 void vypis(int vysledek){
@@ -213,7 +213,7 @@ int type(struct htab_item *item){/*<TYPE>*/
 	case T_BOOLEAN:
       if (str_parameters != NULL)
         strAddChar(str_parameters, 'b');
-	  item -> type = s_boolean;		
+	  item -> type = s_boolean;	  
 	  break;
 	  
 	default:
@@ -682,7 +682,7 @@ int callorass(int expected_type_of_result){
 	  if ((func_item = search_func(attr.str, table, &result)) == NULL)
 	    return result;
 	  else{
-	    if (func_item -> fwd != 1)
+	    if ((func_item -> fwd != 1) && (func_item -> initialized != 1))
 		  return SEM_ERROR;
 		if (func_item -> type != expected_type_of_result)
 		  return SEM_ERROR;
@@ -690,7 +690,7 @@ int callorass(int expected_type_of_result){
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != L_BRACKET) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = variable();
+	  result = variable(func_item);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != R_BRACKET) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -704,9 +704,13 @@ int callorass(int expected_type_of_result){
 }
 
 
-int variable(){
+int variable(struct htab_item *func_item){
 
   int result;
+  
+  if((str_parameters = (string *) malloc(sizeof(*str_parameters))) == NULL)
+    return INTERNAL_ERR;
+  strInit(str_parameters);
   
   switch (token){
     /*<VARIABLE> -> <VALUE> <N_VARIABLE>*/
@@ -723,41 +727,96 @@ int variable(){
 	  if (result != SYNTAX_OK) return result;
 	  result = n_variable();
 	  if (result != SYNTAX_OK) return result;
-	  return SYNTAX_OK;
 	  break;
 	
 	/*<VARIABLE> -> eps*/
 	case R_BRACKET:
-	  return SYNTAX_OK;
 	  break;
 	  
 	default:
 	   return SYNTAX_ERROR;
 	   break;  
-	}   
+	} 
+  if (func_item != NULL)
+    printf("\nPorovnavam parametry volane funkce (%s): %s se zadanymi parametry: %s", func_item -> name, func_item -> func_data, str_parameters -> str);
+  if (func_item != NULL){
+    if (func_item -> func_data == NULL){
+	  if (strcmp("", str_parameters -> str) != 0)
+	    return SEM_ERROR_TYPE;
+	  }	
+    else{ 
+	  if (strcmp(func_item -> func_data, str_parameters -> str) != 0)
+        return SEM_ERROR_TYPE;
+	  }
+	}
+	
+  strFree(str_parameters);	
+  free(str_parameters);
+  str_parameters = NULL;
+  return SYNTAX_OK;  
 }
 
 int value(){
   
+  int result;
+  int type_of_variable;
+  struct htab_item* item;
+  
   switch (token){
     /*<VALUE> -> INTEGER, analogicky pro zbytek*/
+	case ID:
+	  if ((item = search_var(attr.str, table, &result)) == NULL)
+        return result;
+	  else{
+	    if (item -> initialized != 1)
+	      return SEM_ERROR;
+		else
+		  type_of_variable = item -> type;
+	    }
+      break;
+	  
 	case INTEGER:
+	  type_of_variable = s_integer;
+	  break;
 	case STRING:
+	  type_of_variable = s_string;
+	  break;
 	case BOOLEAN:
+	  type_of_variable = s_boolean;
+	  break;
 	case DES_INT:
 	case DES_EXP:
 	case DES_EXP_NEG:
 	case EXP:
 	case EXP_NEG:
-	case ID:
-	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  return SYNTAX_OK;
-      break;
+	  type_of_variable = s_real;
+	  break;
 	  
 	default:
 	  return SYNTAX_ERROR;
 	  break;
 	}
+	
+  switch (type_of_variable){
+    case 0:
+	  strAddChar(str_parameters, 'i');
+	  break;
+	case 1:
+	  strAddChar(str_parameters, 'r');
+	  break;
+	case 2:
+	  strAddChar(str_parameters, 's');
+	  break;
+	case 3:
+	  strAddChar(str_parameters, 'b');
+	  break;
+	
+	default:
+	  break;
+    }
+  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+    return SYNTAX_OK;	
+	  
 }
 
 int n_variable(){/*<N_VARIABLE>*/
@@ -838,6 +897,9 @@ int if_condition(){/*<IF_CONDITION>*/
 
 int function_readln(){/*<FUNCTION_READLN>*/
 
+  int result;
+  struct htab_item* item;
+
   switch (token){
     /*<FUNCTION_READLN> -> READLN L_BRACKET ID R_BRACKET*/
 	case READLN:
@@ -845,6 +907,10 @@ int function_readln(){/*<FUNCTION_READLN>*/
 	  if (token != L_BRACKET) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != ID) return SYNTAX_ERROR;
+	  if ((item = search_var(attr.str, table, &result)) == NULL)
+        return result;
+	  else
+	    item -> initialized = 1;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != R_BRACKET) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -867,7 +933,7 @@ int function_write(){/*<FUNCTION_WRITE>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != L_BRACKET) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = variable();
+	  result = variable(NULL);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != R_BRACKET) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -1256,8 +1322,10 @@ int parse_expression(int expected_type_of_result){/*Precedencni syntakticka anal
     }while (!((STop(Stack) == DOLLAR) && ((token == THEN) || (token == DO) || (token == SEMICOLON) || (token == END))));
   
   printf("\n\nVyprazdneni zasobniku");
-  if (Stack -> Top -> item -> type != expected_type_of_result)
-    return SEM_ERROR;
+  if (Stack -> Top -> item -> type != expected_type_of_result){
+    printf("\nTyp vyrazu se neshoduje s promenou");
+	return SEM_ERROR;
+	}
   SEmpty(Stack);
   printf("\n");
   printf("\nKonec precedencni syntakticke analyzy vyrazu");
