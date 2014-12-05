@@ -1,7 +1,7 @@
 /*--------------------------------------
 | Projekt: IFJ14						
 | Soubor: err.h						
-| Autori:	Denk Filip (xdenkf00)		
+| Autori:Denk Filip (xdenkf00)		
 |	  Jurica Tomas (xjuric22)		
 |	  Knotek Martin (xknote11)	
 |	  Kohut Jan (xkohut08)		
