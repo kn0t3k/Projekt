@@ -59,24 +59,17 @@ typedef struct htab_t{
 
 unsigned int hash_function(const char *str, unsigned htab_size); //bude v samostatnem modulu pro jednodussi zmenu hashovaci fce
 htab_t* htab_init(unsigned int htab_size);  //inicializace tabulky na pozadovanou velikost
-void htab_free(htab_t* t); //kompletni uvolneni
-htab_item* htab_search(htab_t *t,const char *name); //vzhleda prvek podle name, pokud neni vraci NULL
-void htab_remove(htab_t *t, const char *name);  //fce odstrani prvek specifikovany argumentem name
-htab_item* htab_add(htab_t *t,char *name); //prida prvek, nejspis bude potreba predelat bud pro vice argumentu nebo predavat cely novy prvek pro pridani pres ukazatel
-
-
 
 
 struct symbol_table* symbol_table_init();
 void add_local_table(struct symbol_table* s_table, int* error);
 void remove_local_table(struct symbol_table* s_table, int* error);
-struct htab_item* add_var(char *name, struct symbol_table* s_table, int* error);
-struct htab_item* add_func(char *name, struct symbol_table* s_table, int* error);
-struct htab_item* search_func(char *name, struct symbol_table* s_table, int* error);
-struct htab_item* search_var(char *name, struct symbol_table* s_table, int* error);
+struct htab_item* add_var(char *name_notupper, struct symbol_table* s_table, int* error);
+struct htab_item* add_func(char *name_notupper, struct symbol_table* s_table, int* error);
+struct htab_item* search_func(char *name_notupper, struct symbol_table* s_table, int* error);
+struct htab_item* search_var(char *name_notupper, struct symbol_table* s_table, int* error);
 void symbol_table_free(struct symbol_table* s_table);
 int funcs_defined(struct symbol_table* s_table); //overi, zda vsechny deklarovane fce v tabulce byly i definovane. pokud ne -> return SEM_ERROR
-
 
 int length(char *s);
 int copy(char *s, string *dest, int i, int n, int s_len);
