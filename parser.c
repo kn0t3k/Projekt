@@ -771,7 +771,7 @@ int value(){
 	  if ((item = search_var(attr.str, table, &result)) == NULL)
         return result;
 	  else{
-	    if (item -> initialized != 1)
+	    if ((item -> initialized != 1) || (item -> function == 1))
 	      return SEM_ERROR;
 		else
 		  type_of_variable = item -> type;
@@ -1133,7 +1133,7 @@ int parse_expression(int expected_type_of_result){/*Precedencni syntakticka anal
 	        if ((item = search_var(attr.str, table, &error)) == NULL)
               return error;
 	        else{
-	          if (item -> initialized != 1)
+	          if ((item -> initialized != 1) || (item -> function == 1))
 	            return SEM_ERROR;
 	          }
             break;
