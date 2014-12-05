@@ -51,6 +51,7 @@ struct symbol_table* symbol_table_init(){
 		return NULL;
 	}
 	builtin_func->type=s_integer;
+	builtin_func->initialized = true;
 	builtin_func->func_data = (char*)malloc(sizeof(char)*2); //2= 1char(1 parametr) + 1 ukoncovaci '\0'
 	if(builtin_func->func_data == NULL){ //kontrola alokace pro retezec
 		return NULL;
@@ -65,6 +66,7 @@ struct symbol_table* symbol_table_init(){
 		return NULL;
 	}
 	builtin_func->type=s_string;
+	builtin_func->initialized = true;
 	builtin_func->func_data = (char*)malloc(sizeof(char)*4); //4= 3char(3 parametr) + 1 ukoncovaci '\0'
 	if(builtin_func->func_data == NULL){ //kontrola alokace pro retezec
 		return NULL;
@@ -79,6 +81,7 @@ struct symbol_table* symbol_table_init(){
 		return NULL;
 	}
 	builtin_func->type=s_integer;
+	builtin_func->initialized = true;
 	builtin_func->func_data = (char*)malloc(sizeof(char)*3); //3= 2char(2 parametr) + 1 ukoncovaci '\0'
 	if(builtin_func->func_data == NULL){ //kontrola alokace pro retezec
 		return NULL;
@@ -93,6 +96,7 @@ struct symbol_table* symbol_table_init(){
 		return NULL;
 	}
 	builtin_func->type=s_string;
+	builtin_func->initialized = true;
 	builtin_func->func_data = (char*)malloc(sizeof(char)*2); //2= 1char(1 parametr) + 1 ukoncovaci '\0'
 	if(builtin_func->func_data == NULL){ //kontrola alokace pro retezec
 		return NULL;
