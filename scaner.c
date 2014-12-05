@@ -18,6 +18,11 @@
       source = f;
     }
 
+    /*
+        STACI ZAKOMENTAROVAT SWITCH NIC JINEHO !!!
+        */
+
+
     int getNextToken(string *attr)//tuto funkci vola praser a ona vola printtoken aby mohla vytisknout tokeny, potom zmenit
     {
         strInit(&pom);
@@ -84,6 +89,7 @@
             case COMMA:printf("\n**COMA");break;
             case DOT:printf("\n**DOT");break;
         }
+
         strFree(&pom);
         return vysledek;
     }
@@ -390,7 +396,11 @@
                    }
                    else
                    {
-                       if(c == '+') state = 8;  //kladny exp nema vliv
+                       if (plusko == PRAVDA) return LEX_ERROR;
+                       if(c == '+'}
+                        {
+                          state = 8;  //kladny exp nema vliv
+                        }
                        else
                        {
                            if(isalpha(c) && ((c != ' ') || (c != ';'))) return LEX_ERROR;
