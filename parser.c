@@ -679,14 +679,38 @@ int callorass(int expected_type_of_result){
 	 
     /*<CALLORASS> -> ID_FUNCTION L_BRACKET <VARIABLE> R_BRACKET*/  
 	case ID_FUNCTION:
-	  if ((func_item = search_func(attr.str, table, &result)) == NULL)
-	    return result;
+	  if ((func_item = search_func(attr.str, table, &result)) == NULL){
+	    if (strcmp(attr.str, "length") == 0){
+	      if (expected_type_of_result != s_integer)
+		    return SEM_ERROR;
+		  }
+		else{
+	      if (strcmp(attr.str, "copy") == 0){
+	        if (expected_type_of_result != s_string)
+		      return SEM_ERROR;
+		    }
+		  else{
+	        if (strcmp(attr.str, "find") == 0){
+	          if (expected_type_of_result != s_integer)
+		        return SEM_ERROR;
+		      }
+			else{  
+	          if (strcmp(attr.str, "sort") == 0){
+	            if (expected_type_of_result != s_string)
+		          return SEM_ERROR;
+		      }
+			  else
+		        return result;
+              }
+            }
+          } 
+		}  
 	  else{
-	    if ((func_item -> fwd != 1) && (func_item -> initialized != 1))
+	    if ((func_item -> fwd != 1) && (func_item -> initialized != 1))/*Funkce musi byt minimalne deklarovana*/
 		  return SEM_ERROR;
-		if (func_item -> type != expected_type_of_result)
+		if (func_item -> type != expected_type_of_result)/*Overime, jestli se navratovy typ funkce shoduje s typem promenne do ktere prirazujeme*/
 		  return SEM_ERROR;
-	    } 
+	    }   
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != L_BRACKET) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
