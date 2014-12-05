@@ -21,7 +21,7 @@
 
 
 void vypis(int vysledek){
-
+/*
 switch (vysledek)
         {
             case ID: printf("ID");break;
@@ -81,7 +81,8 @@ switch (vysledek)
             case COLON:printf("COLON");break;
             case COMMA:printf("COMA");break;
             case DOT:printf("DOT");break;
-        }
+			}
+			*/
 }
 
 
