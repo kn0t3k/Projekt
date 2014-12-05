@@ -546,14 +546,16 @@ int copy(char *s, string *dest, int i, int n, int s_len)
 		n = n-(n+i-s_len)+1; /* orezani retezce, kdyz presahuje hranice */
 	}
 
+	dest->length = 0;
+
 	int j = i-1;
 	int count = 0;
 
 	while(count < n) /* kopirujeme jen tolik kolik chceme */
 	{
  		strAddChar(dest, s[j]);
-        j++;
-        count++;
+        	j++;
+        	count++;
 	}
 
 	return 0;
