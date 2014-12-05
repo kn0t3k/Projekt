@@ -397,7 +397,7 @@
                    else
                    {
                        if (plusko == PRAVDA) return LEX_ERROR;
-                       if(c == '+'}
+                       if(c == '+')
                         {
                           state = 8;  //kladny exp nema vliv
                         }
