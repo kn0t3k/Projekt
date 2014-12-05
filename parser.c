@@ -465,6 +465,7 @@ int n_parameter(struct htab_item *func_item,int* counter){/*<N_PARAMETER>*/
 int function_body(struct htab_item *func_item){/*<FUNCTION_BODY>*/
 
   int result;
+  struct htab_item* item = NULL;
   
   switch (token){
     /*<FUNCTION_BODY> -> FORWARD SEMICOLON*/
@@ -491,6 +492,14 @@ int function_body(struct htab_item *func_item){/*<FUNCTION_BODY>*/
 	  result = body();
 	  if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
+	  if ((item = search_var(func_item -> name, table, &result)) == NULL){
+        printf("\nSEM TU");
+		return result;
+		}
+      if (item -> initialized != 1){
+        printf("\nSEM TU");
+		return SEM_ERROR;
+        }		
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  return SYNTAX_OK;
 	  break;
