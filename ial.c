@@ -679,25 +679,20 @@ void partition(char *A, int left, int right, int *i, int *j)
 	*j = right;
 	int tmp;
 	PM = A[((*i)+(*j))/2];
-	//printf("PM: %d\n", PM);
 	do
 	{
-		//printf("i: %d; j: %d\n", *i, *j);
 		while (A[(*i)] < PM)
 		{
-			//printf("cyklus a\n");
 			(*i)++;
 		} 
 
 		while (A[(*j)] > PM)
 		{
-			//printf("cyklus b\n");
 			(*j)--;
 		}
 
 		if ((*i) <= (*j))
 		{
-			//printf("swap\n");
 			tmp = A[(*i)];
 			A[(*i)] = A[(*j)];
 			A[(*j)] = tmp;
