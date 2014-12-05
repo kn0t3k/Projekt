@@ -26,6 +26,7 @@
 #define I_CALL 19
 #define I_RETURN 20
 #define I_WRITE 21
+#define I_COPYVAR 22
 
 
 int interpret(symbol_table_item *GTable, tList *L);

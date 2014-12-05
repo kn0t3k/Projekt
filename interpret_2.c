@@ -1345,6 +1345,118 @@ int interpret(symbol_table_item *GTable, tList *L)
 				break;
 			}
 
+			case I_COPYVAR:
+			{
+				index1 = ((htab_item*) I->addr1)->index;
+				type1 = ((htab_item*) I->addr1)->type;
+				scope1 = ((htab_item*) I->addr1)->global;
+				index3 = ((htab_item*) I->addr3)->index;
+				type3 = ((htab_item*) I->addr3)->type;
+				scope3 = ((htab_item*) I->addr3)->global;
+				
+				switch (type1)
+				{
+					case INT_INT:
+					{
+						if (scope3 == 0)
+						{
+							if (scope1 == 0)
+								*((int*) l_arr[index3]) = *((int*) l_arr[index1]);
+							else
+								*((int*) l_arr[index3]) = *((int*) g_arr[index1]);
+						}
+						else
+						{
+							if (scope1 == 0)
+								*((int*) g_arr[index3]) = *((int*) l_arr[index1]);
+							else
+								*((int*) g_arr[index3]) = *((int*) g_arr[index1]);
+						}
+						break;
+					}
+
+					case INT_REAL:
+					{
+						if (scope3 == 0)
+						{
+							if (scope1 == 0)
+								*((double*) l_arr[index3]) = *((double*) l_arr[index1]);
+							else
+								*((double*) l_arr[index3]) = *((double*) g_arr[index1]);
+						}
+						else
+						{
+							if (scope1 == 0)
+								*((double*) g_arr[index3]) = *((double*) l_arr[index1]);
+							else
+								*((double*) g_arr[index3]) = *((double*) g_arr[index1]);
+						}
+						break;
+					}
+
+					case INT_STRING:
+					{
+						if (scope3 == 0)
+						{
+							if (scope1 == 0)
+							{
+								if (strlen((char*) l_arr[index3]) < strlen((char*) l_arr[index1]))
+									if ((realloc(((char*) l_arr[index3]), sizeof(char) * (strlen((char*) l_arr[index1]) + 1))) == NULL)
+										printf("chyba!");
+								memcpy(((char*) l_arr[index3]), ((char*) l_arr[index1]), sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
+							}
+							else
+							{
+								if (strlen((char*) l_arr[index3]) < strlen((char*) g_arr[index1]))
+									if ((realloc(((char*) l_arr[index3]), sizeof(char) * (strlen((char*) g_arr[index1]) + 1))) == NULL)
+										printf("chyba!");
+								memcpy(((char*) l_arr[index3]), ((char*) g_arr[index1]), sizeof(char) * (strlen((char*) g_arr[index1]) + 1));
+							}
+						}
+						else
+						{
+							if (scope1 == 0)
+							{
+								if (strlen((char*) g_arr[index3]) < strlen((char*) l_arr[index1]))
+									if ((realloc(((char*) g_arr[index3]), sizeof(char) * (strlen((char*) l_arr[index1]) + 1))) == NULL)
+										printf("chyba!");
+								memcpy(((char*) g_arr[index3]), ((char*) l_arr[index1]), sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
+							}
+							else
+							{
+								if (strlen((char*) g_arr[index3]) < strlen((char*) g_arr[index1]))
+									if ((realloc(((char*) g_arr[index3]), sizeof(char) * (strlen((char*) g_arr[index1]) + 1))) == NULL)
+										printf("chyba!");
+								memcpy(((char*) g_arr[index3]), ((char*) g_arr[index1]), sizeof(char) * (strlen((char*) g_arr[index1]) + 1));
+							}
+						}
+						break;
+					}
+
+					case INT_BOOLEAN:
+					{
+						if (scope3 == 0)
+						{
+							if (scope1 == 0)
+								*((bool*) l_arr[index3]) = *((bool*) l_arr[index1]);
+							else
+								*((bool*) l_arr[index3]) = *((bool*) g_arr[index1]);
+						}
+						else
+						{
+							if (scope1 == 0)
+								*((bool*) g_arr[index3]) = *((bool*) l_arr[index1]);
+							else
+								*((bool*) g_arr[index3]) = *((bool*) g_arr[index1]);
+						}
+						break;
+					}
+				}
+
+				break;
+			}
+
+
 			//instrukce pro volani funkci
 			case I_PUSH_PARAM:
 			{
