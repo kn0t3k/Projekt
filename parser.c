@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "parser.h"
 #include "err.h"
 #include "str.h"
+#include "parser.h"
 #include "scaner.h"
 
 
