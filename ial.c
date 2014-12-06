@@ -515,8 +515,8 @@ int copy(char *s, string *dest, int i, int n, int s_len)
 	while(count < n) /* kopirujeme jen tolik kolik chceme */
 	{
  		strAddChar(dest, s[j]);
-        	j++;
-        	count++;
+        j++;
+        count++;
 	}
 
 	return 0;
