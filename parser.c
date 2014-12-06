@@ -167,7 +167,7 @@ int declaration(){/*<DECLARATION>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type(item);
+	  result = type(&item);
       if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -188,7 +188,7 @@ int declaration(){/*<DECLARATION>*/
   }
 }
 
-int type(struct htab_item *item){/*<TYPE>*/
+int type(struct htab_item **item){/*<TYPE>*/
 
   switch (token){
     /*<TYPE> -> T_INTEGER, pro ostatni case analogicky*/  
@@ -196,25 +196,29 @@ int type(struct htab_item *item){/*<TYPE>*/
       if (str_parameters != NULL){
         strAddChar(str_parameters, 'i');
 		}
-	  item -> type = s_integer;	  
+	  if ((*item) -> type == s_default)/*Jestlize jeste nebyl pridan typ promene, tak chceme priradit, jinak se provadi pouze kontrola*/
+	    (*item) -> type = s_integer;	  
 	  break;
 	  
 	case T_REAL:
 	  if (str_parameters != NULL)
         strAddChar(str_parameters, 'r');
-	  item -> type = s_real;		
+	  if ((*item) -> type == s_default)
+	    (*item) -> type = s_real;		
 	  break;
 	  
 	case T_STRING:
       if (str_parameters != NULL)
         strAddChar(str_parameters, 's');
-	  item -> type = s_string;		
+	  if ((*item) -> type == s_default)
+	    (*item) -> type = s_string;		
 	  break;
 	  
 	case T_BOOLEAN:
       if (str_parameters != NULL)
         strAddChar(str_parameters, 'b');
-	  item -> type = s_boolean;	  
+	  if ((*item) -> type == s_default)
+	    (*item) -> type = s_boolean;	  
 	  break;
 	  
 	default:
@@ -238,7 +242,7 @@ int n_declaration(){/*<N_DECLARATION>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type(item);
+	  result = type(&item);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -273,7 +277,7 @@ int function(){/*<FUNCTION>*/
 	  if ((func_item = search_func(attr.str, table, &result)) != NULL){
 		if (func_item -> initialized == 1)
 		  return SEM_ERROR;
-		table -> local = func_item -> func_table;
+		table -> local = func_item -> func_table;/*Pokud uz je funkce deklarovana, prejdeme do jejiho lokalniho ramce*/
         }
       else{
   	    add_local_table(table, &result);
@@ -283,7 +287,7 @@ int function(){/*<FUNCTION>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != L_BRACKET) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = parameter(func_item);
+	  result = parameter(&func_item);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != R_BRACKET) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -293,7 +297,7 @@ int function(){/*<FUNCTION>*/
 	  if ((item = search_var(func_item -> name, table, &result)) == NULL)
 	    return result;
 		
-	  if (func_item -> fwd == 1){
+	  if (func_item -> fwd == 1){/*Overime, jestli ma funkce stejny typ jako jeji dopredna deklarace*/
 	    switch(token){
 		  case T_INTEGER:
 		    if (item -> type != s_integer)
@@ -319,14 +323,14 @@ int function(){/*<FUNCTION>*/
 		result = SYNTAX_OK;  
 		}
 	  else{
-	    result = type(item);
-		func_item -> type = item -> type;
+	    result = type(&item);/*Nastavime navratovy typ funkce do specialni lokalni polozky pro funkci*/
+		func_item -> type = item -> type;/*Nastavime navratovy typ do polozky pro danou funkci v globalni tabulce*/
 		}
 		
 	  if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = function_body(func_item);
+	  result = function_body(&func_item);
 	  if (result != SYNTAX_OK) return result;
 	  result = function();
 	  if (result != SYNTAX_OK) return result;
@@ -344,7 +348,7 @@ int function(){/*<FUNCTION>*/
 	}
 }
 
-int parameter(struct htab_item *func_item){/*<PARAMETER>*/
+int parameter(struct htab_item **func_item){/*<PARAMETER>*/
 
   int result;
   int counter = 0;/*Citac parametru*/
@@ -359,7 +363,7 @@ int parameter(struct htab_item *func_item){/*<PARAMETER>*/
     /*<PARAMETER> -> ID COLON <TYPE> <N_PARAMETER>*/
 	case ID:
 	  counter = 1;	  	
-	  if (func_item -> fwd == 1){
+	  if ((*func_item) -> fwd == 1){
 	    porovnani = 1;
 	    if ((item = search_var(attr.str, table, &result)) != NULL){
           if (item -> index != counter)
@@ -377,7 +381,7 @@ int parameter(struct htab_item *func_item){/*<PARAMETER>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type(item);
+	  result = type(&item);
 	  if (result != SYNTAX_OK) return result;
 	  result = n_parameter(func_item, &counter);
 	  if (result != SYNTAX_OK) return result;
@@ -395,18 +399,18 @@ int parameter(struct htab_item *func_item){/*<PARAMETER>*/
   /*Pokud jsme delali porovnani srovname, jestli se retezce parametru shoduji*/
   
   if (porovnani){
-    printf ("\nPorovnavam parametry funkci: forward = %s, aktualni = %s",func_item -> func_data, str_parameters -> str);
-    if (strcmp(func_item -> func_data, str_parameters -> str) != 0)
+    printf ("\nPorovnavam parametry funkci: forward = %s, aktualni = %s",(*func_item) -> func_data, str_parameters -> str);
+    if (strcmp((*func_item) -> func_data, str_parameters -> str) != 0)
         return SEM_ERROR;		
     }
   else{/*Jinak pridavame parametry, musime do polozky pro funkci v globalni tabulce zapsat retezec obsahujici parametry*/
     if (counter != 0){
-	  func_item -> func_data = (char*) malloc(sizeof(char)*(strlen(str_parameters -> str)+1));
-	  if(func_item -> func_data == NULL){
+	  (*func_item) -> func_data = (char*) malloc(sizeof(char)*(strlen(str_parameters -> str)+1));
+	  if((*func_item) -> func_data == NULL){
 		return  INTERNAL_ERR;;
 	    }
-	  printf("\nPridavam parametry k funkci (%s) : %s", func_item -> name, str_parameters -> str);
-	  strncpy(func_item -> func_data, str_parameters -> str, sizeof(char)*(strlen(str_parameters -> str)+1));
+	  printf("\nPridavam parametry k funkci (%s) : %s", (*func_item) -> name, str_parameters -> str);
+	  strncpy((*func_item) -> func_data, str_parameters -> str, sizeof(char)*(strlen(str_parameters -> str)+1));
 	  }
 	}
   strFree(str_parameters);	
@@ -416,7 +420,7 @@ int parameter(struct htab_item *func_item){/*<PARAMETER>*/
   return SYNTAX_OK;
 }
 
-int n_parameter(struct htab_item *func_item,int* counter){/*<N_PARAMETER>*/
+int n_parameter(struct htab_item **func_item,int* counter){/*<N_PARAMETER>*/
 
   int result;
   struct htab_item *item;
@@ -426,7 +430,7 @@ int n_parameter(struct htab_item *func_item,int* counter){/*<N_PARAMETER>*/
 	case SEMICOLON:
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != ID) return SYNTAX_ERROR;
-	  if (func_item -> fwd == 1){
+	  if ((*func_item) -> fwd == 1){
 	    if ((item = search_var(attr.str, table, &result)) != NULL){
 		  (*counter)++;
           if (item -> index != *counter)
@@ -444,7 +448,7 @@ int n_parameter(struct htab_item *func_item,int* counter){/*<N_PARAMETER>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != COLON) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = type(item);
+	  result = type(&item);
 	  if (result != SYNTAX_OK) return result;
 	  result = n_parameter(func_item, counter);
 	  if (result != SYNTAX_OK) return result;
@@ -462,7 +466,7 @@ int n_parameter(struct htab_item *func_item,int* counter){/*<N_PARAMETER>*/
     }
 }
 
-int function_body(struct htab_item *func_item){/*<FUNCTION_BODY>*/
+int function_body(struct htab_item **func_item){/*<FUNCTION_BODY>*/
 
   int result;
   struct htab_item* item = NULL;
@@ -470,10 +474,10 @@ int function_body(struct htab_item *func_item){/*<FUNCTION_BODY>*/
   switch (token){
     /*<FUNCTION_BODY> -> FORWARD SEMICOLON*/
     case FORWARD:
-	  if (func_item -> fwd == 1)
+	  if ((*func_item) -> fwd == 1)
         return SEM_ERROR;
       else
-        func_item -> fwd = 1;	  
+        (*func_item) -> fwd = 1;	  
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;	
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -483,19 +487,19 @@ int function_body(struct htab_item *func_item){/*<FUNCTION_BODY>*/
 	/*<FUNCTION_BODY> -> <DECLARATION> <BODY> SEMICOLON*/
 	case VAR:
 	case BEGIN:
-	  if (func_item -> initialized == 1)
+	  if ((*func_item) -> initialized == 1)
 	    return SEM_ERROR;
 	  else
-	    func_item -> initialized = 1;
+	    (*func_item) -> initialized = 1;
 	  result = declaration();
 	  if (result != SYNTAX_OK) return result;
 	  result = body();
 	  if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
-	  if ((item = search_var(func_item -> name, table, &result)) == NULL)
+	  if ((item = search_var((*func_item) -> name, table, &result)) == NULL)
 		return result;
       if (item -> initialized != 1){/*Overime, ze funkce neco vraci*/
-		printf("\nFunkce (%s) by mela vracet nejaky typ",func_item -> name);
+		printf("\nFunkce (%s) by mela vracet nejaky typ",(*func_item) -> name);
 		return SEM_ERROR;
 		}
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -654,7 +658,7 @@ int callfunass(){/*<CALLFUNASS>*/
 	  if (token != ASS) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  expression_item = id_item;
-	  result = callorass(expression_item);
+	  result = callorass(&expression_item);
 	  if (result != SYNTAX_OK) return result;
 	  id_item -> initialized = 1;
 	  //Vygenerovat instrukci COPYVAR
@@ -667,7 +671,7 @@ int callfunass(){/*<CALLFUNASS>*/
     }
 }
 
-int callorass(struct htab_item *expected_item){
+int callorass(struct htab_item **expected_item){
 
   int result;
   struct htab_item *func_item;
@@ -696,13 +700,13 @@ int callorass(struct htab_item *expected_item){
 	  else{
 	    if ((func_item -> fwd != 1) && (func_item -> initialized != 1))/*Funkce musi byt minimalne deklarovana*/
 		  return SEM_ERROR;
-		if (func_item -> type != expected_item -> type)/*Overime, jestli se navratovy typ funkce shoduje s typem promenne do ktere prirazujeme*/
+		if (func_item -> type != (*expected_item) -> type)/*Overime, jestli se navratovy typ funkce shoduje s typem promenne do ktere prirazujeme*/
 		  return SEM_ERROR;
 	    }   
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != L_BRACKET) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = variable(func_item);
+	  result = variable(&func_item);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != R_BRACKET) return SYNTAX_ERROR;
 	  //Instrukce pro volani funkce
@@ -717,7 +721,7 @@ int callorass(struct htab_item *expected_item){
 }
 
 
-int variable(struct htab_item *func_item){
+int variable(struct htab_item **func_item){
 
   int result;
   struct htab_item *item = NULL;
@@ -740,7 +744,7 @@ int variable(struct htab_item *func_item){
 	  result = value(&item);
 	  if (result != SYNTAX_OK) return result;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = n_variable(item);
+	  result = n_variable();
 	  if (result != SYNTAX_OK) return result;
 	  break;
 	
@@ -754,13 +758,13 @@ int variable(struct htab_item *func_item){
 	} 
 
   if (func_item != NULL){
-    printf("\nPorovnavam parametry volane funkce (%s): %s se zadanymi parametry: %s", func_item -> name, func_item -> func_data, str_parameters -> str);
-    if (func_item -> func_data == NULL){
+    printf("\nPorovnavam parametry volane funkce (%s): %s se zadanymi parametry: %s", (*func_item) -> name, (*func_item) -> func_data, str_parameters -> str);
+    if ((*func_item) -> func_data == NULL){
 	  if (strcmp("", str_parameters -> str) != 0)
 	    return SEM_ERROR_TYPE;
 	  }	
     else{ 
-	  if (strcmp(func_item -> func_data, str_parameters -> str) != 0)
+	  if (strcmp((*func_item) -> func_data, str_parameters -> str) != 0)
         return SEM_ERROR_TYPE;
 	  }
 	}
@@ -898,9 +902,10 @@ int value(struct htab_item** item){
 	  
 }
 
-int n_variable(struct htab_item* item){/*<N_VARIABLE>*/
+int n_variable(){/*<N_VARIABLE>*/
   
   int result;
+  struct htab_item *item = NULL;
   
   switch (token){
     /*<N_VARIABLE> -> COMMA <VALUE> <N_VARIABLE>*/
@@ -909,7 +914,7 @@ int n_variable(struct htab_item* item){/*<N_VARIABLE>*/
 	  result = value(&item);
 	  if (result != SYNTAX_OK) return result;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = n_variable(item);
+	  result = n_variable();
 	  if (result != SYNTAX_OK) return result;
 	  return SYNTAX_OK;
 	  break;
@@ -935,7 +940,7 @@ int while_condition(){/*<WHILE_CONDITION>*/
     /*<WHILE_CONDITION> -> WHILE EXPRESSION DO <BODY>*/
     case WHILE:
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = expression(item);
+	  result = expression(&item);
 	  if (result != SYNTAX_OK) return result;
 	  //volani instrukce pro while
 	  if (token != DO) return SYNTAX_ERROR;
@@ -960,7 +965,7 @@ int if_condition(){/*<IF_CONDITION>*/
     /*<IF_CONDITION> -> IF EXPRESSION THEN <BODY> ELSE <BODY>*/
 	case IF:
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = expression(item);
+	  result = expression(&item);
 	  if (result != SYNTAX_OK) return result;
 	  //volani instrukce pro if
 	  if (token != THEN) return SYNTAX_ERROR;
@@ -1033,7 +1038,7 @@ int function_write(){/*<FUNCTION_WRITE>*/
     }
 }
 
-int expression(struct htab_item *expected_item){/*<EXPRESSION>*/
+int expression(struct htab_item **expected_item){/*<EXPRESSION>*/
 
   int result;
 
@@ -1197,7 +1202,7 @@ int table_symbols(int x, int y, PtrStack Stack){/*Realizace tabulky*/
    */
 }
 
-int parse_expression(struct htab_item *expected_item){/*Precedencni syntakticka analyza vyrazu*/
+int parse_expression(struct htab_item **expected_item){/*Precedencni syntakticka analyza vyrazu*/
   printf("\n\nPrecedencni syntakticka analyza vyrazu\n");
   /*Inicializace zasobniku*/
   SInit(Stack);
@@ -1221,7 +1226,6 @@ int parse_expression(struct htab_item *expected_item){/*Precedencni syntakticka 
 	      case EXP:
 	      case EXP_NEG:
 		    value(&item);/*Funkce vrati ukazatel na polozku, pokud se jedna o ID, najde v tabulce, jinak vytvori novou jedinecnou polozku*/
-	        printf("\n%d", item -> type);
 			break;
 			
 		  default:
@@ -1286,7 +1290,7 @@ int parse_expression(struct htab_item *expected_item){/*Precedencni syntakticka 
 			
 			/*Zavolame funkci type_control, ktera zkontroluje typy a vrati typ vysledku*/
 			/*Pokud vrati funkce type_control SEM_ERROR_TYPE, tak nastala semanticka chyba*/
-            if ((type_of_result = type_control(operand_1, operator, operand_2)) == SEM_ERROR_TYPE){
+            if ((type_of_result = type_control(&operand_1, operator, &operand_2)) == SEM_ERROR_TYPE){
 				return SEM_ERROR_TYPE;
                 }
             
@@ -1357,19 +1361,19 @@ int parse_expression(struct htab_item *expected_item){/*Precedencni syntakticka 
       }
     }while (!((STop(Stack) == DOLLAR) && ((token == THEN) || (token == DO) || (token == SEMICOLON) || (token == END))));
   printf("\n\nVyprazdneni zasobniku");
-  if (expected_item == NULL){ /*Pozaduju navratit vysledek hodnoty bool, znamena to ze je funkce volana s if nebo while*/
+  if ((*expected_item) == NULL){ /*Pozaduju navratit vysledek hodnoty bool, znamena to ze je funkce volana s if nebo while*/
 	if (Stack -> Top -> item -> type != s_boolean){
 	  printf("\nPodminka pozaduje typ bool");
 	  return SEM_ERROR;
 	  }
     }	  
   else{	
-    if (Stack -> Top -> item -> type != expected_item -> type){
+    if (Stack -> Top -> item -> type != (*expected_item) -> type){
       printf("\nTyp vyrazu se neshoduje s promenou do ktere prirazujeme");
 	  return SEM_ERROR;
 	  }
     }
-  expected_item = Stack -> Top -> item;/*Vratime ukazatel na polozku, ve ktere bude vysledny vyraz*/
+  (*expected_item) = Stack -> Top -> item;/*Vratime ukazatel na polozku, ve ktere bude vysledny vyraz*/
   
   SEmpty(Stack);
   printf("\n");
@@ -1379,7 +1383,7 @@ int parse_expression(struct htab_item *expected_item){/*Precedencni syntakticka 
   
 }
 
-int type_control(struct htab_item* operand_1, int operator, struct htab_item* operand_2){
+int type_control(struct htab_item** operand_1, int operator, struct htab_item** operand_2){
   /*Typ operatoru (operator -> type) oznacuji cisla, a to nasledovne:
     0..integer
 	1..real
@@ -1388,9 +1392,9 @@ int type_control(struct htab_item* operand_1, int operator, struct htab_item* op
 	4..default (typ nebyl nastaven)
   */
   
-  int type_of_result = 4;
+  int type_of_result = s_default;
   
-  if (operand_1 -> type == 4 || operand_2 -> type == 4)/*Tato situace nemuze prakticky nastat*/
+  if ((*operand_1) -> type == s_default || (*operand_2) -> type == s_default)/*Tato situace nemuze prakticky nastat*/
     return SEM_ERROR_TYPE;
   
   /*Zkontrolujeme, zda s danyma operandame, muzeme provest danou operaci*/
@@ -1399,22 +1403,22 @@ int type_control(struct htab_item* operand_1, int operator, struct htab_item* op
 	/*NASOBENI*/
 	case MUL:
 	  /*Druhy, ani prvni operand nesmi byt retezec, nebo boolean*/
-	  switch (operand_1 -> type){
+	  switch ((*operand_1) -> type){
 	    /*INTIGER*/
 		case 0:	
-          if (operand_2 -> type == 0)
-		    type_of_result = 0;
+          if ((*operand_2) -> type == s_integer)
+		    type_of_result = s_integer;
 		  else{	
-		    if (operand_2 -> type == 1)
-		      type_of_result = 1;
+		    if ((*operand_2) -> type == s_real)
+		      type_of_result = s_real;
 			else
 			  return SEM_ERROR_TYPE;
 			  }
           break;			
 		/*REAL*/
 		case 1:
-		  if (operand_2 -> type == 0 || operand_2 -> type == 1)
-		    type_of_result = 1;
+		  if ((*operand_2) -> type == s_integer || (*operand_2) -> type == s_real)
+		    type_of_result = s_real;
 		  else
 		    return SEM_ERROR_TYPE;
           break;			 
@@ -1428,13 +1432,13 @@ int type_control(struct htab_item* operand_1, int operator, struct htab_item* op
 	/*DELENI*/  
 	case DIV:
 	  /*Druhy, ani prvni operand nesmi byt retezec, nebo boolean*/
-	  switch (operand_1 -> type){
+	  switch ((*operand_1) -> type){
 	    /*INTIGER*/
 	    case 0:				
 		/*REAL*/
 		case 1:
-		  if (operand_2 -> type == 0 || operand_2 -> type == 1)
-		    type_of_result = 1;/*Vysledek deleni je vzdy real*/
+		  if ((*operand_2) -> type == s_integer || (*operand_2) -> type == s_real)
+		    type_of_result = s_real;/*Vysledek deleni je vzdy real*/
 	      else
 		    return SEM_ERROR_TYPE;
           break;			 
@@ -1448,29 +1452,29 @@ int type_control(struct htab_item* operand_1, int operator, struct htab_item* op
 	/*SCITANI*/
     case ADD:
 	  /*Druhy, ani prvni operand nesmi byt boolean*/
-	  switch (operand_1 -> type){
+	  switch ((*operand_1) -> type){
 	    /*INTIGER*/
 	    case 0:	
-          if (operand_2 -> type == 0)
-            type_of_result = 0;
+          if ((*operand_2) -> type == s_integer)
+            type_of_result = s_integer;
           else{
-            if (operand_2 -> type == 1)
-			  type_of_result = 1;
+            if ((*operand_2) -> type == s_real)
+			  type_of_result = s_real;
 			else
 			  return SEM_ERROR_TYPE;
             }
           break;			
 		/*REAL*/
 		case 1:
-		  if (operand_2 -> type == 0 || operand_2 -> type == 1)
-		    type_of_result = 1;
+		  if ((*operand_2) -> type == s_integer || (*operand_2) -> type == s_real)
+		    type_of_result = s_real;
 	      else
 		    return SEM_ERROR_TYPE;
           break;
         /*STRING*/
         case 2:
-          if (operand_2 -> type == 2)/*Konkatenace retezce*/
-            type_of_result = 2;
+          if ((*operand_2) -> type == s_string)/*Konkatenace retezce*/
+            type_of_result = s_string;
           else 
             return SEM_ERROR_TYPE;	
           break;			
@@ -1484,22 +1488,22 @@ int type_control(struct htab_item* operand_1, int operator, struct htab_item* op
     /*MINUS*/	
 	case DIF:
 	  /*Druhy, ani prvni operand nesmi byt retezec, nebo boolean*/
-	  switch (operand_1 -> type){
+	  switch ((*operand_1) -> type){
 	    /*INTIGER*/
 	    case 0:	
-          if (operand_2 -> type == 0)
-            type_of_result = 0;
+          if ((*operand_2) -> type == s_integer)
+            type_of_result = s_integer;
           else{
-            if (operand_2 -> type == 1)
-			  type_of_result = 1;
+            if ((*operand_2) -> type == s_real)
+			  type_of_result = s_real;
 			else
 			  return SEM_ERROR_TYPE;
             }
           break;			
 		/*REAL*/
 		case 1:
-		  if (operand_2 -> type == 0 || operand_2 -> type == 1)
-		    type_of_result = 1;
+		  if ((*operand_2) -> type == s_integer || (*operand_2) -> type == s_real)
+		    type_of_result = s_real;
 	      else
 		    return SEM_ERROR_TYPE;
           break;	  
@@ -1518,25 +1522,25 @@ int type_control(struct htab_item* operand_1, int operator, struct htab_item* op
     case EQ:
     case SL: 
     /*Pri porovnani musi byt operandy stejneho typu a vysledek je vzdy bool*/	
-	  switch (operand_1 -> type){
+	  switch ((*operand_1) -> type){
 	    /*INTIGER*/
 	    case 0:	
-          if (operand_2 -> type != 0)
+          if ((*operand_2) -> type != s_integer)
             return SEM_ERROR_TYPE;
           break;			
 		/*REAL*/
 		case 1:
-		  if (operand_2 -> type != 1)
+		  if ((*operand_2) -> type != s_real)
 		    return SEM_ERROR_TYPE;
           break;
         /*STRING*/
         case 2:
-          if (operand_2 -> type != 2)
+          if ((*operand_2) -> type != s_string)
             return SEM_ERROR_TYPE;
           break;		  
 		
 		case 3:
-		  if (operand_2 -> type != 3)
+		  if ((*operand_2) -> type != s_boolean)
 		    return SEM_ERROR_TYPE;
 		  break;
 		  
@@ -1544,7 +1548,7 @@ int type_control(struct htab_item* operand_1, int operator, struct htab_item* op
 		  return SEM_ERROR_TYPE;
 		  break;
 	    }
-	  type_of_result = 3;/*Vysledek porovnani je vzdy bool*/	
+	  type_of_result = s_boolean;/*Vysledek porovnani je vzdy bool*/	
 	  break;
     }
   /*Pokud kontrola probehla spravne, vratime typ vysledku*/
