@@ -42,7 +42,7 @@ switch (vysledek)
             case INTEGER:printf("INTEGER");break;
             case REAL:printf("REAL");break;
             case COPY:printf("COPY");break;
-            case LENGHT:printf("LENGHT");break;
+            case LENGTH:printf("LENGTH");break;
             case EXPRESSION:printf("EXPRESSION");break;
             case ADD:printf("ADD");break;
             case DIF:printf("DIF");break;
