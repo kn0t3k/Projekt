@@ -1,15 +1,3 @@
-/*--------------------------------------
-| Projekt: IFJ14						
-| Soubor: parser.c						
-| Autori: Denk Filip (xdenkf00)		
-|	  Jurica Tomas (xjuric22)		
-|	  Knotek Martin (xknote11)	
-|	  Kohut Jan (xkohut08)		
-|	  Piskula David (xpisku02)	
-| Prekladac: GCC 4.8.2-7				
-| Datum:   5.12.2014					
-|--------------------------------------*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,7 +9,7 @@
 
 
 void vypis(int vysledek){
-/*
+
 switch (vysledek)
         {
             case ID: printf("ID");break;
@@ -81,8 +69,7 @@ switch (vysledek)
             case COLON:printf("COLON");break;
             case COMMA:printf("COMA");break;
             case DOT:printf("DOT");break;
-			}
-			*/
+        }
 }
 
 
@@ -488,7 +475,7 @@ int function_body(struct htab_item *func_item){/*<FUNCTION_BODY>*/
       else
         func_item -> fwd = 1;	  
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  if (token != SEMICOLON) return SYNTAX_ERROR;
+	  if (token != SEMICOLON) return SYNTAX_ERROR;	
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  return SYNTAX_OK;
 	  break;
@@ -507,8 +494,10 @@ int function_body(struct htab_item *func_item){/*<FUNCTION_BODY>*/
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
 	  if ((item = search_var(func_item -> name, table, &result)) == NULL)
 		return result;
-      if (item -> initialized != 1)
-		return SEM_ERROR;	
+      if (item -> initialized != 1){/*Overime, ze funkce neco vraci*/
+		printf("\nFunkce (%s) by mela vracet nejaky typ",func_item -> name);
+		return SEM_ERROR;
+		}
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  return SYNTAX_OK;
 	  break;
@@ -650,22 +639,25 @@ int n_element(){/*<N_ELEMENT>*/
 
 int callfunass(){/*<CALLFUNASS>*/
   
-  int result, error;
-  struct htab_item *item;
+  int result;
+  struct htab_item *expression_item;/*Ukazatel, ktery posleme dal, bude v nem ukazatel na zpracovany vyraz nebo ukazatel na to co vratila funkce*/
+  struct htab_item *id_item;/*Ukazatel v kterem si zapamatujeme ID do ktereho prirazujeme*/
   
   switch (token){
     /*<CALLFUNASS> -> ID ASS <CALLORASS>*/
     case ID:
-	  if ((item = search_var(attr.str, table, &error)) == NULL)
-        return error;
-	  if (item -> function == 1)
-        return SEM_ERROR;	  
+	  if ((id_item = search_var(attr.str, table, &result)) == NULL)
+        return result;
+	  if (id_item -> function == 1)/*Overime, ze neprirazujeme do funkce*/
+        return SEM_ERROR;	
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != ASS) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = callorass(item -> type);
+	  expression_item = id_item;
+	  result = callorass(expression_item);
 	  if (result != SYNTAX_OK) return result;
-	  item -> initialized = 1;
+	  id_item -> initialized = 1;
+	  //Vygenerovat instrukci COPYVAR
 	  return SYNTAX_OK;
 	  break;
     
@@ -675,7 +667,7 @@ int callfunass(){/*<CALLFUNASS>*/
     }
 }
 
-int callorass(int expected_type_of_result){
+int callorass(struct htab_item *expected_item){
 
   int result;
   struct htab_item *func_item;
@@ -692,22 +684,20 @@ int callorass(int expected_type_of_result){
 	case EXP:
 	case EXP_NEG:
 	case L_BRACKET:
-	  result = expression(expected_type_of_result);
+	  result = expression(expected_item);
 	  if (result != SYNTAX_OK) return result;
 	  return SYNTAX_OK;
 	  break;
 	 
     /*<CALLORASS> -> ID_FUNCTION L_BRACKET <VARIABLE> R_BRACKET*/  
 	case ID_FUNCTION:
-	  if ((func_item = search_func(attr.str, table, &result)) == NULL){
+	  if ((func_item = search_func(attr.str, table, &result)) == NULL)
 	    return result;
-		}
 	  else{
 	    if ((func_item -> fwd != 1) && (func_item -> initialized != 1))/*Funkce musi byt minimalne deklarovana*/
 		  return SEM_ERROR;
-		if (func_item -> type != expected_type_of_result){/*Overime, jestli se navratovy typ funkce shoduje s typem promenne do ktere prirazujeme*/
+		if (func_item -> type != expected_item -> type)/*Overime, jestli se navratovy typ funkce shoduje s typem promenne do ktere prirazujeme*/
 		  return SEM_ERROR;
-		  }
 	    }   
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != L_BRACKET) return SYNTAX_ERROR;
@@ -715,6 +705,7 @@ int callorass(int expected_type_of_result){
 	  result = variable(func_item);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != R_BRACKET) return SYNTAX_ERROR;
+	  //Instrukce pro volani funkce
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  return SYNTAX_OK;
 	  break;
@@ -729,6 +720,7 @@ int callorass(int expected_type_of_result){
 int variable(struct htab_item *func_item){
 
   int result;
+  struct htab_item *item = NULL;
   
   if((str_parameters = (string *) malloc(sizeof(*str_parameters))) == NULL)
     return INTERNAL_ERR;
@@ -745,9 +737,10 @@ int variable(struct htab_item *func_item){
 	case DES_EXP_NEG:
 	case EXP:
 	case EXP_NEG:
-	  result = value();
+	  result = value(&item);
 	  if (result != SYNTAX_OK) return result;
-	  result = n_variable();
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  result = n_variable(item);
 	  if (result != SYNTAX_OK) return result;
 	  break;
 	
@@ -759,9 +752,9 @@ int variable(struct htab_item *func_item){
 	   return SYNTAX_ERROR;
 	   break;  
 	} 
-  if (func_item != NULL)
-    printf("\nPorovnavam parametry volane funkce (%s): %s se zadanymi parametry: %s", func_item -> name, func_item -> func_data, str_parameters -> str);
+
   if (func_item != NULL){
+    printf("\nPorovnavam parametry volane funkce (%s): %s se zadanymi parametry: %s", func_item -> name, func_item -> func_data, str_parameters -> str);
     if (func_item -> func_data == NULL){
 	  if (strcmp("", str_parameters -> str) != 0)
 	    return SEM_ERROR_TYPE;
@@ -778,70 +771,134 @@ int variable(struct htab_item *func_item){
   return SYNTAX_OK;  
 }
 
-int value(){
+int value(struct htab_item** item){
   
   int result;
-  int type_of_variable;
-  struct htab_item* item;
+  string new_variable;
   
   switch (token){
-    /*<VALUE> -> INTEGER, analogicky pro zbytek*/
-	case ID:
-	  if ((item = search_var(attr.str, table, &result)) == NULL)
+    case ID:/*Pokud jde o ID vyhleda se v aktualni tabulce, jestli je tam a pak se zkontroluje inicializace*/
+	  if (((*item) = search_var(attr.str, table, &result)) == NULL)
         return result;
 	  else{
-	    if ((item -> initialized != 1) || (item -> function == 1))
+	    if (((*item) -> initialized != 1) || ((*item) -> function == 1))
 	      return SEM_ERROR;
-		else
-		  type_of_variable = item -> type;
 	    }
       break;
-	  
-	case INTEGER:
-	  type_of_variable = s_integer;
+			
+	case INTEGER:/*Pokud je to int, tak se vytvori novy jedinecny nazev, a pridame do tabulky polozku s timto nazvem + data + typ*/
+	  ;
+      int *value_i;
+	  if ((value_i = (int *) malloc(sizeof(int))) == NULL)/*Alokace mista pro hodnotu promenne*/
+	    return INTERNAL_ERR;
+	  *value_i = atoi(attr.str);
+	  strInit(&new_variable);
+	  generateVariable(&new_variable);
+	  if (((*item) = add_var(new_variable.str, table, &result)) == NULL){
+	    strFree(&new_variable);
+	    free(value_i);
+	    return result;
+	    }
+	  strFree(&new_variable);	
+	  (*item) -> type = s_integer;
+	  //generateInstruction(I_ASSIGN,(void *) value, NULL, item);
+	  free(value_i);/*Po zprovozneni instrukci oddelat!!!*/	
 	  break;
-	case STRING:
-	  type_of_variable = s_string;
+			
+    case STRING:
+      ;
+	  char *value_s;
+	  if ((value_s = (char*) malloc(sizeof(char)*(strlen(attr.str)+1))) == NULL)/*Alokace mista pro hodnotu promenne*/
+	    return INTERNAL_ERR;
+	  strncpy(value_s, attr.str, sizeof(char)*(strlen(attr.str)+1));  
+	  strInit(&new_variable);
+	  generateVariable(&new_variable);
+	  if (((*item) = add_var(new_variable.str, table, &result)) == NULL){
+	    strFree(&new_variable);
+	    free(value_s);
+	    return result;
+	    }
+	  strFree(&new_variable);
+      (*item) -> type = s_string;
+      //generateInstruction(I_ASSIGN,(void *) value, NULL, item);
+	  free(value_s);/*Po zprovozneni instrukci oddelat!!!*/			
 	  break;
+			
 	case BOOLEAN:
-	  type_of_variable = s_boolean;
+	  ;
+	  bool *value_b;
+      if ((value_b = (bool *) malloc(sizeof(bool))) == NULL)/*Alokace mista pro hodnotu promenne*/
+	    return INTERNAL_ERR;
+	  if (strcmp(attr.str, "true") == 0)
+	    *value_b = TRUE;
+	  else
+	    *value_b = FALSE;
+	  strInit(&new_variable);
+	  generateVariable(&new_variable);
+	  if (((*item) = add_var(new_variable.str, table, &result)) == NULL){
+	    strFree(&new_variable);
+	    free(value_b);
+		return result;
+	    }
+	  strFree(&new_variable);	
+	  (*item) -> type = s_boolean;
+	  //generateInstruction(I_ASSIGN,(void *) value, NULL, item);
+	  free(value_b);/*Po zprovozneni instrukci oddelat!!!*/
 	  break;
-	case DES_INT:
-	case DES_EXP:
-	case DES_EXP_NEG:
-	case EXP:
-	case EXP_NEG:
-	  type_of_variable = s_real;
-	  break;
+			
+	  case DES_INT:
+	  case DES_EXP:
+	  case DES_EXP_NEG:
+	  case EXP:
+	  case EXP_NEG:
+	    ;
+	    float *value_f;
+		if ((value_f = (float *) malloc(sizeof(float))) == NULL)/*Alokace mista pro hodnotu promenne*/
+	      return INTERNAL_ERR;
+		*value_f = atof(attr.str);
+		strInit(&new_variable);
+	    generateVariable(&new_variable);
+		if (((*item) = add_var(new_variable.str, table, &result)) == NULL){
+		  strFree(&new_variable);
+		  free(value_f);
+		  return result;
+		  }
+		strFree(&new_variable);	
+		(*item) -> type = s_real;
+		//generateInstruction(I_ASSIGN,(void *) value, NULL, item);
+		free(value_f);/*Po zprovozneni instrukci oddelat!!!*/
+		break;
 	  
-	default:
-	  return SYNTAX_ERROR;
-	  break;
+	  default:
+        (*item) = NULL;/*Nejedna se o hodnotu*/
+		return SYNTAX_ERROR;
+	    break;
 	}
-	
-  switch (type_of_variable){
-    case 0:
-	  strAddChar(str_parameters, 'i');
-	  break;
-	case 1:
-	  strAddChar(str_parameters, 'r');
-	  break;
-	case 2:
-	  strAddChar(str_parameters, 's');
-	  break;
-	case 3:
-	  strAddChar(str_parameters, 'b');
-	  break;
+  if (str_parameters != NULL){/*Pokud porovnamvame parametry, potrebujeme tvorit retezec a pushnou parametr*/ 
+    //Dopsat instrukci pro pushnuti parametru
+	switch ((*item) -> type){
+      case 0:
+	    strAddChar(str_parameters, 'i');
+	    break;
+	  case 1:
+	    strAddChar(str_parameters, 'r');
+	    break;
+	  case 2:
+	    strAddChar(str_parameters, 's');
+	    break;
+	  case 3:
+	    strAddChar(str_parameters, 'b');
+	    break;
 	
 	default:
 	  break;
-    }
-  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-    return SYNTAX_OK;	
+      }
+	}
+  return SYNTAX_OK;	
 	  
 }
 
-int n_variable(){/*<N_VARIABLE>*/
+int n_variable(struct htab_item* item){/*<N_VARIABLE>*/
   
   int result;
   
@@ -849,9 +906,10 @@ int n_variable(){/*<N_VARIABLE>*/
     /*<N_VARIABLE> -> COMMA <VALUE> <N_VARIABLE>*/
     case COMMA:
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = value();
+	  result = value(&item);
 	  if (result != SYNTAX_OK) return result;
-	  result = n_variable();
+	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  result = n_variable(item);
 	  if (result != SYNTAX_OK) return result;
 	  return SYNTAX_OK;
 	  break;
@@ -870,13 +928,16 @@ int n_variable(){/*<N_VARIABLE>*/
 int while_condition(){/*<WHILE_CONDITION>*/
 
   int result;
+  struct htab_item* item = NULL;
+  
   
   switch (token){
     /*<WHILE_CONDITION> -> WHILE EXPRESSION DO <BODY>*/
     case WHILE:
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = expression(3);
+	  result = expression(item);
 	  if (result != SYNTAX_OK) return result;
+	  //volani instrukce pro while
 	  if (token != DO) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = body();
@@ -893,13 +954,15 @@ int while_condition(){/*<WHILE_CONDITION>*/
 int if_condition(){/*<IF_CONDITION>*/
 
   int result;
+  struct htab_item* item = NULL;
   
   switch (token){
     /*<IF_CONDITION> -> IF EXPRESSION THEN <BODY> ELSE <BODY>*/
 	case IF:
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  result = expression(3);
+	  result = expression(item);
 	  if (result != SYNTAX_OK) return result;
+	  //volani instrukce pro if
 	  if (token != THEN) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = body();
@@ -970,7 +1033,7 @@ int function_write(){/*<FUNCTION_WRITE>*/
     }
 }
 
-int expression(int expected_type_of_result){/*<EXPRESSION>*/
+int expression(struct htab_item *expected_item){/*<EXPRESSION>*/
 
   int result;
 
@@ -985,7 +1048,7 @@ int expression(int expected_type_of_result){/*<EXPRESSION>*/
 	case EXP:
 	case EXP_NEG:
 	case L_BRACKET:
-      result = parse_expression(expected_type_of_result);
+      result = parse_expression(expected_item);
 	  if (result != SYNTAX_OK) return result;
 	  return SYNTAX_OK;
       break;
@@ -1134,123 +1197,41 @@ int table_symbols(int x, int y, PtrStack Stack){/*Realizace tabulky*/
    */
 }
 
-int parse_expression(int expected_type_of_result){/*Precedencni syntakticka analyza vyrazu*/
+int parse_expression(struct htab_item *expected_item){/*Precedencni syntakticka analyza vyrazu*/
   printf("\n\nPrecedencni syntakticka analyza vyrazu\n");
   /*Inicializace zasobniku*/
   SInit(Stack);
   
   int result, error;
-  struct htab_item* item;
+  struct htab_item *item;
   
   do{
     if ((result = table_symbols(STop(Stack), token, Stack)) == SYNTAX_ERROR) return SYNTAX_ERROR;
     switch (result){
    
       case SHIFT:
-	    ;
-		string new_variable;
 	    switch (token){
-          case ID:/*Pokud jde o ID vyhleda se v aktualni tabulce, jestli je tam a pak se zkontroluje inicializace*/
-	        if ((item = search_var(attr.str, table, &error)) == NULL)
-              return error;
-	        else{
-	          if ((item -> initialized != 1) || (item -> function == 1))
-	            return SEM_ERROR;
-	          }
-            break;
-			
-	      case INTEGER:/*Pokud je to int, tak se vytvori novy jedinecny nazev, a pridame do tabulky polozku s timto nazvem + data + typ*/
-	        ;
-			int *value_i;
-			if ((value_i = (int *) malloc(sizeof(int))) == NULL)/*Alokace mista pro hodnotu promenne*/
-			  return INTERNAL_ERR;
-			*value_i = atoi(attr.str);
-			strInit(&new_variable);
-			generateVariable(&new_variable);
-			if ((item = add_var(new_variable.str, table, &result)) == NULL){
-			  strFree(&new_variable);
-			  free(value_i);
-			  return result;
-			  }
-			strFree(&new_variable);	
-			item -> type = s_integer;
-			//generateInstruction(I_ASSIGN,(void *) value, NULL, item);
-			free(value_i);/*Po zprovozneni instrukci oddelat!!!*/	
-			break;
-			
+          case ID:
+	      case INTEGER:
 		  case STRING:
-		    ;
-			char *value_s;
-			if ((value_s = (char*) malloc(sizeof(char)*(strlen(attr.str)+1))) == NULL)/*Alokace mista pro hodnotu promenne*/
-			  return INTERNAL_ERR;
-			strncpy(value_s, attr.str, sizeof(char)*(strlen(attr.str)+1));  
-			strInit(&new_variable);
-			generateVariable(&new_variable);
-			if ((item = add_var(new_variable.str, table, &result)) == NULL){
-			  strFree(&new_variable);
-			  free(value_s);
-			  return result;
-			  }
-			strFree(&new_variable);
-            item -> type = s_string;
-            //generateInstruction(I_ASSIGN,(void *) value, NULL, item);
-			free(value_s);/*Po zprovozneni instrukci oddelat!!!*/			
-			break;
-			
 	      case BOOLEAN:
-		    ;
-			bool *value_b;
-			if ((value_b = (bool *) malloc(sizeof(bool))) == NULL)/*Alokace mista pro hodnotu promenne*/
-			  return INTERNAL_ERR;
-			if (strcmp(attr.str, "true") == 0)
-			  *value_b = TRUE;
-			else
-			  *value_b = FALSE;
-			strInit(&new_variable);
-			generateVariable(&new_variable);
-			if ((item = add_var(new_variable.str, table, &result)) == NULL){
-			  strFree(&new_variable);
-			  free(value_b);
-			  return result;
-			  }
-			strFree(&new_variable);	
-			item -> type = s_boolean;
-			//generateInstruction(I_ASSIGN,(void *) value, NULL, item);
-			free(value_b);/*Po zprovozneni instrukci oddelat!!!*/
-			break;
-			
 	      case DES_INT:
 	      case DES_EXP:
 	      case DES_EXP_NEG:
 	      case EXP:
 	      case EXP_NEG:
-		    ;
-			float *value_f;
-			if ((value_f = (float *) malloc(sizeof(float))) == NULL)/*Alokace mista pro hodnotu promenne*/
-			  return INTERNAL_ERR;
-			*value_f = atof(attr.str);
-			strInit(&new_variable);
-			generateVariable(&new_variable);
-			if ((item = add_var(new_variable.str, table, &result)) == NULL){
-			  strFree(&new_variable);
-			  free(value_f);
-			  return result;
-			  }
-			strFree(&new_variable);	
-			item -> type = s_real;
-			//generateInstruction(I_ASSIGN,(void *) value, NULL, item);
-			free(value_f);/*Po zprovozneni instrukci oddelat!!!*/
+		    value(&item);/*Funkce vrati ukazatel na polozku, pokud se jedna o ID, najde v tabulce, jinak vytvori novou jedinecnou polozku*/
+	        printf("\n%d", item -> type);
 			break;
-	  
-	      default:
+			
+		  default:
 		    item = NULL;/*Nejedna se o hodnotu*/
 	        break;
 	      }
-		  
-	    printf("\nSHIFT");
-	    if ((SPush(Stack, token, item)) != INTERNAL_OK) return INTERNAL_ERR;
-		printf("\nDalsi token bude:");
-	    if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+		  printf("\nSHIFT");
+		  if ((SPush(Stack, token, item)) != INTERNAL_OK) return INTERNAL_ERR;
+		  printf("\nDalsi token bude:");
+		  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	    break;
 	  
       case REDUCE:
@@ -1292,6 +1273,7 @@ int parse_expression(int expected_type_of_result){/*Precedencni syntakticka anal
 		    SPop(Stack);/*Vyhodime operator ze zasobniku*/
 			operand_1 = Stack -> Top -> item;/*Zapamatujeme si prvni operand*/
 			SPop(Stack);/*Vyhodime prvni operand ze zasobniku*/
+			
 			/*Vytvorime novou promenou, pro ni vytvorime polozku v tabulce a jeji typ nastavime na typ vysledku, kterou nam da funkce type_control*/
 			string new_variable;
 			strInit(&new_variable);
@@ -1301,15 +1283,44 @@ int parse_expression(int expected_type_of_result){/*Precedencni syntakticka anal
 			  return error;
 			  }
 			strFree(&new_variable);
+			
 			/*Zavolame funkci type_control, ktera zkontroluje typy a vrati typ vysledku*/
-			/*Pokud vrati funkce type_control SEM_ERROR, tak nastala semanticka chyba*/
+			/*Pokud vrati funkce type_control SEM_ERROR_TYPE, tak nastala semanticka chyba*/
             if ((type_of_result = type_control(operand_1, operator, operand_2)) == SEM_ERROR_TYPE){
 				return SEM_ERROR_TYPE;
-                }				
-			item -> type = type_of_result;
-			//generateInstruction - case podle operatoru
-			//dodelat alokaci pameti pro instrukce
-			/*Po zprovozneni instrukci oddelat!!!*/
+                }
+            
+			item -> type = type_of_result;/*Nove polozcce priradime typ*/
+			  			
+			//generateInstruction - switch podle operatoru
+			
+			switch (operator){
+			  case MUL:
+			    break;
+	          case DIV:
+			    break;
+              case ADD:
+			    break;
+              case DIF:
+			    break;
+              case S:
+			    break;
+              case L:
+			    break;
+              case SE:
+			    break;
+              case LE:
+			    break;
+              case EQ:
+			    break;
+              case SL:
+			    break;
+			  
+			  default:
+			    break;
+			}
+			
+			
             if ((SPush(Stack, EXPRESSION, item)) != INTERNAL_OK) return INTERNAL_ERR;
 		    break;  
 		  
@@ -1345,12 +1356,21 @@ int parse_expression(int expected_type_of_result){/*Precedencni syntakticka anal
 	    break;
       }
     }while (!((STop(Stack) == DOLLAR) && ((token == THEN) || (token == DO) || (token == SEMICOLON) || (token == END))));
-  
   printf("\n\nVyprazdneni zasobniku");
-  if (Stack -> Top -> item -> type != expected_type_of_result){
-    printf("\nTyp vyrazu se neshoduje s promenou");
-	return SEM_ERROR_TYPE;
-	}
+  if (expected_item == NULL){ /*Pozaduju navratit vysledek hodnoty bool, znamena to ze je funkce volana s if nebo while*/
+	if (Stack -> Top -> item -> type != s_boolean){
+	  printf("\nPodminka pozaduje typ bool");
+	  return SEM_ERROR;
+	  }
+    }	  
+  else{	
+    if (Stack -> Top -> item -> type != expected_item -> type){
+      printf("\nTyp vyrazu se neshoduje s promenou do ktere prirazujeme");
+	  return SEM_ERROR;
+	  }
+    }
+  expected_item = Stack -> Top -> item;/*Vratime ukazatel na polozku, ve ktere bude vysledny vyraz*/
+  
   SEmpty(Stack);
   printf("\n");
   printf("\nKonec precedencni syntakticke analyzy vyrazu");

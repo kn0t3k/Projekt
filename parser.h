@@ -1,15 +1,3 @@
-/*--------------------------------------
-| Projekt: IFJ14						
-| Soubor: parser.h						
-| Autori: Denk Filip (xdenkf00)		
-|	  Jurica Tomas (xjuric22)		
-|	  Knotek Martin (xknote11)	
-|	  Kohut Jan (xkohut08)		
-|	  Piskula David (xpisku02)	
-| Prekladac: GCC 4.8.2-7				
-| Datum:   5.12.2014					
-|--------------------------------------*/
-
 #include "ial.h"
 
 /*Struktury pro zasobnik*/
@@ -39,21 +27,21 @@ int function_body(struct htab_item *func_item);
 int function_readln();
 int function_write();
 int callfunass();
-int callorass(int expected_type_of_result);
+int callorass(struct htab_item *expected_item);
 int id_function();
-int value();
-int variable();
-int n_variable();
+int value(struct htab_item** item);
+int variable(struct htab_item *func_item);
+int n_variable(struct htab_item* item);
 int while_condition();
 int if_condition();
 int body();
 int element();
 int n_element();
 int select_element();
-int expression(int expected_type_of_result);
+int expression(struct htab_item *expected_item);
 int assign_int_to_token(int token);
 int table_symbols(int x, int y, PtrStack Stack);
-int parse_expression(int expected_type_of_result);
+int parse_expression(struct htab_item *expected_item);
 int type_control(struct htab_item* operand_1, int operator, struct htab_item* operand_2);
 
 /*Funkce pro zasobnik*/
