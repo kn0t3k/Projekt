@@ -86,12 +86,12 @@ void VarStackPush (tVarS *S, int *intvar, double *doublevar, char *stringvar, bo
 	if (intvar != NULL)
 	{
 		(S->var_stack[S->top]) = malloc(sizeof(int));
-		*((int*)((S->var_stack[S->top]))) = *intvar;
+		*((int*)(S->var_stack[S->top])) = *intvar;
 	}
 	else if (doublevar != NULL)
 	{
 		(S->var_stack[S->top]) = malloc(sizeof(double));
-		*((double*)((S->var_stack[S->top]))) = *doublevar;
+		*((double*)(S->var_stack[S->top])) = *doublevar;
 	}
 	else if (stringvar != NULL)
 	{
@@ -102,7 +102,7 @@ void VarStackPush (tVarS *S, int *intvar, double *doublevar, char *stringvar, bo
 	else if (boolvar!= NULL)
 	{
 		(S->var_stack[S->top]) = malloc(sizeof(bool));
-		*((bool*)((S->var_stack[S->top]))) = *boolvar;
+		*((bool*)(S->var_stack[S->top])) = *boolvar;
 	}
 }
 
@@ -114,7 +114,7 @@ int IntVarStackPop (tVarS *S)
 		return -1;
 	}
 	else
-		return *((int*)((S->var_stack[S->top--])));
+		return *((int*)(S->var_stack[S->top--]));
 }
 
 bool BoolVarStackPop (tVarS *S)
@@ -125,7 +125,7 @@ bool BoolVarStackPop (tVarS *S)
 		return 0;
 	}
 	else
-		return *((bool*)((S->var_stack[S->top--])));
+		return *((bool*)(S->var_stack[S->top--]));
 }
 
 double DoubleVarStackPop (tVarS *S)
@@ -136,7 +136,7 @@ double DoubleVarStackPop (tVarS *S)
 		return -1.0;
 	}
 	else
-		return *((double*)((S->var_stack[S->top--])));
+		return *((double*)(S->var_stack[S->top--]));
 }
 
 char* StrVarStackPop (tVarS *S)
@@ -147,7 +147,7 @@ char* StrVarStackPop (tVarS *S)
 		return NULL;
 	}
 	else
-		return ((char*)((S->var_stack[S->top--])));
+		return ((char*)(S->var_stack[S->top--]));
 }
 
 void DisposeVarStack(tVarS *S)
