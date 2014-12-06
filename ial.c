@@ -477,7 +477,7 @@ htab_t* htab_init(unsigned int htab_size)
 
 int length(char *s)
 {
-	return strlen(s);
+	return  s == NULL ? SEM_ERROR : strlen(s);
 }
 
 
