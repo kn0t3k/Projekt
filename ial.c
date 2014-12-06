@@ -534,7 +534,7 @@ int copy(char *s, string *dest, int i, int n, int s_len)
 
 int find(char *s, char *search, int s_len, int search_len)
 {
-	int ascii = 256; /* podle ascii tabulky */
+	int ascii = 128; /* podle ascii tabulky, vetsi hodnotu tam kvuli multibajtovym znaku neodstanu */
 	int max = 0;
 	int return_s_len = s_len;
 
