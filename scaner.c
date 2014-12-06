@@ -1,13 +1,13 @@
 /*--------------------------------------
-| Projekt: IFJ14						
-| Soubor: scaner.c						
-| Autori: Denk Filip (xdenkf00)		
-|	  Jurica Tomas (xjuric22)		
-|	  Knotek Martin (xknote11)	
-|	  Kohut Jan (xkohut08)		
-|	  Piskula David (xpisku02)	
-| Prekladac: GCC 4.8.2-7				
-| Datum:   5.12.2014					
+| Projekt: IFJ14
+| Soubor: scaner.c
+| Autori: Denk Filip (xdenkf00)
+|	  Jurica Tomas (xjuric22)
+|	  Knotek Martin (xknote11)
+|	  Kohut Jan (xkohut08)
+|	  Piskula David (xpisku02)
+| Prekladac: GCC 4.8.2-7
+| Datum:   5.12.2014
 |--------------------------------------*/
 
     // lexikalni analyzator
@@ -71,7 +71,7 @@
             case INTEGER:printf("\n**INTEGER");break;
             case REAL:printf("\n**REAL");break;
             case COPY:printf("\n**COPY");break;
-            case LENGHT:printf("\n**LENGHT");break;
+            case LENGTH:printf("\n**LENGTH");break;
             case EXPRESSION:printf("\n**EXPRESSION");break;
             case ADD:printf("\n**ADD");break;
             case DIF:printf("\n**DIF");break;
@@ -278,7 +278,7 @@
                     return COPY;
                 }
                 else
-                if (strCmpConstStr(attr, "LENGHT") == 0)
+                if (strCmpConstStr(attr, "LENGTH") == 0)
                 {
                     if((c=getc(source)) == '(')
                     {
@@ -286,7 +286,7 @@
                         return ID_FUNCTION;
                     }
                     ungetc(c, source);
-                    return LENGHT;
+                    return LENGTH;
                 }
                 else
                 {
