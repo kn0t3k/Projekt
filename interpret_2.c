@@ -1,15 +1,3 @@
-/*--------------------------------------
-| Projekt: IFJ14						
-| Soubor: interpret_2.c						
-| Autori: Denk Filip (xdenkf00)		
-|	  Jurica Tomas (xjuric22)		
-|	  Knotek Martin (xknote11)	
-|	  Kohut Jan (xkohut08)		
-|	  Piskula David (xpisku02)	
-| Prekladac: GCC 4.8.2-7				
-| Datum:   5.12.2014					
-|--------------------------------------*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -105,11 +93,11 @@ int interpret(symbol_table_item *GTable, tList *L)
 	VarStackInit(VS,VAR_STACK_SIZE);
 	void **g_arr = malloc(sizeof(void*) * GTable->item_count);
 	loadarray(g_arr, GTable);
+	void **l_arr = NULL;
 
 	tLVS *LS = malloc(sizeof(tLVS)); //local array stack
 	LS->l_stack = malloc(sizeof(vararr) * (LVS_STACK_SIZE));
 	LStackInit(LS, LVS_STACK_SIZE);
-	void **l_arr = NULL;
 
 	tAddS *AS = malloc(sizeof(tAddS));
 	AS->add_stack = malloc(sizeof(tItem)*(ADS_STACK_SIZE));
@@ -1580,7 +1568,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 				
 				VarStackPush(VS, index_temp, NULL, NULL, NULL);
 				VarStackPush(VS, NULL, NULL, NULL, scope_temp);
-				VarStackPush(VS, size_temp, NULL, NULL, NULL); //musi byt prvni co popnu v return
+				VarStackPush(VS, size_temp, NULL, NULL, NULL);
 				VarStackPush(VS, type_temp, NULL, NULL, NULL);
 				if (return_addr != NULL)
 					AddStackPush(AS, return_addr);
@@ -1719,4 +1707,5 @@ int interpret(symbol_table_item *GTable, tList *L)
 	free(size_temp);
 	free(type_temp);
 	free(scope_temp);
+	DisposeVarStack(VS);
 }
