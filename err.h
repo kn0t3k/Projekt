@@ -10,7 +10,7 @@
 | Datum:   5.12.2014
 |--------------------------------------*/
 
-#define SYNTAX_OK     0
+#define SYNTAX_OK     96
 #define SYNTAX_ERROR -2
 #define SEM_ERROR    -3
 #define SEM_ERROR_TYPE -4
@@ -26,7 +26,7 @@
 #define PRAVDA 200
 #define NEPRAVDA 201
 
-#define INTERNAL_ERR 99
+#define INTERNAL_ERR -99
 #define INTERNAL_OK 98
 
 #define ID       999

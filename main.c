@@ -26,27 +26,27 @@ int main(int argc, char** argv)
    if (argc == 1)
    {
       fprintf(stderr, "Neni zadan vstupni soubor\n");
-      return INTERNAL_ERR;
+      return -INTERNAL_ERR;
    }
    if(argc > 2)
    {
        fprintf(stderr, "Spatne parametry prikazove radky\n");
-       return INTERNAL_ERR;
+       return -INTERNAL_ERR;
    }
    if ((f = fopen(argv[1], "r")) == NULL)
    {
       fprintf(stderr, "Soubor se nepodarilo otevrit\n");
-      return INTERNAL_ERR;
+      return -INTERNAL_ERR;
    }
 
    setSourceFile(f);
    
    struct symbol_table* table = symbol_table_init(&error);
    if (table == NULL)
-     return INTERNAL_ERR;
+     return -INTERNAL_ERR;
 	 
    PtrStack Stack;
-   if ((Stack = (PtrStack) malloc(sizeof(struct StructStack))) == NULL) return INTERNAL_ERR;
+   if ((Stack = (PtrStack) malloc(sizeof(struct StructStack))) == NULL) return -INTERNAL_ERR;
 
 
    /*tListOfInstr instrList;
