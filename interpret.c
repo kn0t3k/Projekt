@@ -167,7 +167,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						case 'i':
 						{
 							value_temp = malloc(sizeof(int));
-							*value_temp = IntVarStackPop(VS);
+							*((int*) value_temp) = IntVarStackPop(VS);
 							if (i < (*size_temp - 1))
 							{
 								printf("%d ", *((int*) value_temp));
@@ -184,7 +184,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						case 'r':
 						{
 							value_temp = malloc(sizeof(double));
-							*value_temp = DoubleVarStackPop(VS);
+							*((double*) value_temp) = DoubleVarStackPop(VS);
 							if (i < (*size_temp - 1))
 							{
 								printf("%g ", *((double*) value_temp));
@@ -219,7 +219,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						case 'b':
 						{
 							value_temp = malloc(sizeof(bool));
-							*value_temp = BoolVarStackPop(VS);
+							*((bool*) value_temp) = BoolVarStackPop(VS);
 							if (i < (*size_temp - 1))
 							{
 								printf("%d ", *((bool*) value_temp));
