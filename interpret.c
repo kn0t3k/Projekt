@@ -2,9 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "str.h"
+#include "ial.h"
+#include "list.h"
 #include "interpret.h"
 #include "inter-stacks.h"
-#include "err.h"
+
 
 #define VAR_STACK_SIZE 10
 #define ADS_STACK_SIZE 10

@@ -17,8 +17,9 @@
 #include <strings.h>
 #include <ctype.h>
 #include <stdbool.h>
-#include "ial.h"
 #include "err.h"
+#include "ial.h"
+
 
 
 //-----------------hash_function---------------------------------------------

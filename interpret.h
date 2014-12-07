@@ -11,8 +11,7 @@
 |--------------------------------------*/
 
 
-#include "ial.h"
-#include "list.h"
+
 
 #define INT_INT 0
 #define INT_REAL 1

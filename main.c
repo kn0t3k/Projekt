@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include "err.h"
 #include "str.h"
+#include "ial.h"
 #include "scaner.h"
 #include "parser.h"
 

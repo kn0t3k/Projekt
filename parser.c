@@ -4,8 +4,10 @@
 #include <stdbool.h>
 #include "err.h"
 #include "str.h"
-#include "parser.h"
+#include "ial.h"
 #include "scaner.h"
+#include "parser.h"
+
 
 
 void vypis(int vysledek){

@@ -1,4 +1,4 @@
-#include "ial.h"
+
 
 /*Struktury pro zasobnik*/
 typedef struct Element{
