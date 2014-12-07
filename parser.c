@@ -6,8 +6,8 @@
 #include "str.h"
 #include "ial.h"
 #include "scaner.h"
-#include "parser.h"
 #include "list.h"
+#include "parser.h"
 #include "interpret.h"
 
 
@@ -85,6 +85,7 @@ PtrStack Stack;
 string attr;
 string *str_parameters = NULL;
 
+tList *LS;
 
 void generateVariable(string *var)
 
@@ -101,16 +102,28 @@ void generateVariable(string *var)
   counterVar ++;
 } 
 
+void generateInstruction(int instType, void *addr1, void *addr2, void *addr3)
 
+{
+   tInstr I;
+   I.Type = instType;
+   I.addr1 = addr1;
+   I.addr2 = addr2;
+   I.addr3 = addr3;
+   InsertNew(LS, I);
+}
  
-/*Funkce, ktere predstavuji nonterminaly*/
 
-int parse(struct symbol_table* table_main, PtrStack Stack_main){
+
+int parse(struct symbol_table* table_main, tList *list, PtrStack Stack_main){
   
   int result;
   table = table_main;
   Stack = Stack_main;
   strInit(&attr);
+  
+  LS = list;
+  
   if ((token = getNextToken(&attr)) == LEX_ERROR)
      result = LEX_ERROR;
   else

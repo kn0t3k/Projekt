@@ -13,7 +13,7 @@ typedef struct StructStack{
 
 /*Prototypy funkci*/
 
-int parse();
+int parse(struct symbol_table* table_main, tList *list, PtrStack Stack_main);
 
 /*Funkce, ktere predstavuji nonterminaly*/
 int program();

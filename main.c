@@ -16,7 +16,9 @@
 #include "str.h"
 #include "ial.h"
 #include "scaner.h"
+#include "list.h"
 #include "parser.h"
+#include "interpret.h"
 
 
 int main(int argc, char** argv)
@@ -50,12 +52,14 @@ int main(int argc, char** argv)
    if ((Stack = (PtrStack) malloc(sizeof(struct StructStack))) == NULL) return -INTERNAL_ERR;
 
 
-   /*tListOfInstr instrList;
-   listInit(&instrList); // inicializace seznamu instrukci*/
+   tList list;
+   InitList(&list); // inicializace seznamu instrukci*/
 
    int result;
 
-   result = parse(table, Stack); // provedeme syntaktickou analyzu
+   result = parse(table, &list, Stack); // provedeme syntaktickou analyzu
+   
+   interpret(table -> global, &list);
    
    symbol_table_free(table);
    
