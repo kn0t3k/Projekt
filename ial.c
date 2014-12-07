@@ -653,6 +653,10 @@ int find(char *s, char *search, int s_len, int search_len)
 
 int sort(string *s, string *dest)
 {
+	if (s->length == 0)
+	{
+		return 0; /* neni co radit */
+	}
 	if (s != dest)
 	{
 		/* kopie vstupu */
