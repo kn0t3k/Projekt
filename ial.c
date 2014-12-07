@@ -507,7 +507,7 @@ int copy(char *s, string *dest, int i, int n, int s_len)
 		n = n-(n+i-s_len)+1; /* orezani retezce, kdyz presahuje hranice */
 	}
 
-	dest->length = 0;
+	strClear(dest);
 
 	int j = i-1;
 	int count = 0;
