@@ -7,6 +7,8 @@
 #include "ial.h"
 #include "scaner.h"
 #include "parser.h"
+#include "list.h"
+#include "interpret.h"
 
 
 

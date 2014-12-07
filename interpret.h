@@ -13,32 +13,32 @@
 
 
 
-#define INT_INT 0
-#define INT_REAL 1
-#define INT_STRING 2
-#define INT_BOOLEAN 3
-#define I_LABEL 1
-#define I_IFGOTO 2
-#define I_GOTO 3
-#define I_END 4
-#define I_ADD 5
-#define I_SUB 6
-#define I_MUL 7
-#define I_DIV 8
-#define I_INC 9
-#define I_DEC 10
-#define I_GREAT 11
-#define I_SMALL 12
-#define I_EQUAL 13
-#define I_GREQ 14
-#define I_SMEQ 15
-#define I_NONEQ 16
-#define I_ASSIGN 17
-#define I_PUSH_PARAM 18
-#define I_CALL 19
-#define I_RETURN 20
-#define I_WRITE 21
-#define I_COPYVAR 22
+#define INT_INT 330
+#define INT_REAL 331
+#define INT_STRING 332
+#define INT_BOOLEAN 333
+#define I_LABEL 331
+#define I_IFGOTO 332
+#define I_GOTO 333
+#define I_END 334
+#define I_ADD 335
+#define I_SUB 336
+#define I_MUL 337
+#define I_DIV 338
+#define I_INC 339
+#define I_DEC 310
+#define I_GREAT 311
+#define I_SMALL 312
+#define I_EQUAL 313
+#define I_GREQ 314
+#define I_SMEQ 315
+#define I_NONEQ 316
+#define I_ASSIGN 317
+#define I_PUSH_PARAM 318
+#define I_CALL 319
+#define I_RETURN 320
+#define I_WRITE 321
+#define I_COPYVAR 322
 
 
-int interpret(symbol_table_item *GTable, tList *L);
+int interpret(symbol_table_item *GTable, tList *LS);

@@ -31,13 +31,13 @@ typedef struct
   struct Item *Act; //ukazatel na aktivni prvek
 } tList;
 
-void InitList (tList *L);
-void DisposeList (tList *L);
-void InsertNew (tList *L, tInstr NewIns);
-void *LastItemAddress (tList *L);
-void *CurrentItemAddress (tList *L);
-void GoToItem (tList *L, void *ItemAddress);
-void First (tList *L);
-void Last (tList *L);
-void NextIns (tList *L);
-tInstr *GetData (tList *L);
+void InitList (tList *LS);
+void DisposeList (tList *LS);
+void InsertNew (tList *LS, tInstr NewIns);
+void *LastItemAddress (tList *LS);
+void *CurrentItemAddress (tList *LS);
+void GoToItem (tList *LS, void *ItemAddress);
+void First (tList *LS);
+void Last (tList *LS);
+void NextIns (tList *LS);
+tInstr *GetData (tList *LS);
