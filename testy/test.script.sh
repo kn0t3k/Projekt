@@ -4,7 +4,7 @@ exe=project #nazev spustitelneho souboru
 
 
 #=========================================================
-file=test4.txt
+file=test4.pas
 result=0
 #-------------
 ./$exe $file >/dev/null
@@ -164,7 +164,7 @@ if [ $realresult -ne $result ]; then
 fi
 #=========================================================
 #=========================================================
-file=testD1.txt
+file=testD1.pas
 result=3
 #-------------
 ./$exe $file >/dev/null
