@@ -49,6 +49,7 @@ typedef struct htab_item{
 	bool initialized;
 	bool fwd;
 	int index;
+	void* label;
 	struct symbol_table_item* func_table; 	
 	struct htab_item* next;
 	} htab_item;
