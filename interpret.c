@@ -228,6 +228,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 							{
 								printf("%d", *((bool*) value_temp));
 							}
+							free(value_temp);
+							value_temp = NULL;
+							break;
 						}
 					}
 							
