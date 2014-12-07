@@ -157,40 +157,82 @@ int interpret(symbol_table_item *GTable, tList *L)
 			//case I_READ:
 			case I_WRITE:
 			{
-				index3 = ((htab_item*) I->addr3)->index;
-				type3 = ((htab_item*) I->addr3)->type;
-				scope3 = ((htab_item*) I->addr3)->global;
+				*size_temp = strlen(((char*) I->addr3));
 
-				switch (type3)
+				for (int i = 0; i < (*size_temp); i++)
 				{
-					case INT_INT:
-						if (scope3 == 0)
-							printf("%d\n", *((int*) l_arr[index3]));
-						else
-							printf("%d\n", *((int*) g_arr[index3]));
-						break;
+					char *temp;
+					switch (((char*) I->addr3)[i])
+					{
+						case 'i':
+						{
+							value_temp = malloc(sizeof(int));
+							*value_temp = IntVarStackPop(VS);
+							if (i < (*size_temp - 1))
+							{
+								printf("%d ", *((int*) value_temp));
+							}
+							else
+							{
+								printf("%d", *((int*) value_temp));
+							}
+							free(value_temp);
+							value_temp = NULL;
+							break;
+						}
 
-					case INT_REAL:
-						if (scope3 == 0)
-							printf("%g\n", *((double*) l_arr[index3]));
-						else
-							printf("%g\n", *((double*) g_arr[index3]));
-						break;
+						case 'r':
+						{
+							value_temp = malloc(sizeof(double));
+							*value_temp = DoubleVarStackPop(VS);
+							if (i < (*size_temp - 1))
+							{
+								printf("%g ", *((double*) value_temp));
+							}
+							else
+							{
+								printf("%g", *((double*) value_temp));
+							}
+							free(value_temp);
+							value_temp = NULL;
+							break;
+						}
+			
+						case 's':
+						{
+							temp = StrVarStackPop(VS);
+							value_temp = malloc(sizeof(char) * strlen(temp));
+							memcpy(((char*) value_temp), temp, sizeof(char) * strlen(temp));
+							if (i < (*size_temp - 1))
+							{
+								printf("%s ", ((char*) value_temp));
+							}
+							else
+							{
+								printf("%s", ((char*) value_temp));
+							}
+							free(value_temp);
+							value_temp = NULL;
+							break;
+						}
 
-					case INT_STRING:
-						if (scope3 == 0)
-							printf("%s\n", ((char*) l_arr[index3]));
-						else
-							printf("%s\n", ((char*) g_arr[index3]));
-						break;
-
-					case INT_BOOLEAN:
-						if (scope3 == 0)
-							printf("%d\n", *((bool*) l_arr[index3]));
-						else
-							printf("%d\n", *((bool*) g_arr[index3]));
-				}	
-				break;
+						case 'b':
+						{
+							value_temp = malloc(sizeof(bool));
+							*value_temp = BoolVarStackPop(VS);
+							if (i < (*size_temp - 1))
+							{
+								printf("%d ", *((bool*) value_temp));
+							}
+							else
+							{
+								printf("%d", *((bool*) value_temp));
+							}
+						}
+					}
+							
+				}
+				printf("\n");
 			}
 
 			//nase instrukce
