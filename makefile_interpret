@@ -34,13 +34,13 @@ main.o: str.c str.h parser.c parser.h scaner.c scaner.h main.c
 	$(CC) $(CFLAGS) -c -o main.o main.c
 
 list.o: list.c list.h
-  $(CC) $(CFLAGS) -c -o list.o list.c
+	$(CC) $(CFLAGS) -c -o list.o list.c
 
 inter_stacks.o: inter_stacks.c inter_stacks.h list.c list.h
-  $(CC) $(CFLAGS) -c -o inter_stacks.o inter_stacks.c
+	$(CC) $(CFLAGS) -c -o inter_stacks.o inter_stacks.c
 	
 interpert.o: interpret_2.c interpret_2.h inter_stacks.h inter_stacks.c list.c list.h
-  $(CC) $(CFLAGS) -c -o interpret.o interpret_2.c
+	$(CC) $(CFLAGS) -c -o interpret.o interpret_2.c
 
 #-----------prelozeni projektu z jednotlivych .o modulu--------------------------------------------	
 
