@@ -1574,7 +1574,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 					AddStackPush(AS, return_addr);
 				return_addr = CurrentItemAddress(L);
 				
-				//GoToItem(L, ((htab_item*) I->addr1)->label); ----!!!!! ODKOMENTOVAT AZ TOMAS DOPLNI !!!!!----
+				GoToItem(L, ((htab_item*) I->addr1)->label);
 				break;
 			}
 
