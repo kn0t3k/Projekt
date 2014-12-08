@@ -72,6 +72,8 @@ void disposearray(void **array, int size)
 int interpret(symbol_table_item *GTable, tList *L)
 {
 	First(L);
+	if (L == NULL)
+		return 0;
 	tInstr *I;
 	int *index_temp = malloc(sizeof(int));
 	int *size_temp = malloc(sizeof(int));
@@ -1730,4 +1732,5 @@ int interpret(symbol_table_item *GTable, tList *L)
 	free(type_temp);
 	free(scope_temp);
 	DisposeVarStack(VS);
+	return 0;
 }
