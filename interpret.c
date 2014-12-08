@@ -137,12 +137,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 					else
 					{
 						if (!(*((bool*) g_arr[index1])))
-						{
-							printf("\nfalse\n");
 							GoToItem(L,((tItem*) I->addr3));
-						}
-						else
-							printf("\ntrue\n");
 					}
 				}
 				break;
@@ -220,8 +215,8 @@ int interpret(symbol_table_item *GTable, tList *L)
 					}
 							
 				}
-				if (I->addr3 != NULL)
-					free(I->addr3);
+				/*if (I->addr3 != NULL)
+					free(I->addr3);*/
 				break;
 			}
 
@@ -668,8 +663,6 @@ int interpret(symbol_table_item *GTable, tList *L)
 				index3 = ((htab_item*) I->addr3)->index;
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
-
-				printf("\nporovnava small\n");
 
 				switch(type1)
 				{

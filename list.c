@@ -21,6 +21,11 @@ void InitList (tList *L)
 	L->Act = NULL;
 }
 
+void SetFirst (tList *L, void *ItemAddress)
+{
+	L->First = (tItem*) ItemAddress;
+}
+
 void DisposeList (tList *L)
 {
 	if (L->First != NULL) //Je potreba?

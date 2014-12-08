@@ -42,7 +42,7 @@ vararr LStackPop (tLVS *S)
 {
 	if (S->top == 0)
 	{
-		printf("Stack is empty!");
+		printf("Stack is empty!1");
 		return NULL;
 	}
 	else
@@ -110,7 +110,7 @@ int IntVarStackPop (tVarS *S)
 {
 	if (S->top == 0)
 	{
-		printf("Stack is empty!\n\n");
+		printf("Stack is empty!2\n");
 		return -1;
 	}
 	else
@@ -121,7 +121,7 @@ bool BoolVarStackPop (tVarS *S)
 {
 	if (S->top == 0)
 	{
-		printf("Stack is empty!\n\n");
+		printf("Stack is empty!3\n");
 		return 0;
 	}
 	else
@@ -132,7 +132,7 @@ double DoubleVarStackPop (tVarS *S)
 {
 	if (S->top == 0)
 	{
-		printf("Stack is empty!\n\n");
+		printf("Stack is empty!4\n");
 		return -1.0;
 	}
 	else
@@ -143,7 +143,7 @@ char* StrVarStackPop (tVarS *S)
 {
 	if (S->top == 0)
 	{
-		printf("Stack is empty!\n\n");
+		printf("Stack is empty!5\n");
 		return NULL;
 	}
 	else
@@ -195,10 +195,7 @@ void AddStackPush (tAddS *S, void *item)
 void* AddStackPop (tAddS *S)
 {
 	if (S->top == 0)
-	{
-		printf("Stack is empty!");
 		return NULL;
-	}
 	else
 		return (S->add_stack[S->top--]);
 }
