@@ -103,9 +103,11 @@ int main(int argc, char** argv)
      // jinak probehlo vse v poradku, muzeme provadet kod
    }
    printf("\n**vse OK**\n");
+   printf("\n\nZacatek interpretu:\n\n");
    interpret(table -> global, &list);
    symbol_table_free(table);
    DisposeList(&list);
    fclose(f);
+   printf("\n\n");
    return 0;
 }

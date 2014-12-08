@@ -679,7 +679,7 @@ int callfunass(){/*<CALLFUNASS>*/
 	  result = callorass(&expression_item);
 	  if (result != SYNTAX_OK) return result;
 	  id_item -> initialized = 1;
-	  //Vygenerovat instrukci COPYVAR
+	  generateInstruction(I_COPYVAR, (void *) expression_item, NULL, (void *) id_item); 
 	  return SYNTAX_OK;
 	  break;
     
@@ -957,19 +957,32 @@ int while_condition(){/*<WHILE_CONDITION>*/
 
   int result;
   struct htab_item* item = NULL;
+  void *label1;
+  void *label2;
+  void *ifgotoadd;
+  tInstr *Instruction;
   
   
   switch (token){
     /*<WHILE_CONDITION> -> WHILE EXPRESSION DO <BODY>*/
     case WHILE:
+	  generateInstruction(I_LABEL, NULL, NULL, NULL);
+	  label1 = LastItemAddress(LS);
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = expression(&item);
 	  if (result != SYNTAX_OK) return result;
-	  //volani instrukce pro while
 	  if (token != DO) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  generateInstruction(I_IFGOTO, (void *) item, NULL, NULL);
+	  ifgotoadd = LastItemAddress(LS);
 	  result = body();
 	  if (result != SYNTAX_OK) return result;
+	  generateInstruction(I_GOTO, NULL, NULL, label1);
+	  generateInstruction(I_LABEL, NULL, NULL, NULL);
+	  label2 = LastItemAddress(LS);
+	  GoToItem(LS, ifgotoadd);
+	  Instruction = GetData(LS);
+	  Instruction -> addr3 = label2;
 	  return SYNTAX_OK;
 	  break;
 	  
@@ -983,6 +996,11 @@ int if_condition(){/*<IF_CONDITION>*/
 
   int result;
   struct htab_item* item = NULL;
+  void *ifgotoadd;
+  void *lastofif;
+  void *elseadd;
+  void *skipelse;
+  tInstr *Instruction;
   
   switch (token){
     /*<IF_CONDITION> -> IF EXPRESSION THEN <BODY> ELSE <BODY>*/
@@ -990,15 +1008,27 @@ int if_condition(){/*<IF_CONDITION>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = expression(&item);
 	  if (result != SYNTAX_OK) return result;
-	  //volani instrukce pro if
+	  generateInstruction(I_IFGOTO, (void *) item, NULL, NULL);
+	  ifgotoadd = LastItemAddress(LS);
 	  if (token != THEN) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = body();
 	  if (result != SYNTAX_OK) return result;
 	  if (token != ELSE) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  generateInstruction(I_GOTO, NULL, NULL, NULL);
+	  lastofif = LastItemAddress(LS);
+	  generateInstruction(I_LABEL, NULL, NULL, NULL);
+	  elseadd = LastItemAddress(LS);
+	  GoToItem(LS, ifgotoadd);
+	  Instruction = GetData(LS);
+	  Instruction -> addr3 = elseadd;
 	  result = body();
 	  if (result != SYNTAX_OK) return result;
+	  skipelse = LastItemAddress(LS);
+	  GoToItem(LS, lastofif);
+	  Instruction = GetData(LS);
+	  Instruction -> addr3 = skipelse;
 	  return SYNTAX_OK;
 	  break;
 	
@@ -1323,24 +1353,34 @@ int parse_expression(struct htab_item **expected_item){/*Precedencni syntakticka
 			
 			switch (operator){
 			  case MUL:
+			    generateInstruction(I_MUL, (void *) operand_1, (void *) operand_2, (void *) item);
 			    break;
 	          case DIV:
+			    generateInstruction(I_DIV, (void *) operand_1, (void *) operand_2, (void *) item);
 			    break;
               case ADD:
+			    generateInstruction(I_ADD, (void *) operand_1, (void *) operand_2, (void *) item);
 			    break;
               case DIF:
+			    generateInstruction(I_SUB, (void *) operand_1, (void *) operand_2, (void *) item);
 			    break;
               case S:
+			    generateInstruction(I_SMALL, (void *) operand_1, (void *) operand_2, (void *) item);
 			    break;
               case L:
+			    generateInstruction(I_GREAT, (void *) operand_1, (void *) operand_2, (void *) item);
 			    break;
               case SE:
+			    generateInstruction(I_SMEQ, (void *) operand_1, (void *) operand_2, (void *) item);
 			    break;
               case LE:
+			    generateInstruction(I_GREQ, (void *) operand_1, (void *) operand_2, (void *) item);
 			    break;
               case EQ:
+			    generateInstruction(I_EQUAL, (void *) operand_1, (void *) operand_2, (void *) item);
 			    break;
               case SL:
+			    generateInstruction(I_NONEQ, (void *) operand_1, (void *) operand_2, (void *) item);
 			    break;
 			  
 			  default:
