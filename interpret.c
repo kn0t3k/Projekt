@@ -151,6 +151,12 @@ int interpret(symbol_table_item *GTable, tList *L)
 
 			case I_END:
 			{
+				
+				free(index_temp);
+				free(size_temp);
+				free(type_temp);
+				free(scope_temp);
+				DisposeVarStack(VS);
 				disposearray(g_arr, GTable->item_count);
 				return 0;
 			}			
@@ -1321,7 +1327,10 @@ int interpret(symbol_table_item *GTable, tList *L)
 						if (scope3 == 0)
 							*((int*) l_arr[index3]) = *((int*) I->addr1);
 						else
+						{
 							*((int*) g_arr[index3]) = *((int*) I->addr1);
+							printf("\n%d\n", *((int*) g_arr[index3]));
+						}
 						free(I->addr1);
 						break;
 					}
@@ -1727,10 +1736,4 @@ int interpret(symbol_table_item *GTable, tList *L)
 		}
 		NextIns(L);
 	}
-	free(index_temp);
-	free(size_temp);
-	free(type_temp);
-	free(scope_temp);
-	DisposeVarStack(VS);
-	return 0;
 }
