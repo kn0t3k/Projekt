@@ -835,16 +835,23 @@ int value(struct htab_item** item){
     case ID:/*Pokud jde o ID vyhleda se v aktualni tabulce, jestli je tam a pak se zkontroluje inicializace*/
 	  if (((*item) = search_var(attr.str, table, &result)) == NULL)
         return result;
-	  else{
-	    if ((*item) -> global != 1){/*Globalni promenne, nevyzaduji inicializaci*/
-	      if (((*item) -> initialized != 1) || ((*item) -> function == 1))
-	        return SEM_ERROR;
+	  else{/*Zkontrolujeme, zda muzeme ID pouzit*/
+	    if (table -> local != table -> global){
+	      if ((*item) -> global != 1){/*Globalni promenne, nevyzaduji inicializaci*/
+			if (((*item) -> initialized != 1) || ((*item) -> function == 1)){/*Kontrolujeme, zda se nejedna o funkci*/
+			  return SEM_ERROR;
+			  }
+	        }
+		  else{
+		    if ((*item) -> function == 1)
+		      return SEM_ERROR;
+		    }
 	      }
-		else{
-		  if ((*item) -> function == 1)
-		    return SEM_ERROR;
+		else{/*Pokud jsme jiz v globalnim tele programu tak inicializaci globalni promenne vyzadujeme*/
+		  if (((*item) -> initialized != 1) || ((*item) -> function == 1))
+	         return SEM_ERROR;
 		  }
-	    }
+		}
       break;
 			
 	case INTEGER:/*Pokud je to int, tak se vytvori novy jedinecny nazev, a pridame do tabulky polozku s timto nazvem + data + typ*/
@@ -1309,7 +1316,7 @@ int parse_expression(struct htab_item **expected_item){/*Precedencni syntakticka
 	      case DES_EXP_NEG:
 	      case EXP:
 	      case EXP_NEG:
-		    value(&item);/*Funkce vrati ukazatel na polozku, pokud se jedna o ID, najde v tabulce, jinak vytvori novou jedinecnou polozku*/
+		    if((error = value(&item)) != SYNTAX_OK) return error;/*Funkce vrati ukazatel na polozku, pokud se jedna o ID, najde v tabulce, jinak vytvori novou jedinecnou polozku*/
 			break;
 			
 		  default:
