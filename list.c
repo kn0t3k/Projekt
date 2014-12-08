@@ -41,7 +41,10 @@ void InsertNew (tList *L, tInstr NewIns)
 {
 	struct Item *NewItem;
 
-	NewItem = malloc(sizeof(struct Item)); //SELHANI!!!
+	if ((NewItem = malloc(sizeof(struct Item))) == NULL)
+			printf("nealokovalo se\n");
+	else
+			printf("alokovalo se\n"); //SELHANI!!!
 	NewItem->Instruction = NewIns;
 	NewItem->NextItem = NULL;
 	if (L->Last != NULL)
