@@ -472,13 +472,13 @@ htab_t* htab_init(unsigned int htab_size)
 
 /**
 * Funkce vraci delku retezce
-* @param *s ukazatel na retezec ze struktury string (dest->str)
+* @param *s ukazatel na strukturu string
 * @return delka retezce
 */
 
-int length(char *s)
+int length(string *s)
 {
-	return  s == NULL ? SEM_ERROR : strlen(s);
+	return  s == NULL ? SEM_ERROR : s->length;
 }
 
 
@@ -545,11 +545,11 @@ int find(char *s, char *search, int s_len, int search_len)
 	}
 	else if (search_len == 0) /* prazdny retezec se vzdy nachazi na pozici 1 */
 	{
-		return 1;
+		return 1; /* toto neni chyba, je to spravny vysledek - index */
 	}
 	else if (search_len > s_len)
 	{
-		return 0;
+		return 0; /* nenalezen */
 	}
 	else /* konecne muzeme zacit s vyhledavanim */
 	{
