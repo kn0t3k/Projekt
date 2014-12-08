@@ -785,7 +785,15 @@ int variable(struct htab_item **func_item){
         return SEM_ERROR_TYPE;
 	  }
 	}
-	
+   else{
+     char *write_string;
+     if ((write_string = (char*) malloc(sizeof(char)*(strlen(str_parameters -> str)+1))) == NULL)/*Alokace mista pro hodnotu promenne*/
+	    return INTERNAL_ERR;
+	 strncpy(write_string, str_parameters -> str, sizeof(char)*(strlen(str_parameters -> str)+1));
+     generateInstruction(I_WRITE, NULL, NULL, write_string);
+     }
+  
+  
   strFree(str_parameters);	
   free(str_parameters);
   str_parameters = NULL;
@@ -822,8 +830,7 @@ int value(struct htab_item** item){
 	    }
 	  strFree(&new_variable);	
 	  (*item) -> type = s_integer;
-	  //generateInstruction(I_ASSIGN,(void *) value, NULL, item);
-	  free(value_i);/*Po zprovozneni instrukci oddelat!!!*/	
+	  generateInstruction(I_ASSIGN,(void *) value_i, NULL, (void *) item);	
 	  break;
 			
     case STRING:
@@ -841,8 +848,7 @@ int value(struct htab_item** item){
 	    }
 	  strFree(&new_variable);
       (*item) -> type = s_string;
-      //generateInstruction(I_ASSIGN,(void *) value, NULL, item);
-	  free(value_s);/*Po zprovozneni instrukci oddelat!!!*/			
+      generateInstruction(I_ASSIGN,(void *) value_s, NULL, (void *) item);		
 	  break;
 			
 	case BOOLEAN:
@@ -863,8 +869,7 @@ int value(struct htab_item** item){
 	    }
 	  strFree(&new_variable);	
 	  (*item) -> type = s_boolean;
-	  //generateInstruction(I_ASSIGN,(void *) value, NULL, item);
-	  free(value_b);/*Po zprovozneni instrukci oddelat!!!*/
+	  generateInstruction(I_ASSIGN,(void *) value_b, NULL, (void *) item);
 	  break;
 			
 	  case DES_INT:
@@ -886,8 +891,7 @@ int value(struct htab_item** item){
 		  }
 		strFree(&new_variable);	
 		(*item) -> type = s_real;
-		//generateInstruction(I_ASSIGN,(void *) value, NULL, item);
-		free(value_f);/*Po zprovozneni instrukci oddelat!!!*/
+		generateInstruction(I_ASSIGN,(void *) value_f, NULL, (void *) item);
 		break;
 	  
 	  default:
@@ -897,6 +901,7 @@ int value(struct htab_item** item){
 	}
   if (str_parameters != NULL){/*Pokud porovnamvame parametry, potrebujeme tvorit retezec a pushnou parametr*/ 
     //Dopsat instrukci pro pushnuti parametru
+	generateInstruction(I_PUSH_PARAM, NULL, NULL,(void *) item);
 	switch ((*item) -> type){
       case 0:
 	    strAddChar(str_parameters, 'i');

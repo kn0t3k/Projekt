@@ -59,10 +59,6 @@ int main(int argc, char** argv)
 
    result = parse(table, &list, Stack); // provedeme syntaktickou analyzu
    
-   interpret(table -> global, &list);
-   
-   symbol_table_free(table);
-   
    SEmpty(Stack);/*Zasobnik se vyprazdni, pokud doslo k chybe nekde v prubehu precedencni syntakticke analyzy*/   
    free(Stack);
 	 
@@ -107,12 +103,9 @@ int main(int argc, char** argv)
      // jinak probehlo vse v poradku, muzeme provadet kod
    }
    printf("\n**vse OK**\n");
-
-   // provedeme interpretaci
-   /*inter(&ST, &instrList);
-
-   tableFree(&ST);
-   listFree(&instrList);*/
+   interpret(table -> global, &list);
+   symbol_table_free(table);
+   DisposeList(&list);
    fclose(f);
    return 0;
 }
