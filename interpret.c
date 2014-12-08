@@ -157,7 +157,10 @@ int interpret(symbol_table_item *GTable, tList *L)
 			//case I_READ:
 			case I_WRITE:
 			{
-				*size_temp = strlen(((char*) I->addr3));
+				if (I->addr3 != NULL)				
+					*size_temp = strlen(((char*) I->addr3));
+				else
+					*size_temp = 0;
 
 				for (int i = 0; i < (*size_temp); i++)
 				{
@@ -235,7 +238,10 @@ int interpret(symbol_table_item *GTable, tList *L)
 					}
 							
 				}
+				if (I->addr3 != NULL)
+					free(I->addr3);
 				printf("\n");
+				break;
 			}
 
 			//nase instrukce
