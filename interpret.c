@@ -138,9 +138,11 @@ int interpret(symbol_table_item *GTable, tList *L)
 					{
 						if (!(*((bool*) g_arr[index1])))
 						{
-							pritnf("\nje tu\n");
+							printf("\nfalse\n");
 							GoToItem(L,((tItem*) I->addr3));
 						}
+						else
+							printf("\ntrue\n");
 					}
 				}
 				break;
@@ -666,6 +668,8 @@ int interpret(symbol_table_item *GTable, tList *L)
 				index3 = ((htab_item*) I->addr3)->index;
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
+
+				printf("\nporovnava small\n");
 
 				switch(type1)
 				{
@@ -1313,6 +1317,8 @@ int interpret(symbol_table_item *GTable, tList *L)
 			//instrukce prirazeni
 			case I_ASSIGN: //:=
 			{
+				if (I->addr1 == NULL)
+					break;
 				index3 = ((htab_item*) I->addr3)->index;
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
@@ -1331,6 +1337,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						else
 							*((int*) g_arr[index3]) = *((int*) I->addr1);
 						free(I->addr1);
+						I->addr1 = NULL;
 						break;
 					}
 
@@ -1341,6 +1348,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						else
 							*((double*) g_arr[index3]) = *((double*) I->addr1);
 						free(I->addr1);
+						I->addr1 = NULL;
 						break;
 					}
 
@@ -1361,6 +1369,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 							memcpy(((char*) g_arr[index3]), ((char*) I->addr1), (strlen((char*) I->addr1) + 1) * sizeof(char));
 						}
 						free(I->addr1);
+						I->addr1 = NULL;
 						break;
 					}
 
@@ -1371,6 +1380,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						else
 							*((bool*) g_arr[index3]) = *((bool*) I->addr1);
 						free(I->addr1);
+						I->addr1 = NULL;
 						break;
 					}
 				}
