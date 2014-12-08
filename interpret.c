@@ -171,14 +171,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						{
 							value_temp = malloc(sizeof(int));
 							*((int*) value_temp) = IntVarStackPop(VS);
-							if (i < (*size_temp - 1))
-							{
-								printf("%d ", *((int*) value_temp));
-							}
-							else
-							{
-								printf("%d", *((int*) value_temp));
-							}
+							printf("%d", *((int*) value_temp));
 							free(value_temp);
 							value_temp = NULL;
 							break;
@@ -188,14 +181,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						{
 							value_temp = malloc(sizeof(double));
 							*((double*) value_temp) = DoubleVarStackPop(VS);
-							if (i < (*size_temp - 1))
-							{
-								printf("%g ", *((double*) value_temp));
-							}
-							else
-							{
-								printf("%g", *((double*) value_temp));
-							}
+							printf("%g", *((double*) value_temp));
 							free(value_temp);
 							value_temp = NULL;
 							break;
@@ -206,14 +192,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 							temp = StrVarStackPop(VS);
 							value_temp = malloc(sizeof(char) * strlen(temp));
 							memcpy(((char*) value_temp), temp, sizeof(char) * strlen(temp));
-							if (i < (*size_temp - 1))
-							{
-								printf("%s ", ((char*) value_temp));
-							}
-							else
-							{
-								printf("%s", ((char*) value_temp));
-							}
+							printf("%s", ((char*) value_temp));
 							free(value_temp);
 							value_temp = NULL;
 							break;
@@ -223,14 +202,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						{
 							value_temp = malloc(sizeof(bool));
 							*((bool*) value_temp) = BoolVarStackPop(VS);
-							if (i < (*size_temp - 1))
-							{
-								printf("%d ", *((bool*) value_temp));
-							}
-							else
-							{
-								printf("%d", *((bool*) value_temp));
-							}
+							printf("%d", *((bool*) value_temp));
 							free(value_temp);
 							value_temp = NULL;
 							break;
@@ -240,7 +212,6 @@ int interpret(symbol_table_item *GTable, tList *L)
 				}
 				if (I->addr3 != NULL)
 					free(I->addr3);
-				printf("\n");
 				break;
 			}
 
