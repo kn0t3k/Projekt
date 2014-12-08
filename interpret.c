@@ -28,25 +28,25 @@ void loadarray(void **array, symbol_table_item *TB)
 			{
 				switch (type)
 				{
-					case INT_INT:
+					case 0:
 					{
 						array[iptr->index] = malloc(sizeof(int));
 						break;
 					}
 
-					case INT_REAL:
+					case 1:
 					{
 						array[iptr->index] = malloc(sizeof(double));
 						break;
 					}
 
-					case INT_STRING:
+					case 2:
 					{
 						array[iptr->index] = malloc(sizeof(char));
 						break;
 					}
 
-					case INT_BOOLEAN:
+					case 3:
 					{
 						array[iptr->index] = malloc(sizeof(bool));
 						break;
@@ -127,7 +127,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
-				if (type1 != INT_STRING)
+				if (type1 != 2)
 				{
 					if (scope1 == 0)
 					{
@@ -240,7 +240,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
 
-				if ((type1 != INT_STRING) && (type2 != INT_STRING) && (type3 != INT_STRING))
+				if ((type1 != 2) && (type2 != 2) && (type3 != 2))
 				{
 					if (scope1 == 0)
 						var1 = l_arr[index1];
@@ -257,25 +257,25 @@ int interpret(symbol_table_item *GTable, tList *L)
 					else
 						var3 = g_arr[index3];
 
-					if (type1 == INT_INT)
+					if (type1 == 0)
 					{
-						if (type2 == INT_INT)
+						if (type2 == 0)
 							*((int*) var3) = *((int*) var1) + *((int*) var2);
 						else
 							*((double*) var3) = ((double)*((int*) var1)) + *((double*) var2);
 					}
 					else 
 					{
-						if (type1 == INT_REAL)
+						if (type1 == 1)
 						{
-							if (type2 == INT_INT)
+							if (type2 == 0)
 								*((double*) var3) = *((double*) var1) + ((double)(*((int*) var2)));
 							else
 								*((double*) var3) = *((double*) var1) + *((double*) var2);
 						}
 					}
 				}
-				else if ((type1 == INT_STRING) && (type2 == INT_STRING) && (type3 == INT_STRING))
+				else if ((type1 == 2) && (type2 == 2) && (type3 == 2))
 				{
 					if (scope1 == 0)
 					{
@@ -340,7 +340,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
 
-				if ((type1 != INT_STRING) && (type2 != INT_STRING) && (type3 != INT_STRING))
+				if ((type1 != 2) && (type2 != 2) && (type3 != 2))
 				{
 					if (scope1 == 0)
 						var1 = l_arr[index1];
@@ -357,18 +357,18 @@ int interpret(symbol_table_item *GTable, tList *L)
 					else
 						var3 = g_arr[index3];
 
-					if (type1 == INT_INT)
+					if (type1 == 0)
 					{
-							if (type2 == INT_INT)
+							if (type2 == 0)
 								*((int*) var3) = *((int*) var1) - *((int*) var2);
 							else
 								*((double*) var3) = ((double)*((int*) var1)) - *((double*) var2);
 					}
 					else 
 					{
-						if (type1 == INT_REAL)
+						if (type1 == 1)
 						{
-							if (type2 == INT_INT)
+							if (type2 == 0)
 								*((double*) var3) = *((double*) var1) - ((double)*((int*) var2));
 							else
 								*((double*) var3) = *((double*) var1) - *((double*) var2);
@@ -390,7 +390,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
 
-				if ((type1 != INT_STRING) && (type2 != INT_STRING) && (type3 != INT_STRING))
+				if ((type1 != 2) && (type2 != 2) && (type3 != 2))
 				{
 					if (scope1 == 0)
 						var1 = l_arr[index1];
@@ -407,18 +407,18 @@ int interpret(symbol_table_item *GTable, tList *L)
 					else
 						var3 = g_arr[index3];
 
-					if (type1 == INT_INT)
+					if (type1 == 0)
 					{
-							if (type2 == INT_INT)
+							if (type2 == 0)
 								*((int*) var3) = (*((int*) var1)) * (*((int*) var2));
 							else
 								*((double*) var3) = ((double)*((int*) var1)) * (*((double*) var2));
 					}
 					else 
 					{
-						if (type1 == INT_REAL)
+						if (type1 == 1)
 						{
-							if (type2 == INT_INT)
+							if (type2 == 0)
 								*((double*) var3) = (*((double*) var1)) * ((double)*((int*) var2));
 							else
 								*((double*) var3) = (*((double*) var1)) * (*((double*) var2));
@@ -440,7 +440,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
 
-				if ((type1 != INT_STRING) && (type2 != INT_STRING) && (type3 != INT_STRING))
+				if ((type1 != 2) && (type2 != 2) && (type3 != 2))
 				{
 					if (scope1 == 0)
 						var1 = l_arr[index1];
@@ -457,18 +457,18 @@ int interpret(symbol_table_item *GTable, tList *L)
 					else
 						var3 = g_arr[index3];
 
-					if (type1 == INT_INT)
+					if (type1 == 0)
 					{
-						if (type2 == INT_INT)
+						if (type2 == 0)
 							*((double*) var3) = ((double)*((int*) var1)) / ((double)(*((int*) var2)));
 						else
 							*((double*) var3) = ((double)*((int*) var1)) / (*((double*) var2));
 					}
 					else
 					{
-						if (type1 == INT_REAL)
+						if (type1 == 1)
 						{
-							if (type2 == INT_INT)
+							if (type2 == 0)
 								*((double*) var3) = (*((double*) var1)) / ((double)*((int*) var2));
 							else
 								*((double*) var3) = (*((double*) var1)) / (*((double*) var2));
@@ -484,14 +484,14 @@ int interpret(symbol_table_item *GTable, tList *L)
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
 
-				if (type3 != INT_STRING)
+				if (type3 != 2)
 				{
 					if (scope3 == 0)
 						var3 = l_arr[index3];
 					else
 						var3 = g_arr[index3];
 
-					if (type3 == INT_INT)
+					if (type3 == 0)
 						(*((int*) var3))++;
 					else
 						(*((double*) var3))++;
@@ -505,14 +505,14 @@ int interpret(symbol_table_item *GTable, tList *L)
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
 
-				if (type3 != INT_STRING)
+				if (type3 != 2)
 				{
 					if (scope3 == 0)
 						var3 = l_arr[index3];
 					else
 						var3 = g_arr[index3];
 
-					if (type3 == INT_INT)
+					if (type3 == 0)
 						(*((int*) var3))--;
 					else
 						(*((double*) var3))--;
@@ -535,9 +535,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 
 				switch(type1)
 				{
-					case INT_INT:
+					case 0:
 					{
-						if ((type2 == INT_INT) && (type3 == INT_BOOLEAN))
+						if ((type2 == 0) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -560,9 +560,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_REAL:
+					case 1:
 					{
-						if ((type2 == INT_REAL) && (type3 == INT_BOOLEAN))
+						if ((type2 == 1) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -584,9 +584,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_BOOLEAN:
+					case 3:
 					{
-						if ((type2 == INT_BOOLEAN) && (type3 == INT_BOOLEAN))
+						if ((type2 == 3) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -608,9 +608,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_STRING:
+					case 2:
 					{
-						if ((type2 == INT_STRING) && (type3 == INT_BOOLEAN))
+						if ((type2 == 2) && (type3 == 3))
 						{
 							if (scope1 == 0)
 							{
@@ -666,9 +666,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 
 				switch(type1)
 				{
-					case INT_INT:
+					case 0:
 					{
-						if ((type2 == INT_INT) && (type3 == INT_BOOLEAN))
+						if ((type2 == 0) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -691,9 +691,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_REAL:
+					case 1:
 					{
-						if ((type2 == INT_REAL) && (type3 == INT_BOOLEAN))
+						if ((type2 == 1) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -715,9 +715,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_BOOLEAN:
+					case 3:
 					{
-						if ((type2 == INT_BOOLEAN) && (type3 == INT_BOOLEAN))
+						if ((type2 == 3) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -739,9 +739,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_STRING:
+					case 2:
 					{
-						if ((type2 == INT_STRING) && (type3 == INT_BOOLEAN))
+						if ((type2 == 2) && (type3 == 3))
 						{
 							if (scope1 == 0)
 							{
@@ -797,9 +797,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 
 				switch(type1)
 				{
-					case INT_INT:
+					case 0:
 					{
-						if ((type2 == INT_INT) && (type3 == INT_BOOLEAN))
+						if ((type2 == 0) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -822,9 +822,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_REAL:
+					case 1:
 					{
-						if ((type2 == INT_REAL) && (type3 == INT_BOOLEAN))
+						if ((type2 == 1) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -846,9 +846,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_BOOLEAN:
+					case 3:
 					{
-						if ((type2 == INT_BOOLEAN) && (type3 == INT_BOOLEAN))
+						if ((type2 == 3) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -870,9 +870,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_STRING:
+					case 2:
 					{
-						if ((type2 == INT_STRING) && (type3 == INT_BOOLEAN))
+						if ((type2 == 2) && (type3 == 3))
 						{
 							if (scope1 == 0)
 							{
@@ -928,9 +928,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 
 				switch(type1)
 				{
-					case INT_INT:
+					case 0:
 					{
-						if ((type2 == INT_INT) && (type3 == INT_BOOLEAN))
+						if ((type2 == 0) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -953,9 +953,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_REAL:
+					case 1:
 					{
-						if ((type2 == INT_REAL) && (type3 == INT_BOOLEAN))
+						if ((type2 == 1) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -977,9 +977,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_BOOLEAN:
+					case 3:
 					{
-						if ((type2 == INT_BOOLEAN) && (type3 == INT_BOOLEAN))
+						if ((type2 == 3) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -1001,9 +1001,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_STRING:
+					case 2:
 					{
-						if ((type2 == INT_STRING) && (type3 == INT_BOOLEAN))
+						if ((type2 == 2) && (type3 == 3))
 						{
 							if (scope1 == 0)
 							{
@@ -1059,9 +1059,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 
 				switch(type1)
 				{
-					case INT_INT:
+					case 0:
 					{
-						if ((type2 == INT_INT) && (type3 == INT_BOOLEAN))
+						if ((type2 == 0) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -1084,9 +1084,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_REAL:
+					case 1:
 					{
-						if ((type2 == INT_REAL) && (type3 == INT_BOOLEAN))
+						if ((type2 == 1) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -1108,9 +1108,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_BOOLEAN:
+					case 3:
 					{
-						if ((type2 == INT_BOOLEAN) && (type3 == INT_BOOLEAN))
+						if ((type2 == 3) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -1132,9 +1132,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_STRING:
+					case 2:
 					{
-						if ((type2 == INT_STRING) && (type3 == INT_BOOLEAN))
+						if ((type2 == 2) && (type3 == 3))
 						{
 							if (scope1 == 0)
 							{
@@ -1190,9 +1190,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 
 				switch(type1)
 				{
-					case INT_INT:
+					case 0:
 					{
-						if ((type2 == INT_INT) && (type3 == INT_BOOLEAN))
+						if ((type2 == 0) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -1215,9 +1215,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_REAL:
+					case 1:
 					{
-						if ((type2 == INT_REAL) && (type3 == INT_BOOLEAN))
+						if ((type2 == 1) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -1239,9 +1239,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_BOOLEAN:
+					case 3:
 					{
-						if ((type2 == INT_BOOLEAN) && (type3 == INT_BOOLEAN))
+						if ((type2 == 3) && (type3 == 3))
 						{
 							if (scope1 == 0)
 								var1 = l_arr[index1];
@@ -1263,9 +1263,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_STRING:
+					case 2:
 					{
-						if ((type2 == INT_STRING) && (type3 == INT_BOOLEAN))
+						if ((type2 == 2) && (type3 == 3))
 						{
 							if (scope1 == 0)
 							{
@@ -1319,10 +1319,10 @@ int interpret(symbol_table_item *GTable, tList *L)
 				//search for index, type and scope
 				//copy value into array
 				//free received pointer
-
+				printf("\nprislo\n");
 				switch (type3)
 				{
-					case INT_INT:
+					case 0:
 					{
 						if (scope3 == 0)
 							*((int*) l_arr[index3]) = *((int*) I->addr1);
@@ -1335,7 +1335,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_REAL:
+					case 1:
 					{
 						if (scope3 == 0)
 							*((double*) l_arr[index3]) = *((double*) I->addr1);
@@ -1345,7 +1345,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_STRING:
+					case 2:
 					{
 						if (scope3 == 0)
 						{
@@ -1365,7 +1365,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_BOOLEAN:
+					case 3:
 					{
 						if (scope3 == 0)
 							*((bool*) l_arr[index3]) = *((bool*) I->addr1);
@@ -1389,7 +1389,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 				
 				switch (type1)
 				{
-					case INT_INT:
+					case 0:
 					{
 						if (scope3 == 0)
 						{
@@ -1408,7 +1408,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_REAL:
+					case 1:
 					{
 						if (scope3 == 0)
 						{
@@ -1427,7 +1427,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_STRING:
+					case 2:
 					{
 						if (scope3 == 0)
 						{
@@ -1466,7 +1466,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_BOOLEAN:
+					case 3:
 					{
 						if (scope3 == 0)
 						{
@@ -1500,7 +1500,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 				//push value from array
 				switch (type3)
 				{
-					case INT_INT:
+					case 0:
 					{
 						if (scope3 == 0)
 							VarStackPush(VS, ((int*) l_arr[index3]), NULL, NULL, NULL);
@@ -1509,7 +1509,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_REAL:
+					case 1:
 					{
 						if (scope3 == 0)
 							VarStackPush(VS, NULL, ((double*) l_arr[index3]), NULL, NULL);
@@ -1518,7 +1518,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_STRING:
+					case 2:
 					{
 						if (scope3 == 0)
 							VarStackPush(VS, NULL, NULL, ((char*) l_arr[index3]), NULL);
@@ -1527,7 +1527,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						break;
 					}
 
-					case INT_BOOLEAN:
+					case 3:
 					{
 						if (scope3 == 0)
 							VarStackPush(VS, NULL, NULL, NULL, ((bool*) l_arr[index3]));
@@ -1628,28 +1628,28 @@ int interpret(symbol_table_item *GTable, tList *L)
 				
 				switch (*type_temp)
 				{
-					case INT_INT:
+					case 0:
 					{
 						value_temp = malloc(sizeof(int));
 						*((int*) value_temp) = *((int*) l_arr[0]);
 						break;
 					}
 
-					case INT_REAL:
+					case 1:
 					{
 						value_temp = malloc(sizeof(double));
 						*((double*) value_temp) = *((double*) l_arr[0]);
 						break;
 					}
 
-					case INT_STRING:
+					case 2:
 					{
 						value_temp = malloc(sizeof(char) * (strlen((char*) l_arr[0]) + 1));
 						memcpy(((char*) value_temp), ((char*) l_arr[0]), sizeof(char) * (strlen((char*) l_arr[0]) + 1));
 						break;
 					}
 
-					case INT_BOOLEAN:
+					case 3:
 					{
 						value_temp = malloc(sizeof(bool));
 						*((bool*) value_temp) = *((bool*) l_arr[0]);
@@ -1666,19 +1666,19 @@ int interpret(symbol_table_item *GTable, tList *L)
 				{
 					switch (*type_temp)
 					{
-						case INT_INT:
+						case 0:
 						{
 							*((int*) l_arr[*index_temp]) = *((int*) value_temp);
 							break;
 						}
 
-						case INT_REAL:
+						case 1:
 						{
 							*((double*) l_arr[*index_temp]) = *((double*) value_temp);
 							break;
 						}
 
-						case INT_STRING:
+						case 2:
 						{
 							if ((strlen((char*) value_temp)) != strlen((char*) l_arr[*index_temp]))
 								if ((realloc(((char*) l_arr[*index_temp]), sizeof(char) * (strlen((char*) value_temp) + 1))) == NULL)
@@ -1687,7 +1687,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 							break;
 						}
 
-						case INT_BOOLEAN:
+						case 3:
 						{
 							*((bool*) l_arr[*index_temp]) = *((bool*) value_temp);
 							break;
@@ -1699,19 +1699,19 @@ int interpret(symbol_table_item *GTable, tList *L)
 				{
 					switch (*type_temp)
 					{
-						case INT_INT:
+						case 0:
 						{
 							*((int*) g_arr[*index_temp]) = *((int*) value_temp);
 							break;
 						}
 
-						case INT_REAL:
+						case 1:
 						{
 							*((double*) g_arr[*index_temp]) = *((double*) value_temp);
 							break;
 						}
 
-						case INT_STRING:
+						case 2:
 						{
 							if ((strlen((char*) value_temp)) != strlen((char*) g_arr[*index_temp]))
 								if ((realloc(((char*) g_arr[*index_temp]), sizeof(char) * (strlen((char*) value_temp) + 1))) == NULL)
@@ -1720,7 +1720,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 							break;
 						}
 
-						case INT_BOOLEAN:
+						case 3:
 						{
 							*((bool*) g_arr[*index_temp]) = *((bool*) value_temp);
 							break;
