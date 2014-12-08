@@ -173,3 +173,123 @@ if [ $realresult -ne $result ]; then
    		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
 fi
 #=========================================================
+#=========================================================
+file=func_length1.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=func_length2.pas
+result=3
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=func_length3.pas
+result=4
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=func_copy1.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=func_copy2.pas
+result=3
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=func_copy3.pas
+result=4
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=func_sort1.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=func_sort2.pas
+result=3
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=func_sort3.pas
+result=4
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=func_find1.pas
+result=0
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=func_find2.pas
+result=3
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
+fi
+#=========================================================
+#=========================================================
+file=func_find3.pas
+result=4
+#-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
+fi
+#=========================================================
