@@ -70,11 +70,13 @@ void PrintAll (tPrintList *L)
 			case 2:
 			{
 				printf("%s", ((char*) L->Act->var));
+				break;
 			}
 
 			case 3:
 			{
 				printf("%d", *((bool*) L->Act->var));
+				break;
 			}
 		}
 		L->Act = L->Act->NextItem;
