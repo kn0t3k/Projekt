@@ -13,6 +13,12 @@
 #define ADS_STACK_SIZE 10
 #define LVS_STACK_SIZE 10
 
+void initarray(void **array, int size)
+{
+	for (int i = 0; i < size; i++)
+		array[i] = NULL;
+}
+
 void loadarray(void **array, symbol_table_item *TB)
 {
 	int hash_size = TB->table->htab_size;
@@ -43,6 +49,7 @@ void loadarray(void **array, symbol_table_item *TB)
 					case 2:
 					{
 						array[iptr->index] = malloc(sizeof(char));
+						((char*) array[iptr->index])[0] = '\0';
 						break;
 					}
 
@@ -64,9 +71,13 @@ void loadarray(void **array, symbol_table_item *TB)
 void disposearray(void **array, int size)
 {
 	for (int i = 0; i < size; i++)
-		free(array[i]);
+	{
+		if (array[i] != NULL)
+			free(array[i]);
+	}
 
-	free(array);
+	if (array != NULL)
+		free(array);
 }
 
 int interpret(symbol_table_item *GTable, tList *L)
@@ -98,6 +109,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 	VS->var_stack = malloc(sizeof(void*) * (VAR_STACK_SIZE));
 	VarStackInit(VS,VAR_STACK_SIZE);
 	void **g_arr = malloc(sizeof(void*) * GTable->item_count);
+	initarray(g_arr, GTable->item_count);
 	loadarray(g_arr, GTable);
 	void **l_arr = NULL;
 
@@ -173,7 +185,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 
 				for (int i = 0; i < (*size_temp); i++)
 				{
-					char *temp;
+					//char *temp;
 					switch (((char*) I->addr3)[i])
 					{
 						case 'i':
@@ -198,9 +210,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 			
 						case 's':
 						{
-							temp = StrVarStackPop(VS);
-							printf("%s", temp);
-							free(temp);
+							printf("%s", StrVarStackPop(VS));
 							break;
 						}
 
@@ -307,15 +317,21 @@ int interpret(symbol_table_item *GTable, tList *L)
 					if (scope3 == 0)
 					{
 						if (strlen(((char*) var3)) > strlen(((char*) l_arr[index3])))
-							if ((realloc(l_arr[index3], (strlen(((char*) var3)) + 1) * sizeof(char))) == NULL)
-								printf("chyba!!");
+						{
+							free(l_arr[index3]);
+							l_arr[index3] = NULL;
+							l_arr[index3] = malloc(sizeof(char) * (strlen((char*) var3) + 1));
+						}
 						memcpy(((char*) l_arr[index3]), ((char*) var3), (strlen(((char*) var3)) + 1) * sizeof(char));
 					}
 					else
 					{
 						if (strlen(((char*) var3)) > strlen(((char*) g_arr[index3])))
-							if ((realloc(g_arr[index3], (strlen(((char*) var3)) + 1) * sizeof(char))) == NULL)
-								printf("chyba!!");
+						{
+							free(g_arr[index3]);
+							g_arr[index3] = NULL;
+							g_arr[index3] = malloc(sizeof(char) * (strlen((char*) var3) + 1));
+						}
 						memcpy(((char*) g_arr[index3]), ((char*) var3), (strlen(((char*) var3)) + 1) * sizeof(char));
 					}
 					free(var1);
@@ -1351,15 +1367,21 @@ int interpret(symbol_table_item *GTable, tList *L)
 						if (scope3 == 0)
 						{
 							if (strlen((char*) I->addr1) > strlen((char*) l_arr[index3]))
-								if ((realloc(((char*) l_arr[index3]), (strlen((char*) I->addr1) + 1) * sizeof(char))) == NULL)
-									printf("chyba!!");
+							{
+								free(l_arr[index3]);
+								l_arr[index3] = NULL;
+								l_arr[index3] = malloc(sizeof(char) * (strlen((char*) I->addr1) + 1));
+							}
 							memcpy(((char*) l_arr[index3]), ((char*) I->addr1), (strlen((char*) I->addr1) + 1) * sizeof(char));
 						}
 						else
 						{
 							if (strlen((char*) I->addr1) > strlen((char*) g_arr[index3]))
-								if ((realloc(((char*) g_arr[index3]), (strlen((char*) I->addr1) + 1) * sizeof(char))) == NULL)
-									printf("chyba!!");
+							{
+								free(g_arr[index3]);
+								g_arr[index3] = NULL;
+								g_arr[index3] = malloc(sizeof(char) * (strlen((char*) I->addr1) + 1));
+							}
 							memcpy(((char*) g_arr[index3]), ((char*) I->addr1), (strlen((char*) I->addr1) + 1) * sizeof(char));
 						}
 						free(I->addr1);
@@ -1437,15 +1459,21 @@ int interpret(symbol_table_item *GTable, tList *L)
 							if (scope1 == 0)
 							{
 								if (strlen((char*) l_arr[index3]) < strlen((char*) l_arr[index1]))
-									if ((realloc(((char*) l_arr[index3]), sizeof(char) * (strlen((char*) l_arr[index1]) + 1))) == NULL)
-										printf("chyba!");
+								{
+								free(l_arr[index3]);
+								l_arr[index3] = NULL;
+								l_arr[index3] = malloc(sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
+								}
 								memcpy(((char*) l_arr[index3]), ((char*) l_arr[index1]), sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
 							}
 							else
 							{
 								if (strlen((char*) l_arr[index3]) < strlen((char*) g_arr[index1]))
-									if ((realloc(((char*) l_arr[index3]), sizeof(char) * (strlen((char*) g_arr[index1]) + 1))) == NULL)
-										printf("chyba!");
+								{
+									free(l_arr[index3]);
+									l_arr[index3] = NULL;
+									l_arr[index3] = malloc(sizeof(char) * (strlen((char*) g_arr[index1]) + 1));
+								}
 								memcpy(((char*) l_arr[index3]), ((char*) g_arr[index1]), sizeof(char) * (strlen((char*) g_arr[index1]) + 1));
 							}
 						}
@@ -1454,15 +1482,21 @@ int interpret(symbol_table_item *GTable, tList *L)
 							if (scope1 == 0)
 							{
 								if (strlen((char*) g_arr[index3]) < strlen((char*) l_arr[index1]))
-									if ((realloc(((char*) g_arr[index3]), sizeof(char) * (strlen((char*) l_arr[index1]) + 1))) == NULL)
-										printf("chyba!");
+								{
+									free(g_arr[index3]);
+									g_arr[index3] = NULL;
+									g_arr[index3] = malloc(sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
+								}
 								memcpy(((char*) g_arr[index3]), ((char*) l_arr[index1]), sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
 							}
 							else
 							{
 								if (strlen((char*) g_arr[index3]) < strlen((char*) g_arr[index1]))
-									if ((realloc(((char*) g_arr[index3]), sizeof(char) * (strlen((char*) g_arr[index1]) + 1))) == NULL)
-										printf("chyba!");
+								{
+									free(g_arr[index3]);
+									g_arr[index3] = NULL;
+									g_arr[index3] = malloc(sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
+								}
 								memcpy(((char*) g_arr[index3]), ((char*) g_arr[index1]), sizeof(char) * (strlen((char*) g_arr[index1]) + 1));
 							}
 						}
@@ -1690,8 +1724,11 @@ int interpret(symbol_table_item *GTable, tList *L)
 						case 2:
 						{
 							if ((strlen((char*) value_temp)) != strlen((char*) l_arr[*index_temp]))
-								if ((realloc(((char*) l_arr[*index_temp]), sizeof(char) * (strlen((char*) value_temp) + 1))) == NULL)
-									printf("chyba!!");
+							{
+								free(l_arr[*index_temp]);
+								l_arr[*index_temp] = NULL;
+								l_arr[*index_temp] = malloc(sizeof(char) * (strlen((char*) value_temp) + 1));
+							}
 							memcpy(((char*) l_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
 							break;
 						}
@@ -1723,8 +1760,11 @@ int interpret(symbol_table_item *GTable, tList *L)
 						case 2:
 						{
 							if ((strlen((char*) value_temp)) != strlen((char*) g_arr[*index_temp]))
-								if ((realloc(((char*) g_arr[*index_temp]), sizeof(char) * (strlen((char*) value_temp) + 1))) == NULL)
-									printf("chyba!!");
+							{
+								free(g_arr[*index_temp]);
+								g_arr[*index_temp] = NULL;
+								g_arr[*index_temp] = malloc(sizeof(char) * (strlen((char*) value_temp) + 1));
+							}
 							memcpy(((char*) g_arr[*index_temp]), ((char*) value_temp), (sizeof(char) * (strlen((char*) value_temp) + 1)));
 							break;
 						}
