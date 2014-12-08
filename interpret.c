@@ -190,12 +190,8 @@ int interpret(symbol_table_item *GTable, tList *L)
 						case 's':
 						{
 							temp = StrVarStackPop(VS);
-							value_temp = malloc(sizeof(char) * strlen(temp));
-							memcpy(((char*) value_temp), temp, sizeof(char) * strlen(temp));
-							printf("%s", ((char*) value_temp));
+							printf("%s", temp);
 							free(temp);
-							free(value_temp);
-							value_temp = NULL;
 							break;
 						}
 
