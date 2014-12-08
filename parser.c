@@ -156,7 +156,7 @@ int program(){ /*<PROGRAM>*/
 	  if (result != SYNTAX_OK) return result;/*<FUNCTION>*/
 	  if (funcs_defined(table) == SEM_ERROR) return SEM_ERROR;
 	  remove_local_table(table, &result);
-	  generateInstruction(LABEL, NULL, NULL, NULL);
+	  generateInstruction(I_LABEL, NULL, NULL, NULL);
 	  label =  LastItemAddress(LS);
 	  SetFirst(LS, label);
 	  result = body();	  
@@ -516,7 +516,7 @@ int function_body(struct htab_item **func_item){/*<FUNCTION_BODY>*/
 	    (*func_item) -> initialized = 1;
 	  result = declaration();
 	  if (result != SYNTAX_OK) return result;
-	  generateInstruction(LABEL, NULL, NULL, NULL);
+	  generateInstruction(I_LABEL, NULL, NULL, NULL);
 	  (*func_item) -> label = LastItemAddress(LS);
 	  result = body();
 	  if (result != SYNTAX_OK) return result;
@@ -736,7 +736,7 @@ int callorass(struct htab_item **expected_item){
 	  result = variable(&func_item);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != R_BRACKET) return SYNTAX_ERROR;
-	  generateInstruction(I_CALL, (void *) func_item, NULL, item, (void *) (*expected_item));  
+	  generateInstruction(I_CALL, (void *) func_item, NULL, (void *) (*expected_item));  
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  return SYNTAX_OK;
 	  break;
