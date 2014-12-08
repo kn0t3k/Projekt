@@ -87,7 +87,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 	if (L == NULL)
 		return 0;
 	tInstr *I;
-	tPrintList *PrintList;
+	tPrintList *PrintList = malloc(sizeof(tPrintList));
 	InitPrintList(PrintList);
 	int *index_temp = malloc(sizeof(int));
 	int *size_temp = malloc(sizeof(int));
@@ -198,7 +198,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 							//printf("%d", *((int*) value_temp));
 							//free(value_temp);
 							//value_temp = NULL;
-							InsertPrintNew(PrintList, 0, value_temp);
+							InsertPrintNew(PrintList, 0, ((void*) value_temp));
 							break;
 						}
 
@@ -209,13 +209,13 @@ int interpret(symbol_table_item *GTable, tList *L)
 							//printf("%g", *((double*) value_temp));
 							//free(value_temp);
 							//value_temp = NULL;
-							InsertPrintNew(PrintList, 1, value_temp);
+							InsertPrintNew(PrintList, 1, ((void*) value_temp));
 							break;
 						}
 			
 						case 's':
 						{
-							InsertPrintNew(PrintList, 2, StrVarStackPop(VS));
+							InsertPrintNew(PrintList, 2, ((void*) StrVarStackPop(VS)));
 							break;
 						}
 
@@ -226,7 +226,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 							//printf("%d", *((bool*) value_temp));
 							//free(value_temp);
 							//value_temp = NULL;
-							InsertPrintNew(PrintList, 3, value_temp);
+							InsertPrintNew(PrintList, 3, ((void*) value_temp));
 							break;
 						}
 					}

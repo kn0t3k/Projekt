@@ -10,6 +10,23 @@ void InitPrintList (tPrintList *L)
 	L->Act = NULL;
 }
 
+void DisposePrintList (tPrintList *L)
+{
+	if (L->First != NULL)
+	{
+		while (L->First != NULL)
+		{
+			L->Act = L->First;
+			L->First = L->First->NextItem;
+			free(L->Act->var);
+			free(L->Act);
+		}
+		L->First = NULL;
+		L->Last = NULL;
+		L->Act = NULL;
+	}
+}
+
 void InsertPrintNew (tPrintList *L, int type, void *var)
 {
 	tPrintItem *NewItem;
@@ -63,21 +80,4 @@ void PrintAll (tPrintList *L)
 		L->Act = L->Act->NextItem;
 	}
 	DisposePrintList(L);
-}
-
-void DisposePrintList (tPrintList *L)
-{
-	if (L->First != NULL)
-	{
-		while (L->First != NULL)
-		{
-			L->Act = L->First;
-			L->First = L->First->NextItem;
-			free(L->Act->var);
-			free(L->Act);
-		}
-		L->First = NULL;
-		L->Last = NULL;
-		L->Act = NULL;
-	}
 }
