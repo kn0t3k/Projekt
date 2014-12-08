@@ -142,6 +142,8 @@ int program(){ /*<PROGRAM>*/
   
   
   int result;
+  void *label;
+  
   
   switch (token){
     /*<PROGRAM> -> <DECLARATION> <FUNCTION> <BODY> DOT*/
@@ -154,6 +156,9 @@ int program(){ /*<PROGRAM>*/
 	  if (result != SYNTAX_OK) return result;/*<FUNCTION>*/
 	  if (funcs_defined(table) == SEM_ERROR) return SEM_ERROR;
 	  remove_local_table(table, &result);
+	  generateInstruction(LABEL, NULL, NULL, NULL);
+	  label =  LastItemAddress(LS);
+	  SetFirst(LS, label);
 	  result = body();	  
 	  if (result != SYNTAX_OK) return result;/*BODY*/  
 	  if (token != DOT) return SYNTAX_ERROR;/*DOT*/
