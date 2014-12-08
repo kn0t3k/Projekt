@@ -13,6 +13,8 @@ void LStackInit (tLVS *S, int StackSize)
 {
 	S->top = 0;
 	S->StackSize = StackSize;
+	for (int i = 0; i < StackSize; i++)
+		S->l_stack[i] = NULL;
 }
 
 int LStackEmpty (tLVS *S)
@@ -22,20 +24,22 @@ int LStackEmpty (tLVS *S)
 
 void LStackPush (tLVS *S, vararr Array)
 {
+	vararr *temp;
+	int new_size = 0;
+	S->top++;
 	if (S->top == S->StackSize)
 	{
-		if ((realloc(S, S->StackSize + sizeof(tLVS))) == NULL)
-		{
-			printf("malo mista");
-			return;
-		}
-		S->StackSize++;
-	}
-	else 
-	{
-		S->top++;  
-		S->l_stack[S->top]=Array;
-	}
+		new_size = S->StackSize + 20;
+		temp = malloc(sizeof(vararr) * new_size);
+		for (int i = 0; i < S->StackSize; i++)
+			temp[i] = S->l_stack[i];
+		for (int i = S->StackSize; i < new_size; i++)
+			temp[i] = NULL;
+		free(S->l_stack);
+		S->l_stack = temp;
+		S->StackSize = new_size;
+	} 
+	S->l_stack[S->top]=Array;
 }
 
 vararr LStackPop (tLVS *S)
@@ -68,16 +72,21 @@ int VarStackEmpty (tVarS *S)
 
 void VarStackPush (tVarS *S, int *intvar, double *doublevar, char *stringvar, bool *boolvar)
 {
+	void **temp;
+	int new_size = 0;
+	S->top++;
 	if (S->top == S->StackSize)
 	{
-		if ((realloc(S, S->StackSize + sizeof(tVarS))) == NULL)
-		{
-			printf("malo mista\n");
-			return;
-		}
-		S->StackSize++;
+		new_size = S->StackSize + 20;
+		temp = malloc(sizeof(void*) * new_size);
+		for (int i = 0; i < S->StackSize; i++)
+			temp[i] = S->var_stack[i];
+		for (int i = S->StackSize; i < new_size; i++)
+			temp[i] = NULL;
+		free(S->var_stack);
+		S->var_stack = temp;
+		S->StackSize = new_size;	
 	}
-	S->top++;
 	if (((S->var_stack[S->top])) != NULL)
 	{
 		free((S->var_stack[S->top]));
@@ -167,6 +176,8 @@ void AddStackInit (tAddS *S, int StackSize)
 {
 	S->top = 0;
 	S->StackSize = StackSize;
+	for (int i = 0; i < StackSize; i++)
+		S->add_stack[i] = NULL;
 }
 
 int AddStackEmpty (tAddS *S)
@@ -176,20 +187,22 @@ int AddStackEmpty (tAddS *S)
 
 void AddStackPush (tAddS *S, void *item)
 {
+	void **temp;
+	int new_size = 0;
+	S->top++; 
 	if (S->top == S->StackSize)
 	{
-		if ((realloc(S, S->StackSize + sizeof(tAddS))) == NULL)
-		{
-			printf("malo mista");
-			return;
-		}
-		S->StackSize++;
-	}
-	else 
-	{
-		S->top++;  
-		S->add_stack[S->top] = item;
-	}
+		new_size = S->StackSize + 20;
+		temp = malloc(sizeof(void*) * new_size);
+		for (int i = 0; i < S->StackSize; i++)
+			temp[i] = S->add_stack[i];
+		for (int i = S->StackSize; i < new_size; i++)
+			temp[i] = NULL;
+		free(S->add_stack);
+		S->add_stack = temp;
+		S->StackSize = new_size;
+	} 
+	S->add_stack[S->top] = item;
 }
 
 void* AddStackPop (tAddS *S)

@@ -9,9 +9,9 @@
 #include "inter-stacks.h"
 
 
-#define VAR_STACK_SIZE 10
-#define ADS_STACK_SIZE 10
-#define LVS_STACK_SIZE 10
+#define VAR_STACK_SIZE 50
+#define ADS_STACK_SIZE 50
+#define LVS_STACK_SIZE 50
 
 void initarray(void **array, int size)
 {
@@ -1346,8 +1346,8 @@ int interpret(symbol_table_item *GTable, tList *L)
 							*((int*) l_arr[index3]) = *((int*) I->addr1);
 						else
 							*((int*) g_arr[index3]) = *((int*) I->addr1);
-						free(I->addr1);
-						I->addr1 = NULL;
+						//free(I->addr1);
+						//I->addr1 = NULL;
 						break;
 					}
 
@@ -1357,8 +1357,8 @@ int interpret(symbol_table_item *GTable, tList *L)
 							*((double*) l_arr[index3]) = *((double*) I->addr1);
 						else
 							*((double*) g_arr[index3]) = *((double*) I->addr1);
-						free(I->addr1);
-						I->addr1 = NULL;
+						//free(I->addr1);
+						//I->addr1 = NULL;
 						break;
 					}
 
@@ -1384,8 +1384,8 @@ int interpret(symbol_table_item *GTable, tList *L)
 							}
 							memcpy(((char*) g_arr[index3]), ((char*) I->addr1), (strlen((char*) I->addr1) + 1) * sizeof(char));
 						}
-						free(I->addr1);
-						I->addr1 = NULL;
+						//free(I->addr1);
+						//I->addr1 = NULL;
 						break;
 					}
 
@@ -1395,8 +1395,8 @@ int interpret(symbol_table_item *GTable, tList *L)
 							*((bool*) l_arr[index3]) = *((bool*) I->addr1);
 						else
 							*((bool*) g_arr[index3]) = *((bool*) I->addr1);
-						free(I->addr1);
-						I->addr1 = NULL;
+						//free(I->addr1);
+						//I->addr1 = NULL;
 						break;
 					}
 				}
@@ -1495,7 +1495,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 								{
 									free(g_arr[index3]);
 									g_arr[index3] = NULL;
-									g_arr[index3] = malloc(sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
+									g_arr[index3] = malloc(sizeof(char) * (strlen((char*) g_arr[index1]) + 1));
 								}
 								memcpy(((char*) g_arr[index3]), ((char*) g_arr[index1]), sizeof(char) * (strlen((char*) g_arr[index1]) + 1));
 							}
