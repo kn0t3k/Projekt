@@ -7,6 +7,7 @@
 #include "list.h"
 #include "interpret.h"
 #include "inter-stacks.h"
+#include "printlist.h"
 
 
 #define VAR_STACK_SIZE 50
@@ -86,6 +87,8 @@ int interpret(symbol_table_item *GTable, tList *L)
 	if (L == NULL)
 		return 0;
 	tInstr *I;
+	tPrintList *PrintList;
+	InitPrintList(PrintList);
 	int *index_temp = malloc(sizeof(int));
 	int *size_temp = malloc(sizeof(int));
 	int *type_temp = malloc(sizeof(int));
@@ -183,7 +186,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 				else
 					*size_temp = 0;
 
-				for (int i = 0; i < (*size_temp); i++)
+				for (int i = (*size_temp - 1); i >= 0; i--)
 				{
 					//char *temp;
 					switch (((char*) I->addr3)[i])
@@ -192,9 +195,10 @@ int interpret(symbol_table_item *GTable, tList *L)
 						{
 							value_temp = malloc(sizeof(int));
 							*((int*) value_temp) = IntVarStackPop(VS);
-							printf("%d", *((int*) value_temp));
-							free(value_temp);
-							value_temp = NULL;
+							//printf("%d", *((int*) value_temp));
+							//free(value_temp);
+							//value_temp = NULL;
+							InsertPrintNew(PrintList, 0, value_temp);
 							break;
 						}
 
@@ -202,15 +206,16 @@ int interpret(symbol_table_item *GTable, tList *L)
 						{
 							value_temp = malloc(sizeof(double));
 							*((double*) value_temp) = DoubleVarStackPop(VS);
-							printf("%g", *((double*) value_temp));
-							free(value_temp);
-							value_temp = NULL;
+							//printf("%g", *((double*) value_temp));
+							//free(value_temp);
+							//value_temp = NULL;
+							InsertPrintNew(PrintList, 1, value_temp);
 							break;
 						}
 			
 						case 's':
 						{
-							printf("%s", StrVarStackPop(VS));
+							InsertPrintNew(PrintList, 2, StrVarStackPop(VS));
 							break;
 						}
 
@@ -218,14 +223,16 @@ int interpret(symbol_table_item *GTable, tList *L)
 						{
 							value_temp = malloc(sizeof(bool));
 							*((bool*) value_temp) = BoolVarStackPop(VS);
-							printf("%d", *((bool*) value_temp));
-							free(value_temp);
-							value_temp = NULL;
+							//printf("%d", *((bool*) value_temp));
+							//free(value_temp);
+							//value_temp = NULL;
+							InsertPrintNew(PrintList, 3, value_temp);
 							break;
 						}
 					}
 							
 				}
+				PrintAll(PrintList);
 				/*if (I->addr3 != NULL)
 					free(I->addr3);*/
 				break;
