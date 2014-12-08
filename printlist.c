@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "printlist.h"
+
 void InitPrintList (tPrintList *L)
 {
 	L->First = NULL;
@@ -57,11 +62,12 @@ void PrintAll (tPrintList *L)
 		}
 		L->Act = L->Act->NextItem;
 	}
+	DisposePrintList(L);
 }
-/*
+
 void DisposePrintList (tPrintList *L)
 {
-	if (L->First != NULL) //Je potreba?
+	if (L->First != NULL)
 	{
 		while (L->First != NULL)
 		{
@@ -74,4 +80,4 @@ void DisposePrintList (tPrintList *L)
 		L->Last = NULL;
 		L->Act = NULL;
 	}
-}*/
+}
