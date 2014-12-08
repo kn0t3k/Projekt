@@ -836,8 +836,14 @@ int value(struct htab_item** item){
 	  if (((*item) = search_var(attr.str, table, &result)) == NULL)
         return result;
 	  else{
-	    if (((*item) -> initialized != 1) || ((*item) -> function == 1))
-	      return SEM_ERROR;
+	    if ((*item) -> global != 1){/*Globalni promenne, nevyzaduji inicializaci*/
+	      if (((*item) -> initialized != 1) || ((*item) -> function == 1))
+	        return SEM_ERROR;
+	      }
+		else{
+		  if ((*item) -> function == 1)
+		    return SEM_ERROR;
+		  }
 	    }
       break;
 			
