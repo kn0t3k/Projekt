@@ -511,6 +511,8 @@ int function_body(struct htab_item **func_item){/*<FUNCTION_BODY>*/
 	    (*func_item) -> initialized = 1;
 	  result = declaration();
 	  if (result != SYNTAX_OK) return result;
+	  generateInstruction(LABEL, NULL, NULL, NULL);
+	  (*func_item) -> label = LastItemAddress(LS);
 	  result = body();
 	  if (result != SYNTAX_OK) return result;
 	  if (token != SEMICOLON) return SYNTAX_ERROR;
@@ -521,6 +523,7 @@ int function_body(struct htab_item **func_item){/*<FUNCTION_BODY>*/
 		return SEM_ERROR;
 		}
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  generateInstruction(I_RETURN, NULL, NULL, NULL);
 	  return SYNTAX_OK;
 	  break;
 	  
@@ -693,6 +696,7 @@ int callorass(struct htab_item **expected_item){
 
   int result;
   struct htab_item *func_item;
+  struct htab_item *item = NULL;
   
   switch (token){
     /*<CALLORASS> -> <EXPRESSION>*/
@@ -727,7 +731,7 @@ int callorass(struct htab_item **expected_item){
 	  result = variable(&func_item);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != R_BRACKET) return SYNTAX_ERROR;
-	  //Instrukce pro volani funkce
+	  generateInstruction(I_CALL, (void *) func_item, NULL, item, (void *) (*expected_item));  
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  return SYNTAX_OK;
 	  break;
