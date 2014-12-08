@@ -1319,7 +1319,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 				//search for index, type and scope
 				//copy value into array
 				//free received pointer
-				printf("\nprislo\n");
+				printf("\n%d\n", scope3);
 				switch (type3)
 				{
 					case 0:
