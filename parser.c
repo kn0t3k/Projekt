@@ -701,7 +701,6 @@ int callorass(struct htab_item **expected_item){
 
   int result;
   struct htab_item *func_item;
-  struct htab_item *item = NULL;
   
   switch (token){
     /*<CALLORASS> -> <EXPRESSION>*/
