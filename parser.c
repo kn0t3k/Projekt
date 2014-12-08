@@ -735,6 +735,24 @@ int callorass(struct htab_item **expected_item){
 	  result = variable(&func_item);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != R_BRACKET) return SYNTAX_ERROR;
+/*	 
+	 if (strcmp(func_item -> name, "length") == 0)
+	    ;//instrukce pro LENGTH
+	  else{
+	    if (strcmp(func_item -> name, "copy") == 0)
+		  ;//instrukce pro COPY
+		else{
+		  if (strcmp(func_item -> name, "find") == 0)
+		    ;//instrukce pro FIND
+		  else{
+		    if (strcmp(func_item -> name, "sort") == 0)
+			  ;//instrukce pro SORT
+			else
+              ;//instrukce pro CALL	
+            }
+		  }
+        }
+*/		   
 	  generateInstruction(I_CALL, (void *) func_item, NULL, (void *) (*expected_item));  
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  return SYNTAX_OK;
@@ -801,7 +819,6 @@ int variable(struct htab_item **func_item){
 	 strncpy(write_string, str_parameters -> str, sizeof(char)*(strlen(str_parameters -> str)+1));
 	 generateInstruction(I_WRITE, NULL, NULL, (void *) write_string);
      }
-  
   
   strFree(str_parameters);	
   free(str_parameters);
