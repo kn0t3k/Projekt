@@ -1600,6 +1600,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 
 				l_arr = NULL;
 				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
+				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
 				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
 
 				if ((((htab_item*) I->addr1)->func_data) != NULL)
