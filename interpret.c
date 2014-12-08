@@ -137,7 +137,10 @@ int interpret(symbol_table_item *GTable, tList *L)
 					else
 					{
 						if (!(*((bool*) g_arr[index1])))
+						{
+							pritnf("\nje tu\n");
 							GoToItem(L,((tItem*) I->addr3));
+						}
 					}
 				}
 				break;
@@ -1547,7 +1550,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 				//push index of return value in calling function
 				//push current return address
 				//get new return address - adress current instruction (after return, NextIns(L) is used
-				//goto addr1
+				// addr1
 
 				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
 				*type_temp = ((htab_item*) I->addr3)->type;
