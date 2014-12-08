@@ -93,6 +93,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 	void *var1 = NULL;
 	void *var2 = NULL;
 	void *var3 = NULL;
+	int i = 0;
 	tVarS *VS = malloc(sizeof(tVarS)); //variable stack
 	VS->var_stack = malloc(sizeof(void*) * (VAR_STACK_SIZE));
 	VarStackInit(VS,VAR_STACK_SIZE);
@@ -1567,7 +1568,12 @@ int interpret(symbol_table_item *GTable, tList *L)
 				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
 				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
 
-				for (int i = strlen(((htab_item*) I->addr1)->func_data); i > 0; i--)
+				if ((((htab_item*) I->addr1)->func_data) != NULL)
+					i = strlen(((htab_item*) I->addr1)->func_data);
+				else
+					i = 0;
+
+				while (i > 0)
 				{
 					char *temp;
 					switch (((htab_item*) I->addr1)->func_data[(i-1)]) //cteni znaku retezce typu - strlen ==3 -> posledni znak je na pozici [2]
@@ -1598,6 +1604,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 							break;
 						}
 					}
+					i--;
 				}
 				
 				
