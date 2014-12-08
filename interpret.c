@@ -1319,7 +1319,6 @@ int interpret(symbol_table_item *GTable, tList *L)
 				//search for index, type and scope
 				//copy value into array
 				//free received pointer
-				printf("\n%d\n", scope3);
 				switch (type3)
 				{
 					case 0:
@@ -1327,10 +1326,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 						if (scope3 == 0)
 							*((int*) l_arr[index3]) = *((int*) I->addr1);
 						else
-						{
 							*((int*) g_arr[index3]) = *((int*) I->addr1);
-							printf("\n%d\n", *((int*) g_arr[index3]));
-						}
 						free(I->addr1);
 						break;
 					}
