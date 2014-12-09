@@ -697,7 +697,7 @@ int sort(string *s, string *dest)
 		/* kopie vstupu */
 		if (strCopyString(dest, s) == 1)
 		{
-			return 1; /* kontrolovat v interpretu */
+			return INTERNAL_ERR; /* kontrolovat v interpretu */
 		}
 	}
 	/* hlavni funkce */
