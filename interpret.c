@@ -307,6 +307,7 @@ int length(char *s)*/
 
 			case I_SORT:
 			{
+				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
 				*index_temp = ((htab_item*) I->addr3)->index;
 				*scope_temp = ((htab_item*) I->addr3)->global;
 
@@ -375,6 +376,7 @@ int length(char *s)*/
 
 			case I_LENGTH:
 			{
+				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
 				*index_temp = ((htab_item*) I->addr3)->index;
 				*scope_temp = ((htab_item*) I->addr3)->global;
 
