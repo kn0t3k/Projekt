@@ -737,18 +737,18 @@ int callorass(struct htab_item **expected_item){
 	  if (token != R_BRACKET) return SYNTAX_ERROR;
 /*	 
 	 if (strcmp(func_item -> name, "LENGTH") == 0)
-	    ;//instrukce pro LENGTH
+	     generateInstruction(I_LENGHT, (void *) func_item, NULL, (void *) (*expected_item));//instrukce pro LENGTH
 	  else{
 	    if (strcmp(func_item -> name, "COPY") == 0)
-		  ;//instrukce pro COPY
+		   generateInstruction(I_COPY, (void *) func_item, NULL, (void *) (*expected_item));//instrukce pro COPY
 		else{
 		  if (strcmp(func_item -> name, "FIND") == 0)
-		    ;//instrukce pro FIND
+		    generateInstruction(I_FIND, (void *) func_item, NULL, (void *) (*expected_item));//instrukce pro FIND
 		  else{
 		    if (strcmp(func_item -> name, "SORT") == 0)
-			  ;//instrukce pro SORT
+			   generateInstruction(I_SORT, (void *) func_item, NULL, (void *) (*expected_item));//instrukce pro SORT
 			else
-              ;//instrukce pro CALL	
+               generateInstruction(I_CALL, (void *) func_item, NULL, (void *) (*expected_item));//instrukce pro CALL	
             }
 		  }
         }
