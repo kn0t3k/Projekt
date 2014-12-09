@@ -75,7 +75,10 @@ void PrintAll (tPrintList *L)
 
 			case 3:
 			{
-				printf("%d", *((bool*) L->Act->var));
+				if (*((bool*) L->Act->var) == 0)
+					printf("FALSE");
+				else
+					printf("TRUE");
 				break;
 			}
 		}
