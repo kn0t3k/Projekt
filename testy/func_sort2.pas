@@ -4,5 +4,5 @@ var str1 : string;
 begin
 	{ return 3 - neinicializovana promenna }
 
-	str1 := sort(str1);
+	str1 := sort(str1)
 end.

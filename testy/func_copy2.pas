@@ -4,5 +4,5 @@ var str1 : string;
 begin
 	{ return 3 - neinicializovany string }
 
-	str2 := copy(str1, 1, 9);
+	str2 := copy(str1, 1, 9)
 end.

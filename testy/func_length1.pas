@@ -1,5 +1,6 @@
 var str1 : string;
 	i : integer;
+	k : integer;
 
 begin
 	{ return 0 }
@@ -10,6 +11,10 @@ begin
 	if i <> 16 then
 	begin
 		write('LENGTH 1'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 2 }
@@ -18,6 +23,10 @@ begin
 	if i <> 0 then
 	begin
 		write('LENGTH 2'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 3 }
@@ -25,6 +34,10 @@ begin
 	if i <> 3 then
 	begin
 		write('LENGTH 3'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 4 }
@@ -33,6 +46,10 @@ begin
 	if i <> 2 then
 	begin
 		write('LENGTH 4'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 5 }
@@ -40,6 +57,10 @@ begin
 	if i <> 110 then
 	begin
 		write('LENGTH 5'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 6 }
@@ -48,5 +69,9 @@ begin
 	if i <> 110 then
 	begin
 		write('LENGTH 6'#10'')
+	end
+	else
+	begin
+		k := 42
 	end
 end.

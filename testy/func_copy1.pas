@@ -1,6 +1,7 @@
 var str1 : string;
 	str2 : string;
 	i : integer;
+	k : integer;
 
 begin
 	{ return 0 }
@@ -12,6 +13,10 @@ begin
 	if str2 <> 'testovaci'
 	begin
 		write('COPY 1'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 2 }
@@ -20,6 +25,10 @@ begin
 	if str2 <> '123456'
 	begin
 		write('COPY 2'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 3 }
@@ -28,6 +37,10 @@ begin
 	if str2 <> ' t'
 	begin
 		write('COPY 3'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 4 }
@@ -36,6 +49,10 @@ begin
 	if str2 <> ''
 	begin
 		write('COPY 4'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 5 }
@@ -44,6 +61,10 @@ begin
 	if str2 <> ''
 	begin
 		write('COPY 5'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 6 }
@@ -52,6 +73,10 @@ begin
 	if str2 <> '...'
 	begin
 		write('COPY 6'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 7 }
@@ -60,6 +85,10 @@ begin
 	if str2 <> ' .fd;terqt.erq[lf[eq45454df46 4++++44956 fd*/gdf*sg/-s/g-as/gd 5{}}}'
 	begin
 		write('COPY 7'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 8 }
@@ -68,6 +97,10 @@ begin
 	if str2 <> ' .fd;terqt.erq[lf[eq45454df46 4++++44956 fd*/gdf*sg/-s/g-as/gd 5{}}'
 	begin
 		write('COPY 8'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 9 }
@@ -76,6 +109,10 @@ begin
 	if str2 <> '1'
 	begin
 		write('COPY 9'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 10 }
@@ -84,6 +121,10 @@ begin
 	if str2 <> '1'
 	begin
 		write('COPY 10'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 11 }
@@ -91,6 +132,10 @@ begin
 	if str2 <> 'ab'
 	begin
 		write('COPY 11'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 12 }
@@ -99,5 +144,9 @@ begin
 	if str2 <> 'p'
 	begin
 		write('COPY 12'#10'')
+	end
+	else
+	begin
+		k := 42
 	end
 end.

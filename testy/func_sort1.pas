@@ -1,5 +1,6 @@
 var str1 : string;
 	str2 : string;
+	k : integer;
 
 begin
 	{ return 0 }
@@ -10,6 +11,10 @@ begin
 	if str1 <> '       24aaccddddeeeeeehiikllnoopprrrsttttxyy'
 	begin
 		write('SORT 1'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 2 }
@@ -18,6 +23,10 @@ begin
 	if str1 <> '123456789'
 	begin
 		write('SORT 2'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 3 }
@@ -26,6 +35,10 @@ begin
 	if str1 <> ''
 	begin
 		write('SORT 3'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 4 }
@@ -34,6 +47,10 @@ begin
 	if str2 <> '       !#$&(*****++++,,,,--.//233445789;;??@[[[[]]]__acfjkkkmmnnnvx'
 	begin
 		write('SORT 4'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 5 }
@@ -42,6 +59,10 @@ begin
 	if str1 <> 'abcdefghijklmno'
 	begin
 		write('SORT 5'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 6 } { NEVIM JESTLI TOTO MA FUNGOVAT NEBO NE }
@@ -49,5 +70,9 @@ begin
 	if str1 <> ''#9'aaaabbbb'
 	begin
 		write('SORT 6'#10'')
+	end
+	else
+	begin
+		k := 42
 	end
 end.

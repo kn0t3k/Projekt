@@ -1,6 +1,7 @@
 var str1 : string;
 	str2 : string;
 	i : integer;
+	k : integer;
 
 begin
 	{ return 0 }
@@ -12,6 +13,10 @@ begin
 	if i <> 1 then
 	begin
 		write('FIND 1'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 2 }
@@ -20,6 +25,10 @@ begin
 	if i <> 8 then
 	begin
 		write('FIND 2'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 3 }
@@ -28,6 +37,10 @@ begin
 	if i <> 15 then
 	begin
 		write('FIND 3'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 4 }
@@ -36,6 +49,10 @@ begin
 	if i <> 1 then
 	begin
 		write('FIND 4'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 5 }
@@ -44,6 +61,10 @@ begin
 	if i <> 6 then
 	begin
 		write('FIND 5'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 6 }
@@ -52,6 +73,10 @@ begin
 	if i <> 16 then
 	begin
 		write('FIND 6'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 7 }
@@ -60,6 +85,10 @@ begin
 	if i <> 17 then
 	begin
 		write('FIND 7'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 8 }
@@ -68,6 +97,10 @@ begin
 	if i <> 5 then
 	begin
 		write('FIND 8'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 9 }
@@ -76,6 +109,10 @@ begin
 	if i <> 1 then
 	begin
 		write('FIND 9'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 10 }
@@ -84,6 +121,10 @@ begin
 	if i <> 0 then
 	begin
 		write('FIND 10'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 11 }
@@ -92,6 +133,10 @@ begin
 	if i <> 0 then
 	begin
 		write('FIND 11'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 12 }
@@ -100,6 +145,10 @@ begin
 	if i <> 1 then
 	begin
 		write('FIND 12'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 13 }
@@ -109,6 +158,10 @@ begin
 	if i <> 0 then
 	begin
 		write('FIND 13'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 14 }
@@ -117,6 +170,10 @@ begin
 	if i <> 1 then
 	begin
 		write('FIND 14'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 15 }
@@ -126,6 +183,10 @@ begin
 	if i <> 1 then
 	begin
 		write('FIND 15'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 16 }
@@ -134,6 +195,10 @@ begin
 	if i <> 1 then
 	begin
 		write('FIND 16'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 17 }
@@ -142,6 +207,10 @@ begin
 	if i <> 0 then
 	begin
 		write('FIND 17'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 18 }
@@ -151,6 +220,10 @@ begin
 	if i <> 1 then
 	begin
 		write('FIND 18'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 19 }
@@ -159,6 +232,10 @@ begin
 	if i <> 1 then
 	begin
 		write('FIND 19'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 20 }
@@ -167,6 +244,10 @@ begin
 	if i <> 19 then
 	begin
 		write('FIND 20'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 21 }
@@ -175,6 +256,10 @@ begin
 	if i <> 35 then
 	begin
 		write('FIND 21'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 22 }
@@ -183,6 +268,10 @@ begin
 	if i <> 51 then
 	begin
 		write('FIND 22'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 23 }
@@ -192,6 +281,10 @@ begin
 	if i <> 114 then
 	begin
 		write('FIND 23'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 24 }
@@ -200,6 +293,10 @@ begin
 	if i <> 0 then
 	begin
 		write('FIND 24'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 25 }
@@ -208,6 +305,10 @@ begin
 	if i <> 0 then
 	begin
 		write('FIND 25'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 26 }
@@ -216,6 +317,10 @@ begin
 	if i <> 27 then
 	begin
 		write('FIND 26'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 27 }
@@ -224,6 +329,10 @@ begin
 	if i <> 94 then
 	begin
 		write('FIND 27'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 28 }
@@ -232,6 +341,10 @@ begin
 	if i <> 30 then
 	begin
 		write('FIND 28'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 29 }
@@ -240,6 +353,10 @@ begin
 	if i <> 27 then
 	begin
 		write('FIND 29'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 30 }
@@ -248,6 +365,10 @@ begin
 	if i <> 1 then
 	begin
 		write('FIND 30'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 31 }
@@ -255,6 +376,10 @@ begin
 	if i <> 7 then
 	begin
 		write('FIND 31'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 32 }
@@ -263,6 +388,10 @@ begin
 	if i <> 9 then
 	begin
 		write('FIND 32'#10'')
+	end
+	else
+	begin
+		k := 42
 	end;
 
 	{ 33 }
@@ -271,6 +400,10 @@ begin
 	if i <> 0 then
 	begin
 		write('FIND 33'#10'')
+	end
+	else
+	begin
+		k := 42
 	end
 end.
 
