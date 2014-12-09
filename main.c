@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 
    tList list;
    InitList(&list); // inicializace seznamu instrukci*/
-
+   SInit(Stack);
    int result;
 
    result = parse(table, &list, Stack); // provedeme syntaktickou analyzu

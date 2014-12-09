@@ -1302,7 +1302,6 @@ int table_symbols(int x, int y, PtrStack Stack){/*Realizace tabulky*/
 int parse_expression(struct htab_item **expected_item){/*Precedencni syntakticka analyza vyrazu*/
   printf("\n\nPrecedencni syntakticka analyza vyrazu\n");
   /*Inicializace zasobniku*/
-  SInit(Stack);
   
   int result, error;
   struct htab_item *item;
