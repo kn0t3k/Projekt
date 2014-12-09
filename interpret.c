@@ -376,11 +376,59 @@ int length(char *s)*/
 				SPtr2 = NULL;
 				break;
 			}
-			/*case I_LENGTH:
+
+/*int copy(char *s, string *dest, int i, int n, int s_len) 
+int length(string *s)*/
+
+			case I_LENGTH:
 			{
+				*index_temp = ((htab_item*) I->addr3)->index;
+				*scope_temp = ((htab_item*) I->addr3)->global;
+
+				if (l_arr != NULL)
+					LStackPush(LS, l_arr);
+
+				l_arr = NULL;
+				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
+				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
+				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
+
+				str_temp = StrVarStackPop(VS);
+				
+				if (strlen(str_temp) != strlen((char*) l_arr[1]))
+				{
+					free(l_arr[1]);
+					l_arr[1] = NULL;
+					l_arr[1] = malloc(sizeof(char) * (strlen(str_temp) + 1));
+				}
+				memcpy(((char*) l_arr[1]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
+				//free(str_temp); ??
+
+				value_temp = malloc(sizeof(int));
+
+				SPtr1 = malloc(sizeof(string));
+				SPtr1->str = ((char*) l_arr[1]);
+				SPtr1->length = strlen((char*) l_arr[1]);
+				SPtr1->allocSize = SPtr1->length + 1;
+
+				*((int*) value_temp) = length(SPtr1);
+
+				disposearray(l_arr, (*size_temp));
+				l_arr = NULL;
+				if (!(LStackEmpty(LS)))
+					l_arr = LStackPop(LS);
+
+				if (*scope_temp == 0)
+					*((int*) l_arr[*index_temp]) = *((int*) value_temp);
+				else
+					*((int*) g_arr[*index_temp]) = *((int*) value_temp);
+
+				free(value_temp);
+				free(SPtr1);
+				SPtr1 = NULL;
 				break;
 			}
-			case I_COPY:
+			/*case I_COPY:
 			{
 				break;
 			}*/
