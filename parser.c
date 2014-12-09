@@ -670,6 +670,7 @@ int n_element(){/*<N_ELEMENT>*/
 int callfunass(){/*<CALLFUNASS>*/
   
   int result;
+  int is_call_of_function = 0; /*Pokud se bude volat funkce, hodnota se do id nakopiruje uz pri instrukci I_CALL, potrebuje preskocit instrukci I_COPYVAR*/
   struct htab_item *expression_item;/*Ukazatel, ktery posleme dal, bude v nem ukazatel na zpracovany vyraz nebo ukazatel na to co vratila funkce*/
   struct htab_item *id_item;/*Ukazatel v kterem si zapamatujeme ID do ktereho prirazujeme*/
   
@@ -684,10 +685,15 @@ int callfunass(){/*<CALLFUNASS>*/
 	  if (token != ASS) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  expression_item = id_item;
-	  result = callorass(&expression_item);
+	  result = callorass(&expression_item, &is_call_of_function);
 	  if (result != SYNTAX_OK) return result;
 	  id_item -> initialized = 1;
-	  generateInstruction(I_COPYVAR, (void *) expression_item, NULL, (void *) id_item); 
+	  if (is_call_of_function == 0){
+	    generateInstruction(I_COPYVAR, (void *) expression_item, NULL, (void *) id_item); 
+		printf("\ninstrukce I_COPYVAR");
+		}
+	  else
+        printf("\ninstrukce I_CALL");	  
 	  return SYNTAX_OK;
 	  break;
     
@@ -697,7 +703,7 @@ int callfunass(){/*<CALLFUNASS>*/
     }
 }
 
-int callorass(struct htab_item **expected_item){
+int callorass(struct htab_item **expected_item, int *is_call_of_function){
 
   int result;
   struct htab_item *func_item;
@@ -721,6 +727,7 @@ int callorass(struct htab_item **expected_item){
 	 
     /*<CALLORASS> -> ID_FUNCTION L_BRACKET <VARIABLE> R_BRACKET*/  
 	case ID_FUNCTION:
+	  *is_call_of_function = 1;/*Jedna se o volani funkce*/
 	  if ((func_item = search_func(attr.str, table, &result)) == NULL)
 	    return result;
 	  else{

@@ -27,7 +27,7 @@ int function_body(struct htab_item **func_item);
 int function_readln();
 int function_write();
 int callfunass();
-int callorass(struct htab_item **expected_item);
+int callorass(struct htab_item **expected_item, int *is_call_of_function);
 int id_function();
 int value(struct htab_item** item);
 int variable(struct htab_item **func_item);
