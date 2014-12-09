@@ -1,6 +1,23 @@
+
+
+
 var
-  x:integer;
+  a:real;
+  i:integer;
+
+  
+function ahoj():real;
+begin
+ahoj:=5.5646
+end;  
+  
 
 begin
-x:= a + 0
+
+i:=find('Ahoj jak se mas','se');
+a:=ahoj();
+write(a);
+write(''#010'', i)
+
+
 end.
