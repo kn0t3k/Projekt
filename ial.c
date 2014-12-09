@@ -59,6 +59,9 @@ struct symbol_table* symbol_table_init(){
 	
 	
 	//--------------------------pridani vestavene fce length(s:string): integer;
+	add_local_table(new, &error);
+	if(error) return NULL;
+	
 	builtin_func = add_func("length", new, &error);
 	if(builtin_func == NULL){
 		//nemuze dojit k zadnemu konfliktu s jinou fci, neni potreba kontrolovat error, muze nastat pouze typ 99
@@ -71,9 +74,13 @@ struct symbol_table* symbol_table_init(){
 		return NULL;
 	}
 	strcpy(builtin_func->func_data, "s"); //nakopirovani dat
+	remove_local_table(new, &error);
 	
 	
 	//--------------------------pridani vestavene fce copy(s:string; i:integer; n:integer): string;
+	add_local_table(new, &error);
+	if(error) return NULL;
+	
 	builtin_func = add_func("copy", new, &error);
 	if(builtin_func == NULL){
 		//nemuze dojit k zadnemu konfliktu s jinou fci, neni potreba kontrolovat error, muze nastat pouze typ 99
@@ -86,9 +93,13 @@ struct symbol_table* symbol_table_init(){
 		return NULL;
 	}
 	strcpy(builtin_func->func_data, "sii"); //nakopirovani dat
+	remove_local_table(new, &error);
 	
 	
 	//--------------------------pridani vestavene fce find(s:string; search:string;): integer;
+	add_local_table(new, &error);
+	if(error) return NULL;
+	
 	builtin_func = add_func("find", new, &error);
 	if(builtin_func == NULL){
 		//nemuze dojit k zadnemu konfliktu s jinou fci, neni potreba kontrolovat error, muze nastat pouze typ 99
@@ -101,9 +112,13 @@ struct symbol_table* symbol_table_init(){
 		return NULL;
 	}
 	strcpy(builtin_func->func_data, "ss"); //nakopirovani dat
+	remove_local_table(new, &error);
 		
 		
 	//--------------------------pridani vestavene fce sort(s:string): string;
+	add_local_table(new, &error);
+	if(error) return NULL;
+	
 	builtin_func = add_func("sort", new, &error);
 	if(builtin_func == NULL){
 		//nemuze dojit k zadnemu konfliktu s jinou fci, neni potreba kontrolovat error, muze nastat pouze typ 99
@@ -116,6 +131,7 @@ struct symbol_table* symbol_table_init(){
 		return NULL;
 	}
 	strcpy(builtin_func->func_data, "s"); //nakopirovani dat
+	remove_local_table(new, &error);
 	
 	return new;
 }
