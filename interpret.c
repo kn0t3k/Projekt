@@ -181,7 +181,11 @@ int interpret(symbol_table_item *GTable, tList *L)
 			}			
 
 			//instrukce nacteni a zapsani
-			//case I_READ:
+			/*case I_READ:
+			{
+				break;
+			}*/
+
 			case I_WRITE:
 			{
 				if (I->addr3 != NULL)				
@@ -264,8 +268,6 @@ int length(char *s)*/
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
 				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
 
-				*((int*) l_arr[4]) = IntVarStackPop(VS);
-				*((int*) l_arr[3]) = IntVarStackPop(VS);
 				str_temp = StrVarStackPop(VS);
 				if (strlen(str_temp) != strlen((char*) l_arr[2]))
 				{
@@ -286,11 +288,9 @@ int length(char *s)*/
 				memcpy(((char*) l_arr[1]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 				//free(str_temp); ??
 
-				*((int*) l_arr[0]) = find(((char*) l_arr[1]), ((char*) l_arr[2]), *((int*) l_arr[3]), *((int*) l_arr[4]));
-
-
 				value_temp = malloc(sizeof(int));
-				*((int*) value_temp) = *((int*) l_arr[0]);				
+				*((int*) value_temp) = find(((char*) l_arr[1]), ((char*) l_arr[2]), strlen((char*) l_arr[1]), strlen((char*) l_arr[2]));
+
 				disposearray(l_arr, (*size_temp));
 				l_arr = NULL;
 				if (!(LStackEmpty(LS)))
@@ -377,9 +377,6 @@ int length(char *s)*/
 				break;
 			}
 
-/*int copy(char *s, string *dest, int i, int n, int s_len) 
-int length(string *s)*/
-
 			case I_LENGTH:
 			{
 				*index_temp = ((htab_item*) I->addr3)->index;
@@ -428,8 +425,13 @@ int length(string *s)*/
 				SPtr1 = NULL;
 				break;
 			}
+
+/*int copy(char *s, string *dest, int i, int n, int s_len)*/
+
 			/*case I_COPY:
 			{
+				
+				
 				break;
 			}*/
 
