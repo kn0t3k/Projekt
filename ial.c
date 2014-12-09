@@ -10,6 +10,7 @@
 | Datum:   5.12.2014					
 |--------------------------------------*/
 
+
 #include "str.h"
 #include <stdio.h>
 #include <stdlib.h>
