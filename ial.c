@@ -56,6 +56,7 @@ struct symbol_table* symbol_table_init(){
 	
 	int error;
 	struct htab_item* builtin_func;
+	struct htab_item* builtin_var;
 	
 	
 	//--------------------------pridani vestavene fce length(s:string): integer;
@@ -67,13 +68,22 @@ struct symbol_table* symbol_table_init(){
 		//nemuze dojit k zadnemu konfliktu s jinou fci, neni potreba kontrolovat error, muze nastat pouze typ 99
 		return NULL;
 	}
-	builtin_func->type=s_integer;
+	builtin_func->type = s_integer;
 	builtin_func->initialized = true;
 	builtin_func->func_data = (char*)malloc(sizeof(char)*2); //2= 1char(1 parametr) + 1 ukoncovaci '\0'
 	if(builtin_func->func_data == NULL){ //kontrola alokace pro retezec
 		return NULL;
 	}
 	strcpy(builtin_func->func_data, "s"); //nakopirovani dat
+	
+	builtin_var = add_var("s", new, &error);
+	if(builtin_var == NULL){
+		//nemuze dojit k zadnemu konfliktu s jinou promennou, neni potreba kontrolovat error, muze nastat pouze typ 99
+		return NULL;
+	}
+	builtin_var->type = s_string;
+	builtin_var->initialized = true;
+	
 	remove_local_table(new, &error);
 	
 	
@@ -93,6 +103,31 @@ struct symbol_table* symbol_table_init(){
 		return NULL;
 	}
 	strcpy(builtin_func->func_data, "sii"); //nakopirovani dat
+	
+	builtin_var = add_var("s", new, &error);
+	if(builtin_var == NULL){
+		//nemuze dojit k zadnemu konfliktu s jinou promennou, neni potreba kontrolovat error, muze nastat pouze typ 99
+		return NULL;
+	}
+	builtin_var->type = s_string;
+	builtin_var->initialized = true;
+	
+	builtin_var = add_var("i", new, &error);
+	if(builtin_var == NULL){
+		//nemuze dojit k zadnemu konfliktu s jinou promennou, neni potreba kontrolovat error, muze nastat pouze typ 99
+		return NULL;
+	}
+	builtin_var->type = s_integer;
+	builtin_var->initialized = true;
+		
+	builtin_var = add_var("n", new, &error);
+	if(builtin_var == NULL){
+		//nemuze dojit k zadnemu konfliktu s jinou promennou, neni potreba kontrolovat error, muze nastat pouze typ 99
+		return NULL;
+	}
+	builtin_var->type = s_integer;
+	builtin_var->initialized = true;
+	
 	remove_local_table(new, &error);
 	
 	
@@ -112,6 +147,23 @@ struct symbol_table* symbol_table_init(){
 		return NULL;
 	}
 	strcpy(builtin_func->func_data, "ss"); //nakopirovani dat
+	
+	builtin_var = add_var("s", new, &error);
+	if(builtin_var == NULL){
+		//nemuze dojit k zadnemu konfliktu s jinou promennou, neni potreba kontrolovat error, muze nastat pouze typ 99
+		return NULL;
+	}
+	builtin_var->type = s_string;
+	builtin_var->initialized = true;
+	
+	builtin_var = add_var("search", new, &error);
+	if(builtin_var == NULL){
+		//nemuze dojit k zadnemu konfliktu s jinou promennou, neni potreba kontrolovat error, muze nastat pouze typ 99
+		return NULL;
+	}
+	builtin_var->type = s_string;
+	builtin_var->initialized = true;
+	
 	remove_local_table(new, &error);
 		
 		
@@ -131,6 +183,15 @@ struct symbol_table* symbol_table_init(){
 		return NULL;
 	}
 	strcpy(builtin_func->func_data, "s"); //nakopirovani dat
+	
+	builtin_var = add_var("s", new, &error);
+	if(builtin_var == NULL){
+		//nemuze dojit k zadnemu konfliktu s jinou promennou, neni potreba kontrolovat error, muze nastat pouze typ 99
+		return NULL;
+	}
+	builtin_var->type = s_string;
+	builtin_var->initialized = true;
+	
 	remove_local_table(new, &error);
 	
 	return new;
