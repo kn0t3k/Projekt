@@ -137,12 +137,6 @@
                  state = 6;
              }
              else
-             if(c == 'e' || c == 'E')
-             {
-                 strAddChar(attr, c);
-                 state = 16;
-             }
-             else
              if ((isalpha(c))||(c == '_'))  //jedna se o slovo
              {
                 strAddChar(attr, c);
@@ -528,7 +522,7 @@
                }
                else
                {
-                   if(c >= 31) strAddChar(attr, c); /*ascii znaky vetsi nez 31 se zapisuji primo, krom APS,
+                   if(c >= 31 && c<=255) strAddChar(attr, c); /*ascii znaky mezi 31, 255 vcetne se zapisuji primo, krom APS,
                    ostatni musi podle escape sekvence, podle zadani*/
                    else return LEX_ERROR;
                }
@@ -550,6 +544,7 @@
                {
                    if(!(isalnum(c)) || (c == ' '))
                    {
+                       if(obs == -1) return LEX_ERROR;
                        //printf("vracim retezec \n");
                         ungetc(c, source);
                         return STRING;
@@ -563,53 +558,39 @@
            case 15: //escape sekvence
                if(c>='0' && c<= '9')    //obsahuje nejake cisla, ty ulozim do pom a potom je vypisu jako jeden znak
                 {
-                    //printf("lepim... %c\n", c);
-                    strAddChar(&pom, c);
-                    obs = 1;
+                    if(obs == 0 )
+                    {
+                        if(c != '0')
+                        {
+                            //printf("lepim... %c\n", c);
+                            strAddChar(&pom, c);
+                            obs = 1;
+                        }
+                        else
+                        {
+                            obs = -1;
+                        }
+                    }
+                    else
+                    {
+                        strAddChar(&pom, c);
+                        obs = 1;
+                    }
                 }
                 else if(c == APS)
                 {
                     if (obs == 0) return LEX_ERROR;
-                    //printf("tisknu prilepeny znak: %c\n", atoi((&pom)->str));
-                    strAddChar(attr, atoi((&pom)->str));
-                    //strFree(&pom);
+                    //printf("prevadim: %d\n", atoi((&pom)->str));
+                    int esc = atoi((&pom)->str);
+                    if (esc < 1 || esc > 255) return LEX_ERROR;
+                    strAddChar(attr, esc);
+                    strClear(&pom);
+                    obs = 0;
                     state = 13;
                 }
                 else
                 {
-                    //strFree(&pom);
                     return LEX_ERROR;
-                }
-            break;
-
-           case 16:
-                if( !(c>='0' && c<='9') && (c!= '-') && (c!='+'))
-                {
-                    strAddChar(attr, c);
-                    //printf("slovo zacinajici na e\n");
-                    state = 2;
-                }
-                else
-                {
-                    if(c == '-')
-                    {
-                        state = 11;
-                        obs = 0;
-                        strAddChar(attr, c);
-                    }
-                    else if(c == '+')
-                    {
-                        plusko = PRAVDA;
-                        state = 10;
-                        obs = 0;
-                        strAddChar(attr, c);
-                    }
-                    else
-                    {
-                        obs = 1;
-                        state = 10;
-                        strAddChar(attr, c);
-                    }
                 }
             break;
         }
