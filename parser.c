@@ -688,7 +688,7 @@ int callfunass(){/*<CALLFUNASS>*/
 	  result = callorass(&expression_item, &is_call_of_function);
 	  if (result != SYNTAX_OK) return result;
 	  id_item -> initialized = 1;
-	  if (is_call_of_function == 0){
+	  if (is_call_of_function == 0)
 	    generateInstruction(I_COPYVAR, (void *) expression_item, NULL, (void *) id_item);   
 	  return SYNTAX_OK;
 	  break;
@@ -755,8 +755,11 @@ int callorass(struct htab_item **expected_item, int *is_call_of_function){
             }
 		  }
         }
-*/		   
-	  generateInstruction(I_CALL, (void *) func_item, NULL, (void *) (*expected_item));  
+*/		
+      if (strcmp(func_item -> name, "FIND") == 0)
+	    generateInstruction(I_FIND, (void *) func_item, NULL, (void *) (*expected_item));//instrukce pro FIND   
+	  else	
+	    generateInstruction(I_CALL, (void *) func_item, NULL, (void *) (*expected_item));  
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  return SYNTAX_OK;
 	  break;
