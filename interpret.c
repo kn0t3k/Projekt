@@ -248,11 +248,6 @@ int interpret(symbol_table_item *GTable, tList *L)
 				break;
 			}
 
-/*int sort(string *s, string *dest)
-int find(char *s, char *search, int s_len, int search_len)
-int copy(char *s, string *dest, int i, int n, int s_len) 
-int length(char *s)*/
-
 			//nase instrukce
 			case I_FIND:
 			{
@@ -442,8 +437,6 @@ int length(char *s)*/
 				break;
 			}
 
-/*int copy(char *s, string *dest, int i, int n, int s_len)*/
-
 			case I_COPY:
 			{
 				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
@@ -490,9 +483,9 @@ int length(char *s)*/
 
 				free(value_temp);
 				value_temp = NULL;
-				value_temp = malloc(sizeof(char) * (sizeof((char*) l_arr[0]) + 1));
+				value_temp = malloc(sizeof(char) * (strlen((char*) l_arr[0]) + 1));
 
-				memcpy(((char*) value_temp), ((char*) l_arr[0]), sizeof(char) * (sizeof((char*) l_arr[0]) + 1));
+				memcpy(((char*) value_temp), ((char*) l_arr[0]), sizeof(char) * (strlen((char*) l_arr[0]) + 1));
 
 				
 				disposearray(l_arr, (*size_temp));
