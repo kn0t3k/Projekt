@@ -14,6 +14,7 @@
 #define SYNTAX_ERROR -2
 #define SEM_ERROR    -3
 #define SEM_ERROR_TYPE -4
+#define SEM_ERROR_OVERFLOW -5
 
 #define SEM_OK 55
 

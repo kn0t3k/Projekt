@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <errno.h> 
 #include "err.h"
 #include "str.h"
 #include "ial.h"
@@ -926,7 +927,11 @@ int value(struct htab_item** item){
 	    double *value_d;
 		if ((value_d = (double *) malloc(sizeof(double))) == NULL)/*Alokace mista pro hodnotu promenne*/
 	      return INTERNAL_ERR;
-		*value_d = atof(attr.str);
+		*value_d = strtod(attr.str,NULL);
+		if (errno != 0){
+		  free(value_d);
+		  return SEM_ERROR_OVERFLOW;
+		  }
 		strInit(&new_variable);
 	    generateVariable(&new_variable);
 		if (((*item) = add_var(new_variable.str, table, &result)) == NULL){

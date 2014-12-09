@@ -65,40 +65,51 @@ int main(int argc, char** argv)
    switch (result)
    {
      case LEX_ERROR:
-         printf("\nerr LEX \n");
-         //tiskni_radky();
-         return -result;
+       printf("\nerr LEX \n");
+       symbol_table_free(table);
+       DisposeList(&list);
+       fclose(f);
+       return -result;
+	   break;
      break;
      case SYNTAX_ERROR:
-         printf("\nerr STX \n");
-         //tiskni_radky();
-         return -result;
+       printf("\nerr STX \n");
+       symbol_table_free(table);
+       DisposeList(&list);
+       fclose(f);
+       return -result;
      break;
      case SEM_ERROR:
-         //tiskni_radky();
-         printf("\nerr SEM \n");
-       // nastala chyba v prubehu prekladu
-       /*tableFree(&ST);
-       listFree(&instrList);
-       fclose(f);*/
-         return -result;
-     break;
+       printf("\nerr SEM \n");
+       symbol_table_free(table);
+       DisposeList(&list);
+       fclose(f);
+       return -result;
+       break;
 	 case SEM_ERROR_TYPE:
-         //tiskni_radky();
-         printf("\nerr SEM_TYPE \n");
-       // nastala chyba v prubehu prekladu
-       /*tableFree(&ST);
-       listFree(&instrList);
-       fclose(f);*/
-         return -result;
+       printf("\nerr SEM_TYPE \n");
+       symbol_table_free(table);
+       DisposeList(&list);
+       fclose(f);
+       return -result;
+	   break;
+     case SEM_ERROR_OVERFLOW:
+       printf("\nerr SEM_OVERFLOW \n");
+       symbol_table_free(table);
+       DisposeList(&list);
+       fclose(f);
+       return -result;
+       break;	   
 	 case INTERNAL_ERR:
-         //tiskni_radky();
-         printf("\nerr INTERNAL_ERR \n");
-       // nastala chyba v prubehu prekladu
-       /*tableFree(&ST);
-       listFree(&instrList);
-       fclose(f);*/
-         return -result;
+       printf("\nerr INTERNAL_ERR \n");
+       symbol_table_free(table);
+       DisposeList(&list);
+       fclose(f);
+       return -result;
+	   break;
+	   
+	 default:
+	   break;
 	 
      // jinak probehlo vse v poradku, muzeme provadet kod
    }
