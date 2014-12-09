@@ -739,9 +739,9 @@ int callorass(struct htab_item **expected_item, int *is_call_of_function){
 	  result = variable(&func_item);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != R_BRACKET) return SYNTAX_ERROR;
-/*	 
-	 if (strcmp(func_item -> name, "LENGTH") == 0)
-	     generateInstruction(I_LENGHT, (void *) func_item, NULL, (void *) (*expected_item));//instrukce pro LENGTH
+	 
+	  if (strcmp(func_item -> name, "LENGTH") == 0)
+	     generateInstruction(I_LENGTH, (void *) func_item, NULL, (void *) (*expected_item));//instrukce pro LENGTH
 	  else{
 	    if (strcmp(func_item -> name, "COPY") == 0)
 		   generateInstruction(I_COPY, (void *) func_item, NULL, (void *) (*expected_item));//instrukce pro COPY
@@ -755,12 +755,7 @@ int callorass(struct htab_item **expected_item, int *is_call_of_function){
                generateInstruction(I_CALL, (void *) func_item, NULL, (void *) (*expected_item));//instrukce pro CALL	
             }
 		  }
-        }
-*/		
-      if (strcmp(func_item -> name, "FIND") == 0)
-	    generateInstruction(I_FIND, (void *) func_item, NULL, (void *) (*expected_item));//instrukce pro FIND   
-	  else	
-	    generateInstruction(I_CALL, (void *) func_item, NULL, (void *) (*expected_item));  
+        }		
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  return SYNTAX_OK;
 	  break;

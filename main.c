@@ -71,14 +71,13 @@ int main(int argc, char** argv)
        fclose(f);
        return -result;
 	   break;
-     break;
      case SYNTAX_ERROR:
        printf("\nerr STX \n");
        symbol_table_free(table);
        DisposeList(&list);
        fclose(f);
        return -result;
-     break;
+       break;
      case SEM_ERROR:
        printf("\nerr SEM \n");
        symbol_table_free(table);
