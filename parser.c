@@ -736,16 +736,16 @@ int callorass(struct htab_item **expected_item){
 	  if (result != SYNTAX_OK) return result;
 	  if (token != R_BRACKET) return SYNTAX_ERROR;
 /*	 
-	 if (strcmp(func_item -> name, "length") == 0)
+	 if (strcmp(func_item -> name, "LENGTH") == 0)
 	    ;//instrukce pro LENGTH
 	  else{
-	    if (strcmp(func_item -> name, "copy") == 0)
+	    if (strcmp(func_item -> name, "COPY") == 0)
 		  ;//instrukce pro COPY
 		else{
-		  if (strcmp(func_item -> name, "find") == 0)
+		  if (strcmp(func_item -> name, "FIND") == 0)
 		    ;//instrukce pro FIND
 		  else{
-		    if (strcmp(func_item -> name, "sort") == 0)
+		    if (strcmp(func_item -> name, "SORT") == 0)
 			  ;//instrukce pro SORT
 			else
               ;//instrukce pro CALL	
@@ -917,20 +917,20 @@ int value(struct htab_item** item){
 	  case EXP:
 	  case EXP_NEG:
 	    ;
-	    float *value_f;
-		if ((value_f = (float *) malloc(sizeof(float))) == NULL)/*Alokace mista pro hodnotu promenne*/
+	    double *value_d;
+		if ((value_d = (double *) malloc(sizeof(double))) == NULL)/*Alokace mista pro hodnotu promenne*/
 	      return INTERNAL_ERR;
-		*value_f = atof(attr.str);
+		*value_d = atof(attr.str);
 		strInit(&new_variable);
 	    generateVariable(&new_variable);
 		if (((*item) = add_var(new_variable.str, table, &result)) == NULL){
 		  strFree(&new_variable);
-		  free(value_f);
+		  free(value_d);
 		  return result;
 		  }
 		strFree(&new_variable);	
 		(*item) -> type = s_real;
-		generateInstruction(I_ASSIGN,(void *) value_f, NULL, (void *) (*item));
+		generateInstruction(I_ASSIGN,(void *) value_d, NULL, (void *) (*item));
 		break;
 	  
 	  default:

@@ -22,7 +22,7 @@ end;
 { Hlavni telo programu }
 begin
 write('Zadejte cislo pro vypocet faktorialu: ');
-readln(a);
+a:=5;
 if a < 0 then { Pokracovani hlavniho tela programu }
 begin
 write('Faktorial nelze spocitat'#10'')
@@ -30,6 +30,6 @@ end
 else
 begin
 vysl := factorial(a);
-write('Vysledek je: ', vysl, ''#10'')
+write(a, 'lolec', 'jak to de s 5',''#010'',vysl)
 end
 end.
