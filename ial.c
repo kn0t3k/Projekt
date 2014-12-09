@@ -776,14 +776,14 @@ int sort(string *s, string *dest)
 	{
 		return 0; /* neni co radit */
 	}
-	if (s != dest)
-	{
+	//if (s != dest)
+	//{
 		/* kopie vstupu */
-		if (strCopyString(dest, s) == 1)
-		{
-			return INTERNAL_ERR; /* kontrolovat v interpretu */
-		}
-	}
+	//	if (strCopyString(dest, s) == 1)
+	//	{
+	//		return INTERNAL_ERR; /* kontrolovat v interpretu */
+	//	}
+	//}
 	/* hlavni funkce */
 	sort_main(dest->str, 0, (dest->length)-1);
 	return 0;

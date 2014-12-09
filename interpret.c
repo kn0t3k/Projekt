@@ -328,6 +328,14 @@ int length(char *s)*/
 				}
 				memcpy(((char*) l_arr[1]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 
+
+				if (strlen(str_temp) != strlen((char*) l_arr[0]))
+				{
+					free(l_arr[0]);
+					l_arr[0] = NULL;
+					l_arr[0] = malloc(sizeof(char) * (strlen(str_temp) + 1));
+				}
+				memcpy(((char*) l_arr[0]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 				//free(str_temp) ??
 				SPtr1 = malloc(sizeof(string));
 				SPtr1->str = ((char*) l_arr[1]);
@@ -438,8 +446,84 @@ int length(char *s)*/
 
 			case I_COPY:
 			{
+				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
+				*index_temp = ((htab_item*) I->addr3)->index;
+				*scope_temp = ((htab_item*) I->addr3)->global;
+
+				if (l_arr != NULL)
+					LStackPush(LS, l_arr);
+
+				l_arr = NULL;
+				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
+				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
+				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
+
+				*((int*) l_arr[3]) = IntVarStackPop(VS);
+				*((int*) l_arr[2]) = IntVarStackPop(VS);
+				str_temp = StrVarStackPop(VS);
+				if (strlen(str_temp) != strlen((char*) l_arr[1]))
+				{
+					free(l_arr[1]);
+					l_arr[1] = NULL;
+					l_arr[1] = malloc(sizeof(char) * (strlen(str_temp) + 1));
+				}
+				memcpy(((char*) l_arr[1]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
+
+				if (strlen(str_temp) != strlen((char*) l_arr[0]))
+				{
+					free(l_arr[0]);
+					l_arr[0] = NULL;
+					l_arr[0] = malloc(sizeof(char) * (strlen(str_temp) + 1));
+				}
+				memcpy(((char*) l_arr[0]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
+
+				SPtr1 = malloc(sizeof(string));
+				SPtr1->str = ((char*) l_arr[0]);
+				SPtr1->length = strlen((char*) l_arr[0]);
+				SPtr1->allocSize = SPtr1->length + 1;
+				value_temp = malloc(sizeof(int));
+
+				*((int*) value_temp) = copy(((char*) l_arr[1]), SPtr1, *((int*) l_arr[2]), *((int*) l_arr[3]), strlen((char*) l_arr[1]));
+
+				if (*((int*) value_temp) == SEM_ERROR)
+					return SEM_ERROR;
+
+				free(value_temp);
+				value_temp = NULL;
+				value_temp = malloc(sizeof(char) * (sizeof((char*) l_arr[0]) + 1));
+
+				memcpy(((char*) value_temp), ((char*) l_arr[0]), sizeof(char) * (sizeof((char*) l_arr[0]) + 1));
+
 				
-				
+				disposearray(l_arr, (*size_temp));
+				l_arr = NULL;
+				if (!(LStackEmpty(LS)))
+					l_arr = LStackPop(LS);
+
+				if (*scope_temp == 0)
+				{
+					if (strlen((char*) l_arr[*index_temp]) != strlen((char*) value_temp))
+					{
+						free(l_arr[*index_temp]);
+						l_arr[*index_temp] = NULL;
+						l_arr[*index_temp] = malloc(sizeof(char) * (strlen(value_temp) + 1));
+					}
+					memcpy(((char*) l_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
+				}
+				else
+				{
+					if (strlen((char*) g_arr[*index_temp]) != strlen((char*) value_temp))
+					{
+						free(g_arr[*index_temp]);
+						g_arr[*index_temp] = NULL;
+						g_arr[*index_temp] = malloc(sizeof(char) * (strlen(value_temp) + 1));
+					}
+					memcpy(((char*) g_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
+				}
+
+				free(value_temp);
+				free(SPtr1);
+				SPtr1 = NULL;
 				break;
 			}
 

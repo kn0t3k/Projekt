@@ -45,4 +45,6 @@
 #define I_COPYVAR 322
 
 
+#define SEM_ERROR    -3
+
 int interpret(symbol_table_item *GTable, tList *LS);
