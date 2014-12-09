@@ -1103,6 +1103,7 @@ int function_readln(){/*<FUNCTION_READLN>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != R_BRACKET) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
+	  //Volat instrukci pro READLN, item je ukazatel na danou polozku v tabulce, tu co je v zavorce
 	  return SYNTAX_OK;
 	  break;
 	
