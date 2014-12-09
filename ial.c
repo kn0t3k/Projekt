@@ -76,6 +76,7 @@ struct symbol_table* symbol_table_init(){
 	}
 	strcpy(builtin_func->func_data, "s"); //nakopirovani dat
 	
+	//--------------------------pridani vestavene s:string;
 	builtin_var = add_var("s", new, &error);
 	if(builtin_var == NULL){
 		//nemuze dojit k zadnemu konfliktu s jinou promennou, neni potreba kontrolovat error, muze nastat pouze typ 99
@@ -104,6 +105,7 @@ struct symbol_table* symbol_table_init(){
 	}
 	strcpy(builtin_func->func_data, "sii"); //nakopirovani dat
 	
+	//--------------------------pridani vestavene s:string;
 	builtin_var = add_var("s", new, &error);
 	if(builtin_var == NULL){
 		//nemuze dojit k zadnemu konfliktu s jinou promennou, neni potreba kontrolovat error, muze nastat pouze typ 99
@@ -112,6 +114,7 @@ struct symbol_table* symbol_table_init(){
 	builtin_var->type = s_string;
 	builtin_var->initialized = true;
 	
+	//--------------------------pridani vestavene i:integer;
 	builtin_var = add_var("i", new, &error);
 	if(builtin_var == NULL){
 		//nemuze dojit k zadnemu konfliktu s jinou promennou, neni potreba kontrolovat error, muze nastat pouze typ 99
@@ -119,7 +122,8 @@ struct symbol_table* symbol_table_init(){
 	}
 	builtin_var->type = s_integer;
 	builtin_var->initialized = true;
-		
+	
+	//--------------------------pridani vestavene n:integer;	
 	builtin_var = add_var("n", new, &error);
 	if(builtin_var == NULL){
 		//nemuze dojit k zadnemu konfliktu s jinou promennou, neni potreba kontrolovat error, muze nastat pouze typ 99
@@ -148,6 +152,7 @@ struct symbol_table* symbol_table_init(){
 	}
 	strcpy(builtin_func->func_data, "ss"); //nakopirovani dat
 	
+	//--------------------------pridani vestavene s:string;
 	builtin_var = add_var("s", new, &error);
 	if(builtin_var == NULL){
 		//nemuze dojit k zadnemu konfliktu s jinou promennou, neni potreba kontrolovat error, muze nastat pouze typ 99
@@ -156,6 +161,7 @@ struct symbol_table* symbol_table_init(){
 	builtin_var->type = s_string;
 	builtin_var->initialized = true;
 	
+	//--------------------------pridani vestavene search:string;
 	builtin_var = add_var("search", new, &error);
 	if(builtin_var == NULL){
 		//nemuze dojit k zadnemu konfliktu s jinou promennou, neni potreba kontrolovat error, muze nastat pouze typ 99
@@ -184,6 +190,7 @@ struct symbol_table* symbol_table_init(){
 	}
 	strcpy(builtin_func->func_data, "s"); //nakopirovani dat
 	
+	//--------------------------pridani vestavene s:string;
 	builtin_var = add_var("s", new, &error);
 	if(builtin_var == NULL){
 		//nemuze dojit k zadnemu konfliktu s jinou promennou, neni potreba kontrolovat error, muze nastat pouze typ 99
