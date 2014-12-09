@@ -328,12 +328,6 @@ int length(char *s)*/
 				}
 				memcpy(((char*) l_arr[1]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 
-				/*if (strlen(str_temp) != strlen((char*) l_arr[0]))
-				{
-					free(l_arr[0]);
-					l_arr[0] = NULL;
-					l_arr[0] = malloc(sizeof(char) * (strlen(str_temp) + 1));
-				}*/
 				//free(str_temp) ??
 				SPtr1 = malloc(sizeof(string));
 				SPtr1->str = ((char*) l_arr[1]);
@@ -341,9 +335,9 @@ int length(char *s)*/
 				SPtr1->allocSize = SPtr1->length + 1;
 
 				SPtr2 = malloc(sizeof(string));
-				SPtr2->str = ((char*) l_arr[2]);
-				SPtr2->length = strlen((char*) l_arr[2]);
-				SPtr2->allocSize = SPtr1->length + 1;
+				SPtr2->str = ((char*) l_arr[0]);
+				SPtr2->length = strlen((char*) l_arr[0]);
+				SPtr2->allocSize = SPtr2->length + 1;
 				
 				value_temp = malloc(sizeof(int));
 					*((int*) value_temp) = sort(SPtr1, SPtr2);
@@ -353,8 +347,8 @@ int length(char *s)*/
 
 				free(value_temp);
 				value_temp = NULL;
-				value_temp = malloc(sizeof(char) * (strlen((char*) l_arr[2]) + 1));
-				memcpy(((char*) value_temp), ((char*) l_arr[2]), sizeof(char) * (strlen((char*) l_arr[2]) + 1));
+				value_temp = malloc(sizeof(char) * (strlen((char*) l_arr[0]) + 1));
+				memcpy(((char*) value_temp), ((char*) l_arr[0]), sizeof(char) * (strlen((char*) l_arr[0]) + 1));
 
 				disposearray(l_arr, (*size_temp));
 				l_arr = NULL;
@@ -362,9 +356,25 @@ int length(char *s)*/
 					l_arr = LStackPop(LS);
 
 				if (*scope_temp == 0)
-					memcpy(((char*) l_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) l_arr[2]) + 1));
+				{
+					if (strlen((char*) l_arr[*index_temp]) != strlen((char*) value_temp))
+					{
+						free(l_arr[*index_temp]);
+						l_arr[*index_temp] = NULL;
+						l_arr[*index_temp] = malloc(sizeof(char) * (strlen(value_temp) + 1));
+					}
+					memcpy(((char*) l_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
+				}
 				else
-					memcpy(((char*) g_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) l_arr[2]) + 1));
+				{
+					if (strlen((char*) g_arr[*index_temp]) != strlen((char*) value_temp))
+					{
+						free(g_arr[*index_temp]);
+						g_arr[*index_temp] = NULL;
+						g_arr[*index_temp] = malloc(sizeof(char) * (strlen(value_temp) + 1));
+					}
+					memcpy(((char*) g_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
+				}
 
 				free(value_temp);
 				free(SPtr1);
