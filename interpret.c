@@ -87,6 +87,8 @@ int interpret(symbol_table_item *GTable, tList *L)
 	if (L == NULL)
 		return 0;
 	tInstr *I;
+	string *SPtr1;
+	string *SPtr2;
 	tPrintList *PrintList = malloc(sizeof(tPrintList));
 	InitPrintList(PrintList);
 	char *str_temp;
@@ -265,7 +267,7 @@ int length(char *s)*/
 				*((int*) l_arr[4]) = IntVarStackPop(VS);
 				*((int*) l_arr[3]) = IntVarStackPop(VS);
 				str_temp = StrVarStackPop(VS);
-				if (strlen(str_temp) > strlen((char*) l_arr[2]))
+				if (strlen(str_temp) != strlen((char*) l_arr[2]))
 				{
 					free(l_arr[2]);
 					l_arr[2] = NULL;
@@ -275,7 +277,7 @@ int length(char *s)*/
 				//free(str_temp); ??
 
 				str_temp = StrVarStackPop(VS);
-				if (strlen(str_temp) > strlen((char*) l_arr[1]))
+				if (strlen(str_temp) != strlen((char*) l_arr[1]))
 				{
 					free(l_arr[1]);
 					l_arr[1] = NULL;
@@ -302,11 +304,79 @@ int length(char *s)*/
 				free(value_temp);
 				break;
 			}
-			/*case I_SORT:
+			case I_SORT:
 			{
+				*index_temp = ((htab_item*) I->addr3)->index;
+				*scope_temp = ((htab_item*) I->addr3)->global;
+
+				if (l_arr != NULL)
+					LStackPush(LS, l_arr);
+
+				l_arr = NULL;
+				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
+				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
+				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
+
+
+				str_temp = StrVarStackPop(VS);
+				if (strlen(str_temp) != strlen((char*) l_arr[2]))
+				{
+					free(l_arr[2]);
+					l_arr[2] = NULL;
+					l_arr[2] = malloc(sizeof(char) * (strlen(str_temp) + 1));
+				}
+				memcpy(((char*) l_arr[2]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
+				//free(str_temp); ??
+
+				str_temp = StrVarStackPop(VS);
+				if (strlen(str_temp) != strlen((char*) l_arr[1]))
+				{
+					free(l_arr[1]);
+					l_arr[1] = NULL;
+					l_arr[1] = malloc(sizeof(char) * (strlen(str_temp) + 1));
+				}
+				memcpy(((char*) l_arr[1]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
+				//free(str_temp); ??
+
+				SPtr1 = malloc(sizeof(string));
+				SPtr1->str = ((char*) l_arr[1]);
+				SPtr1->length = strlen((char*) l_arr[1]);
+				SPtr1->allocSize = SPtr1->length + 1;
+
+				SPtr2 = malloc(sizeof(string));
+				SPtr2->str = ((char*) l_arr[2]);
+				SPtr2->length = strlen((char*) l_arr[2]);
+				SPtr2->allocSize = SPtr1->length + 1;
+				
+				value_temp = malloc(sizeof(int));
+					*((int*) value_temp) = sort(SPtr1, SPtr2);
+				
+				if ((*((int*) value_temp)) == 1)
+					printf("chyba\n");
+
+				free(value_temp);
+				value_temp = NULL;
+				value_temp = malloc(sizeof(char) * (strlen((char*) l_arr[2]) + 1));
+				memcpy(((char*) value_temp), ((char*) l_arr[2]), sizeof(char) * (strlen((char*) l_arr[2]) + 1));
+
+				disposearray(l_arr, (*size_temp));
+				l_arr = NULL;
+				if (!(LStackEmpty(LS)))
+					l_arr = LStackPop(LS);
+
+				if (*scope_temp == 0)
+					memcpy(((char*) l_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) l_arr[2]) + 1));
+				else
+					memcpy(((char*) g_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) l_arr[2]) + 1));
+
+				free(value_temp);
+				free(SPtr1);
+				SPtr1 = NULL;
+				free(SPtr2);
+				SPtr2 = NULL;
 				break;
 			}
-			case I_LENGTH:
+			/*case I_LENGTH:
 			{
 				break;
 			}
@@ -394,7 +464,7 @@ int length(char *s)*/
 
 					if (scope3 == 0)
 					{
-						if (strlen(((char*) var3)) > strlen(((char*) l_arr[index3])))
+						if (strlen(((char*) var3)) != strlen(((char*) l_arr[index3])))
 						{
 							free(l_arr[index3]);
 							l_arr[index3] = NULL;
@@ -404,7 +474,7 @@ int length(char *s)*/
 					}
 					else
 					{
-						if (strlen(((char*) var3)) > strlen(((char*) g_arr[index3])))
+						if (strlen(((char*) var3)) != strlen(((char*) g_arr[index3])))
 						{
 							free(g_arr[index3]);
 							g_arr[index3] = NULL;
@@ -1444,7 +1514,7 @@ int length(char *s)*/
 					{
 						if (scope3 == 0)
 						{
-							if (strlen((char*) I->addr1) > strlen((char*) l_arr[index3]))
+							if (strlen((char*) I->addr1) != strlen((char*) l_arr[index3]))
 							{
 								free(l_arr[index3]);
 								l_arr[index3] = NULL;
@@ -1454,7 +1524,7 @@ int length(char *s)*/
 						}
 						else
 						{
-							if (strlen((char*) I->addr1) > strlen((char*) g_arr[index3]))
+							if (strlen((char*) I->addr1) != strlen((char*) g_arr[index3]))
 							{
 								free(g_arr[index3]);
 								g_arr[index3] = NULL;
@@ -1536,7 +1606,7 @@ int length(char *s)*/
 						{
 							if (scope1 == 0)
 							{
-								if (strlen((char*) l_arr[index3]) < strlen((char*) l_arr[index1]))
+								if (strlen((char*) l_arr[index3]) != strlen((char*) l_arr[index1]))
 								{
 								free(l_arr[index3]);
 								l_arr[index3] = NULL;
@@ -1546,7 +1616,7 @@ int length(char *s)*/
 							}
 							else
 							{
-								if (strlen((char*) l_arr[index3]) < strlen((char*) g_arr[index1]))
+								if (strlen((char*) l_arr[index3]) != strlen((char*) g_arr[index1]))
 								{
 									free(l_arr[index3]);
 									l_arr[index3] = NULL;
@@ -1559,7 +1629,7 @@ int length(char *s)*/
 						{
 							if (scope1 == 0)
 							{
-								if (strlen((char*) g_arr[index3]) < strlen((char*) l_arr[index1]))
+								if (strlen((char*) g_arr[index3]) != strlen((char*) l_arr[index1]))
 								{
 									free(g_arr[index3]);
 									g_arr[index3] = NULL;
@@ -1569,7 +1639,7 @@ int length(char *s)*/
 							}
 							else
 							{
-								if (strlen((char*) g_arr[index3]) < strlen((char*) g_arr[index1]))
+								if (strlen((char*) g_arr[index3]) != strlen((char*) g_arr[index1]))
 								{
 									free(g_arr[index3]);
 									g_arr[index3] = NULL;
@@ -1700,7 +1770,7 @@ int length(char *s)*/
 						case 's':
 						{
 							temp = StrVarStackPop(VS);
-							if (strlen(temp) > strlen((char*) l_arr[i]))
+							if (strlen(temp) != strlen((char*) l_arr[i]))
 							{
 								free(l_arr[i]);
 								l_arr[i] = NULL;

@@ -17,7 +17,10 @@
 #define INT_REAL 331
 #define INT_STRING 332
 #define INT_BOOLEAN 333*/
-#define I_FIND 330
+#define I_FIND 323
+#define I_SORT 324
+#define I_COPY 325
+#define I_LENGTH 326
 #define I_LABEL 331
 #define I_IFGOTO 332
 #define I_GOTO 333
