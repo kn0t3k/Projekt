@@ -1,5 +1,4 @@
 
-
 typedef struct garbage_item{
 	void* ptr;
 	struct garbage_item* next;

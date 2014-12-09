@@ -12,10 +12,6 @@
 
 #include <stdbool.h>
 
-
-//----------------------------------- HLAVICKOVY SOUBOR ial.h ------------------------------------
-
-
 #define SIZE 971   //velikost hashovaci tabulky, idealne prvociselna
 /*		
 *		S touto velikosti tabulky bylo dosahnuto nejlepsiho a nejuniverzalnejsiho pomeru spotrebovana pamet/spotrebovany cas
