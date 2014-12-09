@@ -689,11 +689,7 @@ int callfunass(){/*<CALLFUNASS>*/
 	  if (result != SYNTAX_OK) return result;
 	  id_item -> initialized = 1;
 	  if (is_call_of_function == 0){
-	    generateInstruction(I_COPYVAR, (void *) expression_item, NULL, (void *) id_item); 
-		printf("\ninstrukce I_COPYVAR");
-		}
-	  else
-        printf("\ninstrukce I_CALL");	  
+	    generateInstruction(I_COPYVAR, (void *) expression_item, NULL, (void *) id_item);   
 	  return SYNTAX_OK;
 	  break;
     
