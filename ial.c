@@ -526,13 +526,15 @@ int copy(char *s, string *dest, int i, int n, int s_len)
 		n = n-(n+i-s_len)+1; /* orezani retezce, kdyz presahuje hranice */
 	}
 
+	char *tmp;
+
 	/* jeste zbyva zkontrolovat jestli nekopirujeme ze stejneho retezce do ktereho taky ukladame */
 	if (s == dest->str) /* je to jeden a ten samy retezec */
 	{
-		char *tmp = (char *) malloc(sizeof(char) * (strlen(s)+1)); /* +1 kvuli '\0' */
+		tmp = (char *) malloc(sizeof(char) * (strlen(s)+1)); /* +1 kvuli '\0' */
 		strcpy(tmp, s);
 		tmp[strlen(s)] = '\0';
-		strClear(s);
+		strClear(dest);
 		s = tmp;
 		alokovano = 1;
 	}
