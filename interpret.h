@@ -13,10 +13,11 @@
 
 
 
-#define INT_INT 330
+/*#define INT_INT 330
 #define INT_REAL 331
 #define INT_STRING 332
-#define INT_BOOLEAN 333
+#define INT_BOOLEAN 333*/
+#define I_FIND 330
 #define I_LABEL 331
 #define I_IFGOTO 332
 #define I_GOTO 333

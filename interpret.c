@@ -89,25 +89,26 @@ int interpret(symbol_table_item *GTable, tList *L)
 	tInstr *I;
 	tPrintList *PrintList = malloc(sizeof(tPrintList));
 	InitPrintList(PrintList);
+	char *str_temp;
 	int *index_temp = malloc(sizeof(int));
 	int *size_temp = malloc(sizeof(int));
-	int *type_temp = malloc(sizeof(int));
-	bool *scope_temp = malloc(sizeof(bool));
-	void *value_temp;
-	void *return_addr = NULL;
+	int *type_temp = malloc(sizeof(int));	
 	int index1 = -1;
 	int index2 = -1;
 	int index3 = -1;
 	int type1 = -1;
 	int type2 = -1;
 	int type3 = -1;
+	int i = 0;
+	bool *scope_temp = malloc(sizeof(bool));
 	bool scope1 = -1; //pro scope plati: 0 == local, 1 == global
 	bool scope2 = -1;
 	bool scope3 = -1;
+	void *value_temp;
+	void *return_addr = NULL;
 	void *var1 = NULL;
 	void *var2 = NULL;
 	void *var3 = NULL;
-	int i = 0;
 	tVarS *VS = malloc(sizeof(tVarS)); //variable stack
 	VS->var_stack = malloc(sizeof(void*) * (VAR_STACK_SIZE));
 	VarStackInit(VS,VAR_STACK_SIZE);
@@ -233,16 +234,86 @@ int interpret(symbol_table_item *GTable, tList *L)
 							
 				}
 				PrintAll(PrintList);
+				//free(PrintList);
+				//PrintList = malloc(sizeof(tPrintList));
+				//InitPrintList(PrintList);
 				/*if (I->addr3 != NULL)
 					free(I->addr3);*/
 				break;
 			}
 
+/*int sort(string *s, string *dest)
+int find(char *s, char *search, int s_len, int search_len)
+int copy(char *s, string *dest, int i, int n, int s_len) 
+int length(char *s)*/
+
 			//nase instrukce
-			/*case I_FIND:
-			case I_SORT:
+			case I_FIND:
+			{			//4 - pocet parametru, na indexu 0 je return hodnota
+				*type_temp = 0;
+				*index_temp = ((htab_item*) I->addr3)->index;
+				*scope_temp = ((htab_item*) I->addr3)->global;
+
+				if (l_arr != NULL)
+					LStackPush(LS, l_arr);
+
+				l_arr = NULL;
+				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
+				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
+				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
+
+				*((int*) l_arr[4]) = IntVarStackPop(VS);
+				*((int*) l_arr[3]) = IntVarStackPop(VS);
+				str_temp = StrVarStackPop(VS);
+				if (strlen(str_temp) > strlen((char*) l_arr[2]))
+				{
+					free(l_arr[2]);
+					l_arr[2] = NULL;
+					l_arr[2] = malloc(sizeof(char) * (strlen(str_temp) + 1));
+				}
+				memcpy(((char*) l_arr[2]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
+				//free(str_temp); ??
+
+				str_temp = StrVarStackPop(VS);
+				if (strlen(str_temp) > strlen((char*) l_arr[1]))
+				{
+					free(l_arr[1]);
+					l_arr[1] = NULL;
+					l_arr[1] = malloc(sizeof(char) * (strlen(str_temp) + 1));
+				}
+				memcpy(((char*) l_arr[1]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
+				//free(str_temp); ??
+
+				*((int*) l_arr[0]) = find(((char*) l_arr[1]), ((char*) l_arr[2]), *((int*) l_arr[3]), *((int*) l_arr[4]));
+
+
+				value_temp = malloc(sizeof(int));
+				*((int*) value_temp) = *((int*) l_arr[0]);				
+				disposearray(l_arr, (*size_temp));
+				l_arr = NULL;
+				if (!(LStackEmpty(LS)))
+					l_arr = LStackPop(LS);
+
+				if (*scope_temp == 0)
+					*((int*) l_arr[*index_temp]) = *((int*) value_temp);
+				else
+					*((int*) g_arr[*index_temp]) = *((int*) value_temp);
+
+				free(value_temp);
+				break;
+			}
+			/*case I_SORT:
+			{
+				break;
+			}
 			case I_LENGTH:
-			case I_COPY:*/
+			{
+				break;
+			}
+			case I_COPY:
+			{
+				break;
+			}*/
 
 			//aritmeticke instrukce
 			case I_ADD: //+
@@ -1629,6 +1700,12 @@ int interpret(symbol_table_item *GTable, tList *L)
 						case 's':
 						{
 							temp = StrVarStackPop(VS);
+							if (strlen(temp) > strlen((char*) l_arr[i]))
+							{
+								free(l_arr[i]);
+								l_arr[i] = NULL;
+								l_arr[i] = malloc(sizeof(char) * (strlen(temp) + 1));
+							}
 							memcpy(((char*) l_arr[i]), temp, sizeof(char) * (strlen(temp) + 1));
 							free(temp);
 							break;	
