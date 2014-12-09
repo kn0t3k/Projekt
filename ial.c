@@ -76,6 +76,10 @@ struct symbol_table* symbol_table_init(){
 	}
 	strcpy(builtin_func->func_data, "s"); //nakopirovani dat
 	
+	//--------------------------nastaveni typu promenne pro return hodnotu
+	builtin_var = search_var("length", new, &error);
+	builtin_var->type = s_integer;
+	
 	//--------------------------pridani vestavene s:string;
 	builtin_var = add_var("s", new, &error);
 	if(builtin_var == NULL){
@@ -104,6 +108,10 @@ struct symbol_table* symbol_table_init(){
 		return NULL;
 	}
 	strcpy(builtin_func->func_data, "sii"); //nakopirovani dat
+	
+	//--------------------------nastaveni typu promenne pro return hodnotu
+	builtin_var = search_var("copy", new, &error);
+	builtin_var->type = s_string;
 	
 	//--------------------------pridani vestavene s:string;
 	builtin_var = add_var("s", new, &error);
@@ -152,6 +160,10 @@ struct symbol_table* symbol_table_init(){
 	}
 	strcpy(builtin_func->func_data, "ss"); //nakopirovani dat
 	
+	//--------------------------nastaveni typu promenne pro return hodnotu
+	builtin_var = search_var("find", new, &error);
+	builtin_var->type = s_integer;
+	
 	//--------------------------pridani vestavene s:string;
 	builtin_var = add_var("s", new, &error);
 	if(builtin_var == NULL){
@@ -189,6 +201,10 @@ struct symbol_table* symbol_table_init(){
 		return NULL;
 	}
 	strcpy(builtin_func->func_data, "s"); //nakopirovani dat
+	
+	//--------------------------nastaveni typu promenne pro return hodnotu
+	builtin_var = search_var("sort", new, &error);
+	builtin_var->type = s_string;
 	
 	//--------------------------pridani vestavene s:string;
 	builtin_var = add_var("s", new, &error);
