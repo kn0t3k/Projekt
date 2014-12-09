@@ -255,8 +255,8 @@ int length(char *s)*/
 
 			//nase instrukce
 			case I_FIND:
-			{			//4 - pocet parametru, na indexu 0 je return hodnota
-				*type_temp = 0;
+			{
+				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
 				*index_temp = ((htab_item*) I->addr3)->index;
 				*scope_temp = ((htab_item*) I->addr3)->global;
 
@@ -304,6 +304,7 @@ int length(char *s)*/
 				free(value_temp);
 				break;
 			}
+
 			case I_SORT:
 			{
 				*index_temp = ((htab_item*) I->addr3)->index;
@@ -317,17 +318,6 @@ int length(char *s)*/
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
 				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
 
-
-				str_temp = StrVarStackPop(VS);
-				if (strlen(str_temp) != strlen((char*) l_arr[2]))
-				{
-					free(l_arr[2]);
-					l_arr[2] = NULL;
-					l_arr[2] = malloc(sizeof(char) * (strlen(str_temp) + 1));
-				}
-				memcpy(((char*) l_arr[2]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
-				//free(str_temp); ??
-
 				str_temp = StrVarStackPop(VS);
 				if (strlen(str_temp) != strlen((char*) l_arr[1]))
 				{
@@ -336,8 +326,14 @@ int length(char *s)*/
 					l_arr[1] = malloc(sizeof(char) * (strlen(str_temp) + 1));
 				}
 				memcpy(((char*) l_arr[1]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
-				//free(str_temp); ??
 
+				/*if (strlen(str_temp) != strlen((char*) l_arr[0]))
+				{
+					free(l_arr[0]);
+					l_arr[0] = NULL;
+					l_arr[0] = malloc(sizeof(char) * (strlen(str_temp) + 1));
+				}*/
+				//free(str_temp) ??
 				SPtr1 = malloc(sizeof(string));
 				SPtr1->str = ((char*) l_arr[1]);
 				SPtr1->length = strlen((char*) l_arr[1]);
@@ -428,12 +424,12 @@ int length(char *s)*/
 
 /*int copy(char *s, string *dest, int i, int n, int s_len)*/
 
-			/*case I_COPY:
+			case I_COPY:
 			{
 				
 				
 				break;
-			}*/
+			}
 
 			//aritmeticke instrukce
 			case I_ADD: //+
