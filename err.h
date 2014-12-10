@@ -16,6 +16,8 @@
 #define SEM_ERROR_TYPE -4
 #define SEM_ERROR_OVERFLOW -5
 #define STDIN_NUM_ERROR -6
+#define RUN_INIT_ERROR -7
+#define RUN_ZERO_ERROR -8
 
 #define SEM_OK 55
 
