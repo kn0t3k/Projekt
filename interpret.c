@@ -21,7 +21,7 @@ void initarray(void **array, int size)
 		array[i] = NULL;
 }
 
-void loadarray(void **array, symbol_table_item *TB)
+int loadarray(void **array, symbol_table_item *TB)
 {
 	int hash_size = TB->table->htab_size;
 	htab_item *iptr = NULL;
@@ -40,18 +40,24 @@ void loadarray(void **array, symbol_table_item *TB)
 					case 0:
 					{
 						array[iptr->index] = malloc(sizeof(int));
+						if (array[iptr->index] == NULL)
+							return INTERNAL_ERR;
 						break;
 					}
 
 					case 1:
 					{
 						array[iptr->index] = malloc(sizeof(double));
+						if (array[iptr->index] == NULL)
+							return INTERNAL_ERR;
 						break;
 					}
 
 					case 2:
 					{
 						array[iptr->index] = malloc(sizeof(char));
+						if (array[iptr->index] == NULL)
+							return INTERNAL_ERR;
 						((char*) array[iptr->index])[0] = '\0';
 						break;
 					}
@@ -59,6 +65,8 @@ void loadarray(void **array, symbol_table_item *TB)
 					case 3:
 					{
 						array[iptr->index] = malloc(sizeof(bool));
+						if (array[iptr->index] == NULL)
+							return INTERNAL_ERR;
 						break;
 					}
 
@@ -69,7 +77,8 @@ void loadarray(void **array, symbol_table_item *TB)
 			iptr = iptr->next;
 		}
 	}
-} 
+	return 0;
+}
 
 void disposearray(void **array, int size)
 {
@@ -110,11 +119,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 	string *SPtr1;
 	string *SPtr2;
 	tPrintList *PrintList = malloc(sizeof(tPrintList));
+	if (PrintList == NULL)
+		return INTERNAL_ERR;
 	InitPrintList(PrintList);
 	char *str_temp;
 	int *index_temp = malloc(sizeof(int));
+	if (index_temp == NULL)
+		return INTERNAL_ERR;
 	int *size_temp = malloc(sizeof(int));
-	int *type_temp = malloc(sizeof(int));	
+	if (size_temp == NULL)
+		return INTERNAL_ERR;
+	int *type_temp = malloc(sizeof(int));
+	if (type_temp == NULL)
+		return INTERNAL_ERR;
 	int index1 = -1;
 	int index2 = -1;
 	int index3 = -1;
@@ -123,7 +140,11 @@ int interpret(symbol_table_item *GTable, tList *List)
 	int type3 = -1;
 	int i = 0;
 	bool *init_temp = malloc(sizeof(bool));
+	if (init_temp == NULL)
+		return INTERNAL_ERR;
 	bool *scope_temp = malloc(sizeof(bool));
+	if (scope_temp == NULL)
+		return INTERNAL_ERR;
 	bool scope1 = -1; //pro scope plati: 0 == local, 1 == global
 	bool scope2 = -1;
 	bool scope3 = -1;
@@ -133,19 +154,33 @@ int interpret(symbol_table_item *GTable, tList *List)
 	void *var2 = NULL;
 	void *var3 = NULL;
 	tVarS *VS = malloc(sizeof(tVarS)); //variable stack
+	if (VS == NULL)
+		return INTERNAL_ERR;
 	VS->var_stack = malloc(sizeof(void*) * (VAR_STACK_SIZE));
+	if (VS->var_stack == NULL)
+		return INTERNAL_ERR;
 	VarStackInit(VS,VAR_STACK_SIZE);
 	void **g_arr = malloc(sizeof(void*) * GTable->item_count);
+	if (g_arr == NULL)
+		return INTERNAL_ERR;
 	initarray(g_arr, GTable->item_count);
 	loadarray(g_arr, GTable);
 	void **l_arr = NULL;
 
 	tLVS *LS = malloc(sizeof(tLVS)); //local array stack
+	if (LS == NULL)
+		return INTERNAL_ERR;
 	LS->l_stack = malloc(sizeof(vararr) * (LVS_STACK_SIZE));
+	if (LS->l_stack == NULL)
+		return INTERNAL_ERR;
 	LStackInit(LS, LVS_STACK_SIZE);
 
 	tAddS *AS = malloc(sizeof(tAddS));
+	if (AS == NULL)
+		return INTERNAL_ERR;
 	AS->add_stack = malloc(sizeof(tItem)*(ADS_STACK_SIZE));
+	if (AS->add_stack == NULL)
+		return INTERNAL_ERR;
 	AddStackInit(AS, ADS_STACK_SIZE);
 
 //pri ruseni velikost u funkce v tabulce
@@ -228,6 +263,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 						case 'i':
 						{
 							value_temp = malloc(sizeof(int));
+							if (value_temp == NULL)
+								return INTERNAL_ERR;
 							*((int*) value_temp) = IntVarStackPop(VS);
 							//printf("%d", *((int*) value_temp));
 							//free(value_temp);
@@ -239,6 +276,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 						case 'r':
 						{
 							value_temp = malloc(sizeof(double));
+							if (value_temp == NULL)
+								return INTERNAL_ERR;
 							*((double*) value_temp) = DoubleVarStackPop(VS);
 							//printf("%g", *((double*) value_temp));
 							//free(value_temp);
@@ -256,6 +295,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 						case 'b':
 						{
 							value_temp = malloc(sizeof(bool));
+							if (value_temp == NULL)
+								return INTERNAL_ERR;
 							*((bool*) value_temp) = BoolVarStackPop(VS);
 							//printf("%d", *((bool*) value_temp));
 							//free(value_temp);
@@ -288,6 +329,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 				l_arr = NULL;
 				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
+				if (l_arr == NULL)
+					return INTERNAL_ERR;
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
 				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
 
@@ -304,6 +347,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 					free(l_arr[2]);
 					l_arr[2] = NULL;
 					l_arr[2] = malloc(sizeof(char) * (strlen(str_temp) + 1));
+					if (l_arr[2] == NULL)
+						return INTERNAL_ERR;
 				}
 				memcpy(((char*) l_arr[2]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 				//free(str_temp); ??
@@ -321,11 +366,15 @@ int interpret(symbol_table_item *GTable, tList *List)
 					free(l_arr[1]);
 					l_arr[1] = NULL;
 					l_arr[1] = malloc(sizeof(char) * (strlen(str_temp) + 1));
+					if (l_arr[1] == NULL)
+						return INTERNAL_ERR;
 				}
 				memcpy(((char*) l_arr[1]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 				//free(str_temp); ??
 
 				value_temp = malloc(sizeof(int));
+				if (value_temp == NULL)
+					return INTERNAL_ERR;
 				*((int*) value_temp) = find(((char*) l_arr[1]), ((char*) l_arr[2]), strlen((char*) l_arr[1]), strlen((char*) l_arr[2]));
 
 				disposearray(l_arr, (*size_temp));
@@ -354,6 +403,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 				l_arr = NULL;
 				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
+				if (l_arr == NULL)
+					return INTERNAL_ERR;
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
 				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
 
@@ -371,16 +422,22 @@ int interpret(symbol_table_item *GTable, tList *List)
 					free(l_arr[0]);
 					l_arr[0] = NULL;
 					l_arr[0] = malloc(sizeof(char) * (strlen(str_temp) + 1));
+					if (l_arr[0] == NULL)
+						return INTERNAL_ERR;
 				}
 				memcpy(((char*) l_arr[0]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 				//free(str_temp) ??
 				SPtr1 = malloc(sizeof(string));
+				if (SPtr1 == NULL)
+					return INTERNAL_ERR;
 				SPtr1->str = ((char*) l_arr[0]);
 				SPtr1->length = strlen((char*) l_arr[0]);
 				SPtr1->allocSize = SPtr1->length + 1;
 				
 				value_temp = malloc(sizeof(int));
-					*((int*) value_temp) = sort(SPtr1);
+				if (value_temp == NULL)
+					return INTERNAL_ERR;
+				*((int*) value_temp) = sort(SPtr1);
 				
 				if ((*((int*) value_temp)) == 1)
 					printf("chyba\n");
@@ -388,6 +445,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				free(value_temp);
 				value_temp = NULL;
 				value_temp = malloc(sizeof(char) * (strlen((char*) l_arr[0]) + 1));
+				if (value_temp == NULL)
+					return INTERNAL_ERR;
 				memcpy(((char*) value_temp), ((char*) l_arr[0]), sizeof(char) * (strlen((char*) l_arr[0]) + 1));
 
 				disposearray(l_arr, (*size_temp));
@@ -402,6 +461,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 						free(l_arr[*index_temp]);
 						l_arr[*index_temp] = NULL;
 						l_arr[*index_temp] = malloc(sizeof(char) * (strlen(value_temp) + 1));
+						if (l_arr[*index_temp] == NULL)
+							return INTERNAL_ERR;
 					}
 					memcpy(((char*) l_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
 				}
@@ -412,6 +473,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 						free(g_arr[*index_temp]);
 						g_arr[*index_temp] = NULL;
 						g_arr[*index_temp] = malloc(sizeof(char) * (strlen(value_temp) + 1));
+						if (g_arr[*index_temp] == NULL)
+							return INTERNAL_ERR;
 					}
 					memcpy(((char*) g_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
 				}
@@ -436,6 +499,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 				l_arr = NULL;
 				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
+				if (l_arr == NULL)
+					return INTERNAL_ERR;
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
 				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
 
@@ -453,13 +518,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 					free(l_arr[1]);
 					l_arr[1] = NULL;
 					l_arr[1] = malloc(sizeof(char) * (strlen(str_temp) + 1));
+					if (l_arr[1] == NULL)
+						return INTERNAL_ERR;
 				}
 				memcpy(((char*) l_arr[1]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 				//free(str_temp); ??
 
 				value_temp = malloc(sizeof(int));
+				if (l_arr[value_temp] == NULL)
+					return INTERNAL_ERR;
 
 				SPtr1 = malloc(sizeof(string));
+				if (SPtr1 == NULL)
+					return INTERNAL_ERR;
 				SPtr1->str = ((char*) l_arr[1]);
 				SPtr1->length = strlen((char*) l_arr[1]);
 				SPtr1->allocSize = SPtr1->length + 1;
@@ -494,6 +565,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 				l_arr = NULL;
 				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
+				if (l_arr == NULL)
+					return INTERNAL_ERR;
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
 				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
 
@@ -528,6 +601,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 					free(l_arr[1]);
 					l_arr[1] = NULL;
 					l_arr[1] = malloc(sizeof(char) * (strlen(str_temp) + 1));
+					if (l_arr[1] == NULL)
+						return INTERNAL_ERR;
 				}
 				memcpy(((char*) l_arr[1]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 
@@ -536,14 +611,20 @@ int interpret(symbol_table_item *GTable, tList *List)
 					free(l_arr[0]);
 					l_arr[0] = NULL;
 					l_arr[0] = malloc(sizeof(char) * (strlen(str_temp) + 1));
+					if (l_arr[0] == NULL)
+						return INTERNAL_ERR;
 				}
 				memcpy(((char*) l_arr[0]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 
 				SPtr1 = malloc(sizeof(string));
+				if (SPtr1 == NULL)
+					return INTERNAL_ERR;
 				SPtr1->str = ((char*) l_arr[0]);
 				SPtr1->length = strlen((char*) l_arr[0]);
 				SPtr1->allocSize = SPtr1->length + 1;
 				value_temp = malloc(sizeof(int));
+				if (value_temp == NULL)
+					return INTERNAL_ERR;
 
 				*((int*) value_temp) = copy(((char*) l_arr[1]), SPtr1, *((int*) l_arr[2]), *((int*) l_arr[3]), strlen((char*) l_arr[1]));
 
@@ -553,6 +634,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				free(value_temp);
 				value_temp = NULL;
 				value_temp = malloc(sizeof(char) * (strlen((char*) l_arr[0]) + 1));
+				if (value_temp == NULL)
+					return INTERNAL_ERR;
 
 				memcpy(((char*) value_temp), ((char*) l_arr[0]), sizeof(char) * (strlen((char*) l_arr[0]) + 1));
 
@@ -569,6 +652,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 						free(l_arr[*index_temp]);
 						l_arr[*index_temp] = NULL;
 						l_arr[*index_temp] = malloc(sizeof(char) * (strlen(value_temp) + 1));
+						if (l_arr[*index_temp] == NULL)
+							return INTERNAL_ERR;
 					}
 					memcpy(((char*) l_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
 				}
@@ -579,6 +664,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 						free(g_arr[*index_temp]);
 						g_arr[*index_temp] = NULL;
 						g_arr[*index_temp] = malloc(sizeof(char) * (strlen(value_temp) + 1));
+						if (g_arr[*index_temp] == NULL)
+							return INTERNAL_ERR;
 					}
 					memcpy(((char*) g_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
 				}
@@ -651,26 +738,36 @@ int interpret(symbol_table_item *GTable, tList *List)
 					if (scope1 == 0)
 					{
 						var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
+						if (var1 == NULL)
+							return INTERNAL_ERR;
 						memcpy(((char*) var1), ((char*) l_arr[index1]), strlen(((char*) l_arr[index1])) + 1);
 					}
 					else
 					{
 						var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+						if (var1 == NULL)
+							return INTERNAL_ERR;
 						memcpy(((char*) var1), ((char*) g_arr[index1]), strlen(((char*) g_arr[index1])) + 1);
 					}
 
 					if (scope2 == 0)
 					{
 						var2 = malloc(sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+						if (var2 == NULL)
+							return INTERNAL_ERR;
 						memcpy(((char*) var2), ((char*) l_arr[index2]), strlen(((char*) l_arr[index2])) + 1);
 					}
 					else
 					{
 						var2 = malloc(sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
+						if (var2 == NULL)
+							return INTERNAL_ERR;
 						memcpy(((char*) var2), ((char*) g_arr[index2]), strlen(((char*) g_arr[index2])) + 1);
 					}
 
 					var3 = malloc(sizeof(char) * (strlen(var1) + strlen(var2) + 1));
+					if (var3 == NULL)
+						return INTERNAL_ERR;
 					memcpy(((char*) var3), ((char*) var1), (strlen((char*) var1) + 1) * sizeof(char));
 					strncat(((char*) var3), ((char*) var2), strlen(((char*) var2)));
 
@@ -681,6 +778,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 							free(l_arr[index3]);
 							l_arr[index3] = NULL;
 							l_arr[index3] = malloc(sizeof(char) * (strlen((char*) var3) + 1));
+							if (l_arr[index3] == NULL)
+								return INTERNAL_ERR;
 						}
 						memcpy(((char*) l_arr[index3]), ((char*) var3), (strlen(((char*) var3)) + 1) * sizeof(char));
 					}
@@ -691,6 +790,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 							free(g_arr[index3]);
 							g_arr[index3] = NULL;
 							g_arr[index3] = malloc(sizeof(char) * (strlen((char*) var3) + 1));
+							if (g_arr[index3] == NULL)
+								return INTERNAL_ERR;
 						}
 						memcpy(((char*) g_arr[index3]), ((char*) var3), (strlen(((char*) var3)) + 1) * sizeof(char));
 					}
@@ -1052,22 +1153,30 @@ int interpret(symbol_table_item *GTable, tList *List)
 							if (scope1 == 0)
 							{
 								var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
+								if (var1 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var1, ((char*) l_arr[index1]), sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
 							}
 							else
 							{
 								var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+								if (var1 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var1, ((char*) g_arr[index1]), sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
 							}
 
 							if (scope2 == 0)
 							{
 								var2 = malloc(sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+								if (var2 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var2, ((char*) l_arr[index2]), sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
 							}
 							else
 							{
 								var2 = malloc(sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
+								if (var2 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var2, ((char*) g_arr[index2]), sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
 							}
 
@@ -1190,22 +1299,30 @@ int interpret(symbol_table_item *GTable, tList *List)
 							if (scope1 == 0)
 							{
 								var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
+								if (var1 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var1, ((char*) l_arr[index1]), sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
 							}
 							else
 							{
 								var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+								if (var1 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var1, ((char*) g_arr[index1]), sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
 							}
 
 							if (scope2 == 0)
 							{
 								var2 = malloc(sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+								if (var1 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var2, ((char*) l_arr[index2]), sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
 							}
 							else
 							{
 								var2 = malloc(sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
+								if (var2 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var2, ((char*) g_arr[index2]), sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
 							}
 
@@ -1328,22 +1445,30 @@ int interpret(symbol_table_item *GTable, tList *List)
 							if (scope1 == 0)
 							{
 								var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
+								if (var1 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var1, ((char*) l_arr[index1]), sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
 							}
 							else
 							{
 								var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+								if (var1 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var1, ((char*) g_arr[index1]), sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
 							}
 
 							if (scope2 == 0)
 							{
 								var2 = malloc(sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+								if (var2 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var2, ((char*) l_arr[index2]), sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
 							}
 							else
 							{
 								var2 = malloc(sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
+								if (var2 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var2, ((char*) g_arr[index2]), sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
 							}
 
@@ -1466,22 +1591,30 @@ int interpret(symbol_table_item *GTable, tList *List)
 							if (scope1 == 0)
 							{
 								var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
+								if (var1 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var1, ((char*) l_arr[index1]), sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
 							}
 							else
 							{
 								var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+								if (var1 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var1, ((char*) g_arr[index1]), sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
 							}
 
 							if (scope2 == 0)
 							{
 								var2 = malloc(sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+								if (var2 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var2, ((char*) l_arr[index2]), sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
 							}
 							else
 							{
 								var2 = malloc(sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
+								if (var2 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var2, ((char*) g_arr[index2]), sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
 							}
 
@@ -1604,22 +1737,30 @@ int interpret(symbol_table_item *GTable, tList *List)
 							if (scope1 == 0)
 							{
 								var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
+								if (var1 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var1, ((char*) l_arr[index1]), sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
 							}
 							else
 							{
 								var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+								if (var1 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var1, ((char*) g_arr[index1]), sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
 							}
 
 							if (scope2 == 0)
 							{
-								var2 = malloc(sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+								var2 = malloc(sizeof(char) * (strlen((char*) l_arr[index2]) + 1));
+								if (var2 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var2, ((char*) l_arr[index2]), sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
 							}
 							else
 							{
 								var2 = malloc(sizeof(char) * (strlen((char*) g_arr[index2]) + 1));
+								if (var2 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var2, ((char*) g_arr[index2]), sizeof(char) * (strlen((char*) g_arr[index2]) + 1));
 							}
 
@@ -1742,22 +1883,30 @@ int interpret(symbol_table_item *GTable, tList *List)
 							if (scope1 == 0)
 							{
 								var1 = malloc(sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
+								if (var1 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var1, l_arr[index1], sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
 							}
 							else
 							{
 								var1 = malloc(sizeof(char) * (strlen((char*) g_arr[index1]) + 1));
+								if (var1 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var1, ((char*) g_arr[index1]), sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
 							}
 
 							if (scope2 == 0)
 							{
-								var2 = malloc(sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+								var2 = malloc(sizeof(char) * (strlen((char*) l_arr[index2]) + 1));
+								if (var2 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var2, ((char*) l_arr[index2]), sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
 							}
 							else
 							{
-								var2 = malloc(sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
+								var2 = malloc(sizeof(char) * (strlen((char*) g_arr[index2]) + 1));
+								if (var2 == NULL)
+									return INTERNAL_ERR;
 								memcpy(var2, ((char*) g_arr[index2]), sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
 							}
 
@@ -1827,6 +1976,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 								free(l_arr[index3]);
 								l_arr[index3] = NULL;
 								l_arr[index3] = malloc(sizeof(char) * (strlen((char*) I->addr1) + 1));
+								if (l_arr[index3] == NULL)
+									return INTERNAL_ERR;
 							}
 							memcpy(((char*) l_arr[index3]), ((char*) I->addr1), (strlen((char*) I->addr1) + 1) * sizeof(char));
 						}
@@ -1837,6 +1988,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 								free(g_arr[index3]);
 								g_arr[index3] = NULL;
 								g_arr[index3] = malloc(sizeof(char) * (strlen((char*) I->addr1) + 1));
+								if (g_arr[index3] == NULL)
+									return INTERNAL_ERR;
 							}
 							memcpy(((char*) g_arr[index3]), ((char*) I->addr1), (strlen((char*) I->addr1) + 1) * sizeof(char));
 						}
@@ -1923,9 +2076,11 @@ int interpret(symbol_table_item *GTable, tList *List)
 							{
 								if (strlen((char*) l_arr[index3]) != strlen((char*) l_arr[index1]))
 								{
-								free(l_arr[index3]);
-								l_arr[index3] = NULL;
-								l_arr[index3] = malloc(sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
+									free(l_arr[index3]);
+									l_arr[index3] = NULL;
+									l_arr[index3] = malloc(sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
+									if (l_arr[index3] == NULL)
+										return INTERNAL_ERR;
 								}
 								memcpy(((char*) l_arr[index3]), ((char*) l_arr[index1]), sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
 							}
@@ -1936,6 +2091,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 									free(l_arr[index3]);
 									l_arr[index3] = NULL;
 									l_arr[index3] = malloc(sizeof(char) * (strlen((char*) g_arr[index1]) + 1));
+									if (l_arr[index3] == NULL)
+										return INTERNAL_ERR;
 								}
 								memcpy(((char*) l_arr[index3]), ((char*) g_arr[index1]), sizeof(char) * (strlen((char*) g_arr[index1]) + 1));
 							}
@@ -1949,6 +2106,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 									free(g_arr[index3]);
 									g_arr[index3] = NULL;
 									g_arr[index3] = malloc(sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
+									if (g_arr[index3] == NULL)
+										return INTERNAL_ERR;
 								}
 								memcpy(((char*) g_arr[index3]), ((char*) l_arr[index1]), sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
 							}
@@ -1959,6 +2118,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 									free(g_arr[index3]);
 									g_arr[index3] = NULL;
 									g_arr[index3] = malloc(sizeof(char) * (strlen((char*) g_arr[index1]) + 1));
+									if (g_arr[index3] == NULL)
+										return INTERNAL_ERR;
 								}
 								memcpy(((char*) g_arr[index3]), ((char*) g_arr[index1]), sizeof(char) * (strlen((char*) g_arr[index1]) + 1));
 							}
@@ -2067,6 +2228,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 				l_arr = NULL;
 				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
+				if (l_arr == NULL)
+					return INTERNAL_ERR;
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
 				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
 
@@ -2096,6 +2259,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 								free(l_arr[i]);
 								l_arr[i] = NULL;
 								l_arr[i] = malloc(sizeof(char) * (strlen(temp) + 1));
+								if (l_arr[i] == NULL)
+									return INTERNAL_ERR;
 							}
 							memcpy(((char*) l_arr[i]), temp, sizeof(char) * (strlen(temp) + 1));
 							//free(temp);
@@ -2150,6 +2315,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 					case 0:
 					{
 						value_temp = malloc(sizeof(int));
+						if (value_temp == NULL)
+							return INTERNAL_ERR;
 						*((int*) value_temp) = *((int*) l_arr[0]);
 						break;
 					}
@@ -2157,6 +2324,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 					case 1:
 					{
 						value_temp = malloc(sizeof(double));
+						if (value_temp == NULL)
+							return INTERNAL_ERR;
 						*((double*) value_temp) = *((double*) l_arr[0]);
 						break;
 					}
@@ -2164,6 +2333,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 					case 2:
 					{
 						value_temp = malloc(sizeof(char) * (strlen((char*) l_arr[0]) + 1));
+						if (value_temp == NULL)
+							return INTERNAL_ERR;
 						memcpy(((char*) value_temp), ((char*) l_arr[0]), sizeof(char) * (strlen((char*) l_arr[0]) + 1));
 						break;
 					}
@@ -2171,6 +2342,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 					case 3:
 					{
 						value_temp = malloc(sizeof(bool));
+						if (value_temp == NULL)
+							return INTERNAL_ERR;
 						*((bool*) value_temp) = *((bool*) l_arr[0]);
 						break;
 					}
@@ -2204,6 +2377,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 								free(l_arr[*index_temp]);
 								l_arr[*index_temp] = NULL;
 								l_arr[*index_temp] = malloc(sizeof(char) * (strlen((char*) value_temp) + 1));
+								if (l_arr[*index_temp] == NULL)
+									return INTERNAL_ERR;
 							}
 							memcpy(((char*) l_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
 							break;
@@ -2240,6 +2415,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 								free(g_arr[*index_temp]);
 								g_arr[*index_temp] = NULL;
 								g_arr[*index_temp] = malloc(sizeof(char) * (strlen((char*) value_temp) + 1));
+								if (g_arr[*index_temp] == NULL)
+									return INTERNAL_ERR;
 							}
 							memcpy(((char*) g_arr[*index_temp]), ((char*) value_temp), (sizeof(char) * (strlen((char*) value_temp) + 1)));
 							break;
