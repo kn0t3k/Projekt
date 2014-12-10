@@ -83,6 +83,24 @@ void disposearray(void **array, int size)
 		free(array);
 }
 
+htab_item* FindItemOfIndex(int index, symbol_table_item *TB)
+{
+	int hash_size = TB->table->htab_size;
+	htab_item *iptr = NULL;
+
+	for (int i = 0; i < hash_size; i++)
+	{
+		iptr = TB->table->ptr[i];
+		while (iptr != NULL)
+		{
+			if (iptr->index == index)
+				return iptr;			
+			iptr = iptr->next;
+		}
+	}
+	return NULL;
+}
+
 int interpret(symbol_table_item *GTable, tList *List)
 {
 	First(List);
@@ -104,6 +122,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 	int type2 = -1;
 	int type3 = -1;
 	int i = 0;
+	bool *init_temp = malloc(sizeof(bool));
 	bool *scope_temp = malloc(sizeof(bool));
 	bool scope1 = -1; //pro scope plati: 0 == local, 1 == global
 	bool scope2 = -1;
@@ -190,12 +209,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_WRITE:
 			{
-				if (((htab_item*) I->addr3)->initialized == 0)
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
-					return 7; //prace s neinicializovanou promennou, behova chyba 7
-				}
 				if (I->addr3 != NULL)				
 					*size_temp = strlen(((char*) I->addr3));
 				else
@@ -204,6 +217,12 @@ int interpret(symbol_table_item *GTable, tList *List)
 				for (int i = (*size_temp - 1); i >= 0; i--)
 				{
 					//char *temp;
+					if ((BoolVarStackPop(VS)) == 0)
+					{
+						//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+						printf("Neinicializovany operand."); //smazat!!
+						return 7; //prace s neinicializovanou promennou, behova chyba 7
+					}
 					switch (((char*) I->addr3)[i])
 					{
 						case 'i':
@@ -272,6 +291,13 @@ int interpret(symbol_table_item *GTable, tList *List)
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
 				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
 
+				if ((BoolVarStackPop(VS)) == 0)
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
+
 				str_temp = StrVarStackPop(VS);
 				if (strlen(str_temp) != strlen((char*) l_arr[2]))
 				{
@@ -281,6 +307,13 @@ int interpret(symbol_table_item *GTable, tList *List)
 				}
 				memcpy(((char*) l_arr[2]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 				//free(str_temp); ??
+
+				if ((BoolVarStackPop(VS)) == 0)
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
 
 				str_temp = StrVarStackPop(VS);
 				if (strlen(str_temp) != strlen((char*) l_arr[1]))
@@ -323,6 +356,13 @@ int interpret(symbol_table_item *GTable, tList *List)
 				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
 				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
+
+				if ((BoolVarStackPop(VS)) == 0)
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
 
 				str_temp = StrVarStackPop(VS);
 				
@@ -399,6 +439,13 @@ int interpret(symbol_table_item *GTable, tList *List)
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
 				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
 
+				if ((BoolVarStackPop(VS)) == 0)
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
+
 				str_temp = StrVarStackPop(VS);
 				
 				if (strlen(str_temp) != strlen((char*) l_arr[1]))
@@ -450,8 +497,31 @@ int interpret(symbol_table_item *GTable, tList *List)
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
 				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
 
+				if ((BoolVarStackPop(VS)) == 0)
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
+
 				*((int*) l_arr[3]) = IntVarStackPop(VS);
+
+				if ((BoolVarStackPop(VS)) == 0)
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
+
 				*((int*) l_arr[2]) = IntVarStackPop(VS);
+
+				if ((BoolVarStackPop(VS)) == 0)
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
+
 				str_temp = StrVarStackPop(VS);
 				if (strlen(str_temp) != strlen((char*) l_arr[1]))
 				{
@@ -1926,6 +1996,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 				index3 = ((htab_item*) I->addr3)->index;
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
+				*init_temp = ((htab_item*) I->addr3)->initialized;
 				//search table for type, index and scope
 				//push value from array
 				switch (type3)
@@ -1933,55 +2004,41 @@ int interpret(symbol_table_item *GTable, tList *List)
 					case 0:
 					{
 						if (scope3 == 0)
-						{
 							VarStackPush(VS, ((int*) l_arr[index3]), NULL, NULL, NULL);
-						}
 						else
-						{
 							VarStackPush(VS, ((int*) g_arr[index3]), NULL, NULL, NULL);
-						}
 						break;
 					}
 
 					case 1:
 					{
 						if (scope3 == 0)
-						{
 							VarStackPush(VS, NULL, ((double*) l_arr[index3]), NULL, NULL);
-						}
 						else
-						{
 							VarStackPush(VS, NULL, ((double*) g_arr[index3]), NULL, NULL);
-						}
 						break;
 					}
 
 					case 2:
 					{
 						if (scope3 == 0)
-						{
 							VarStackPush(VS, NULL, NULL, ((char*) l_arr[index3]), NULL);
-						}
 						else
-						{
 							VarStackPush(VS, NULL, NULL, ((char*) g_arr[index3]), NULL);
-						}
 						break;
 					}
 
 					case 3:
 					{
 						if (scope3 == 0)
-						{
 							VarStackPush(VS, NULL, NULL, NULL, ((bool*) l_arr[index3]));
-						}
 						else
-						{
 							VarStackPush(VS, NULL, NULL, NULL, ((bool*) g_arr[index3]));
-						}
 						break;
 					}
 				}
+
+				VarStackPush(VS, NULL, NULL, NULL, init_temp);
 				break;
 			}
 
@@ -2021,6 +2078,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				while (i > 0)
 				{
 					char *temp;
+					htab_item* Item = FindItemOfIndex(i, ((htab_item*) I->addr1)->func_table);
+					Item->initialized = BoolVarStackPop(VS);
 					switch (((htab_item*) I->addr1)->func_data[(i-1)]) //cteni znaku retezce typu - strlen ==3 -> posledni znak je na pozici [2]
 					{
 						case 'i':
@@ -2039,7 +2098,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 								l_arr[i] = malloc(sizeof(char) * (strlen(temp) + 1));
 							}
 							memcpy(((char*) l_arr[i]), temp, sizeof(char) * (strlen(temp) + 1));
-							free(temp);
+							//free(temp);
 							break;	
 						}
 
