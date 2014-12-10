@@ -31,9 +31,10 @@ void loadarray(void **array, symbol_table_item *TB)
 		iptr = TB->table->ptr[i];
 		while (iptr != NULL)
 		{
-			int type = iptr->type;
 			if (!(iptr->function))
 			{
+				int type = iptr->type;
+				iptr->initialized = 0;
 				switch (type)
 				{
 					case 0:
@@ -189,6 +190,12 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_WRITE:
 			{
+				if (((htab_item*) I->addr3)->initialized == 0)
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
 				if (I->addr3 != NULL)				
 					*size_temp = strlen(((char*) I->addr3));
 				else
@@ -255,6 +262,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
 				*index_temp = ((htab_item*) I->addr3)->index;
 				*scope_temp = ((htab_item*) I->addr3)->global;
+				((htab_item*) I->addr3)->initialized = 1;
 
 				if (l_arr != NULL)
 					LStackPush(LS, l_arr);
@@ -306,6 +314,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
 				*index_temp = ((htab_item*) I->addr3)->index;
 				*scope_temp = ((htab_item*) I->addr3)->global;
+				((htab_item*) I->addr3)->initialized = 1;
 
 				if (l_arr != NULL)
 					LStackPush(LS, l_arr);
@@ -380,6 +389,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
 				*index_temp = ((htab_item*) I->addr3)->index;
 				*scope_temp = ((htab_item*) I->addr3)->global;
+				((htab_item*) I->addr3)->initialized = 1;
 
 				if (l_arr != NULL)
 					LStackPush(LS, l_arr);
@@ -430,6 +440,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
 				*index_temp = ((htab_item*) I->addr3)->index;
 				*scope_temp = ((htab_item*) I->addr3)->global;
+				((htab_item*) I->addr3)->initialized = 1;
 
 				if (l_arr != NULL)
 					LStackPush(LS, l_arr);
@@ -512,6 +523,14 @@ int interpret(symbol_table_item *GTable, tList *List)
 			case I_ADD: //+
 			{
 				//get type, scope, index
+
+				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
+				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -618,6 +637,13 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_SUB: //-
 			{
+				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
+				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -668,6 +694,13 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_MUL: // *
 			{
+				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
+				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -718,6 +751,13 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_DIV: ///
 			{
+				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
+				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -798,7 +838,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 				break;
 			}
 
-			case I_INC: //++
+			/*case I_INC: //++
 			{
 				index3 = ((htab_item*) I->addr3)->index;
 				type3 = ((htab_item*) I->addr3)->type;
@@ -838,11 +878,18 @@ int interpret(symbol_table_item *GTable, tList *List)
 						(*((double*) var3))--;
 				}
 				break;
-			}
+			}*/
 
 			//porovnavaci instrukce
 			case I_GREAT: //>
 			{
+				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
+				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -974,6 +1021,13 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_SMALL: //<
 			{
+				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
+				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -1105,6 +1159,13 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_EQUAL: //=
 			{
+				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
+				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -1236,6 +1297,13 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_GREQ: //>=
 			{
+				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
+				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -1367,6 +1435,13 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_SMEQ: //<=
 			{
+				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
+				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -1498,6 +1573,13 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_NONEQ: //=!
 			{
+				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
+				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -1632,6 +1714,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 			{
 				if (I->addr1 == NULL)
 					break;
+				((htab_item*) I->addr3)->initialized = 1;
 				index3 = ((htab_item*) I->addr3)->index;
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
@@ -1708,6 +1791,13 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_COPYVAR:
 			{
+				if (((htab_item*) I->addr1)->initialized == 0)
+				{
+					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
+					printf("Neinicializovany operand."); //smazat!!
+					return 7; //prace s neinicializovanou promennou, behova chyba 7
+				}
+				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -1843,36 +1933,52 @@ int interpret(symbol_table_item *GTable, tList *List)
 					case 0:
 					{
 						if (scope3 == 0)
+						{
 							VarStackPush(VS, ((int*) l_arr[index3]), NULL, NULL, NULL);
+						}
 						else
+						{
 							VarStackPush(VS, ((int*) g_arr[index3]), NULL, NULL, NULL);
+						}
 						break;
 					}
 
 					case 1:
 					{
 						if (scope3 == 0)
+						{
 							VarStackPush(VS, NULL, ((double*) l_arr[index3]), NULL, NULL);
+						}
 						else
+						{
 							VarStackPush(VS, NULL, ((double*) g_arr[index3]), NULL, NULL);
+						}
 						break;
 					}
 
 					case 2:
 					{
 						if (scope3 == 0)
+						{
 							VarStackPush(VS, NULL, NULL, ((char*) l_arr[index3]), NULL);
+						}
 						else
+						{
 							VarStackPush(VS, NULL, NULL, ((char*) g_arr[index3]), NULL);
+						}
 						break;
 					}
 
 					case 3:
 					{
 						if (scope3 == 0)
+						{
 							VarStackPush(VS, NULL, NULL, NULL, ((bool*) l_arr[index3]));
+						}
 						else
+						{
 							VarStackPush(VS, NULL, NULL, NULL, ((bool*) g_arr[index3]));
+						}
 						break;
 					}
 				}
@@ -1897,6 +2003,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 				*type_temp = ((htab_item*) I->addr3)->type;
 				*index_temp = ((htab_item*) I->addr3)->index;
 				*scope_temp = ((htab_item*) I->addr3)->global;
+				((htab_item*) I->addr3)->initialized = 1;
 
 				if (l_arr != NULL)
 					LStackPush(LS, l_arr);
