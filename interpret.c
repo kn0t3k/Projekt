@@ -873,7 +873,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 							{
 								//clearall
 								printf("Behova chyba, deleni nulou."); //smazat!!
-								return RUN_ZERO_ERROR; //deleni nulou, behova chyba RUN_ZERO_ERROR
+								return RUN_ZERO_ERROR; //deleni nulou, behova chyba 8
 							}
 							*((double*) var3) = ((double)*((int*) var1)) / (*((double*) var2));
 						}
