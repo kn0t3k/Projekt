@@ -8,6 +8,7 @@
 #include "interpret.h"
 #include "inter-stacks.h"
 #include "printlist.h"
+#include "err.h"
 
 
 #define VAR_STACK_SIZE 50
@@ -81,10 +82,10 @@ void disposearray(void **array, int size)
 		free(array);
 }
 
-int interpret(symbol_table_item *GTable, tList *L)
+int interpret(symbol_table_item *GTable, tList *List)
 {
-	First(L);
-	if (L == NULL)
+	First(List);
+	if (List == NULL)
 		return 0;
 	tInstr *I;
 	string *SPtr1;
@@ -133,7 +134,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 //initiate stacks
 	while (1)
 	{
-		I = GetData(L);
+		I = GetData(List);
 		switch (I->Type)
 		{
 			//pomocne instrukce
@@ -151,12 +152,12 @@ int interpret(symbol_table_item *GTable, tList *L)
 					if (scope1 == 0)
 					{
 						if (!(*((bool*) l_arr[index1])))
-							GoToItem(L,((tItem*) I->addr3)); //melo by fungovat...
+							GoToItem(List,((tItem*) I->addr3)); //melo by fungovat...
 					}
 					else
 					{
 						if (!(*((bool*) g_arr[index1])))
-							GoToItem(L,((tItem*) I->addr3));
+							GoToItem(List,((tItem*) I->addr3));
 					}
 				}
 				break;
@@ -164,7 +165,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 
 			case I_GOTO:
 			{
-				GoToItem(L,((tItem*) I->addr3));
+				GoToItem(List,((tItem*) I->addr3));
 				break;
 			}
 
@@ -747,18 +748,50 @@ int interpret(symbol_table_item *GTable, tList *L)
 					if (type1 == 0)
 					{
 						if (type2 == 0)
+						{
+							if (*((int*) var2) == 0)
+							{
+								//clearall - nejdriv uvolnit vsechny local array, pak global a vse 												 ostatni
+								printf("Behova chyba, deleni nulou."); //smazat!!
+								return 8; //deleni nulou, behova chyba 8
+							}
 							*((double*) var3) = ((double)*((int*) var1)) / ((double)(*((int*) var2)));
+						}
 						else
+						{
+							if (*((double*) var2) == 0.0)
+							{
+								//clearall
+								printf("Behova chyba, deleni nulou."); //smazat!!
+								return 8; //deleni nulou, behova chyba 8
+							}
 							*((double*) var3) = ((double)*((int*) var1)) / (*((double*) var2));
+						}
 					}
 					else
 					{
 						if (type1 == 1)
 						{
 							if (type2 == 0)
+							{
+								if (*((int*) var2) == 0)
+								{
+									//clearall
+									printf("Behova chyba, deleni nulou."); //smazat!!
+									return 8; //deleni nulou, behova chyba 8
+								}
 								*((double*) var3) = (*((double*) var1)) / ((double)*((int*) var2));
+							}
 							else
+							{
+								if (*((double*) var2) == 0.0)
+								{
+									//clearall
+									printf("Behova chyba, deleni nulou."); //smazat!!
+									return 8; //deleni nulou, behova chyba 8
+								}
 								*((double*) var3) = (*((double*) var1)) / (*((double*) var2));
+							}
 						}
 					}
 				}
@@ -1857,7 +1890,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 				//pop & load paramaters
 				//push index of return value in calling function
 				//push current return address
-				//get new return address - adress current instruction (after return, NextIns(L) is used
+				//get new return address - adress current instruction (after return, NextIns(List) is used
 				// addr1
 
 				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
@@ -1925,9 +1958,9 @@ int interpret(symbol_table_item *GTable, tList *L)
 				VarStackPush(VS, type_temp, NULL, NULL, NULL);
 				if (return_addr != NULL)
 					AddStackPush(AS, return_addr);
-				return_addr = CurrentItemAddress(L);
+				return_addr = CurrentItemAddress(List);
 				
-				GoToItem(L, ((htab_item*) I->addr1)->label);
+				GoToItem(List, ((htab_item*) I->addr1)->label);
 				break;
 			}
 
@@ -2055,11 +2088,11 @@ int interpret(symbol_table_item *GTable, tList *L)
 				}
 
 				free(value_temp);
-				GoToItem(L, return_addr);
+				GoToItem(List, return_addr);
 				return_addr = AddStackPop(AS);				
 				break;
 			}
 		}
-		NextIns(L);
+		NextIns(List);
 	}
 }
