@@ -770,20 +770,12 @@ int find(char *s, char *search, int s_len, int search_len)
 * @return chyba nebo uspech
 */
 
-int sort(string *s, string *dest)
+int sort(string *dest)
 {
-	if (s->length == 0)
+	if (dest->length == 0)
 	{
 		return 0; /* neni co radit */
 	}
-	//if (s != dest)
-	//{
-		/* kopie vstupu */
-	//	if (strCopyString(dest, s) == 1)
-	//	{
-	//		return INTERNAL_ERR; /* kontrolovat v interpretu */
-	//	}
-	//}
 	/* hlavni funkce */
 	sort_main(dest->str, 0, (dest->length)-1);
 	return 0;

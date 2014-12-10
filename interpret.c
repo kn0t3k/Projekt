@@ -315,15 +315,7 @@ int interpret(symbol_table_item *GTable, tList *L)
 				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
 
 				str_temp = StrVarStackPop(VS);
-				if (strlen(str_temp) != strlen((char*) l_arr[1]))
-				{
-					free(l_arr[1]);
-					l_arr[1] = NULL;
-					l_arr[1] = malloc(sizeof(char) * (strlen(str_temp) + 1));
-				}
-				memcpy(((char*) l_arr[1]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
-
-
+				
 				if (strlen(str_temp) != strlen((char*) l_arr[0]))
 				{
 					free(l_arr[0]);
@@ -333,17 +325,12 @@ int interpret(symbol_table_item *GTable, tList *L)
 				memcpy(((char*) l_arr[0]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 				//free(str_temp) ??
 				SPtr1 = malloc(sizeof(string));
-				SPtr1->str = ((char*) l_arr[1]);
-				SPtr1->length = strlen((char*) l_arr[1]);
+				SPtr1->str = ((char*) l_arr[0]);
+				SPtr1->length = strlen((char*) l_arr[0]);
 				SPtr1->allocSize = SPtr1->length + 1;
-
-				SPtr2 = malloc(sizeof(string));
-				SPtr2->str = ((char*) l_arr[0]);
-				SPtr2->length = strlen((char*) l_arr[0]);
-				SPtr2->allocSize = SPtr2->length + 1;
 				
 				value_temp = malloc(sizeof(int));
-					*((int*) value_temp) = sort(SPtr1, SPtr2);
+					*((int*) value_temp) = sort(SPtr1);
 				
 				if ((*((int*) value_temp)) == 1)
 					printf("chyba\n");

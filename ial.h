@@ -12,6 +12,10 @@
 
 #include <stdbool.h>
 
+
+//----------------------------------- HLAVICKOVY SOUBOR ial.h ------------------------------------
+
+
 #define SIZE 971   //velikost hashovaci tabulky, idealne prvociselna
 /*		
 *		S touto velikosti tabulky bylo dosahnuto nejlepsiho a nejuniverzalnejsiho pomeru spotrebovana pamet/spotrebovany cas
@@ -75,6 +79,6 @@ int funcs_defined(struct symbol_table* s_table); //overi, zda vsechny deklarovan
 int length(string *s);
 int copy(char *s, string *dest, int i, int n, int s_len);
 int find(char *s, char *search, int s_len, int search_len);
-int sort(string *s, string *dest);
+int sort(string *dest);
 void sort_main(char *A, int left, int right);
 void partition(char *A, int left, int right, int *i, int *j);
