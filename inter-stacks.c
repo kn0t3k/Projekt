@@ -6,6 +6,8 @@
 #include "list.h"
 #include "inter-stacks.h"
 
+#define INTERNAL_ERR -99
+
 //---------------------------------------------------------
 //LOCAL VARIABLE ARRAY STACK
 
@@ -22,7 +24,7 @@ int LStackEmpty (tLVS *S)
 	return (S->top == 0);
 }
 
-void LStackPush (tLVS *S, vararr Array)
+int LStackPush (tLVS *S, vararr Array)
 {
 	vararr *temp;
 	int new_size = 0;
@@ -31,6 +33,8 @@ void LStackPush (tLVS *S, vararr Array)
 	{
 		new_size = S->StackSize + 20;
 		temp = malloc(sizeof(vararr) * new_size);
+		if (temp == NULL)
+			return INTERNAL_ERR;
 		for (int i = 0; i < S->StackSize; i++)
 			temp[i] = S->l_stack[i];
 		for (int i = S->StackSize; i < new_size; i++)
@@ -40,6 +44,7 @@ void LStackPush (tLVS *S, vararr Array)
 		S->StackSize = new_size;
 	} 
 	S->l_stack[S->top]=Array;
+	return 0;
 }
 
 vararr LStackPop (tLVS *S)
@@ -70,7 +75,7 @@ int VarStackEmpty (tVarS *S)
 	return (S->top == 0);
 }
 
-void VarStackPush (tVarS *S, int *intvar, double *doublevar, char *stringvar, bool *boolvar)
+int VarStackPush (tVarS *S, int *intvar, double *doublevar, char *stringvar, bool *boolvar)
 {
 	void **temp;
 	int new_size = 0;
@@ -79,6 +84,8 @@ void VarStackPush (tVarS *S, int *intvar, double *doublevar, char *stringvar, bo
 	{
 		new_size = S->StackSize + 20;
 		temp = malloc(sizeof(void*) * new_size);
+		if (temp == NULL)
+			return INTERNAL_ERR;
 		for (int i = 0; i < S->StackSize; i++)
 			temp[i] = S->var_stack[i];
 		for (int i = S->StackSize; i < new_size; i++)
@@ -94,25 +101,34 @@ void VarStackPush (tVarS *S, int *intvar, double *doublevar, char *stringvar, bo
 	}
 	if (intvar != NULL)
 	{
-		(S->var_stack[S->top]) = malloc(sizeof(int));
+		S->var_stack[S->top] = malloc(sizeof(int));
+		if (S->var_stack[S->top] == NULL)
+			return INTERNAL_ERR;
 		*((int*)(S->var_stack[S->top])) = *intvar;
 	}
 	else if (doublevar != NULL)
 	{
-		(S->var_stack[S->top]) = malloc(sizeof(double));
+		S->var_stack[S->top] = malloc(sizeof(double));
+		if (S->var_stack[S->top] == NULL)
+			return INTERNAL_ERR;
 		*((double*)(S->var_stack[S->top])) = *doublevar;
 	}
 	else if (stringvar != NULL)
 	{
 		int size = strlen(stringvar) + 1;
-		(S->var_stack[S->top]) = malloc(sizeof(char) * size);
+		S->var_stack[S->top] = malloc(sizeof(char) * size);
+		if (S->var_stack[S->top] == NULL)
+			return INTERNAL_ERR;
 		memcpy((S->var_stack[S->top]), stringvar, size);
 	}
 	else if (boolvar!= NULL)
 	{
-		(S->var_stack[S->top]) = malloc(sizeof(bool));
+		S->var_stack[S->top] = malloc(sizeof(bool));
+		if (S->var_stack[S->top] == NULL)
+			return INTERNAL_ERR;
 		*((bool*)(S->var_stack[S->top])) = *boolvar;
 	}
+	return 0;
 }
 
 int IntVarStackPop (tVarS *S)
@@ -185,7 +201,7 @@ int AddStackEmpty (tAddS *S)
 	return (S->top == 0);
 }
 
-void AddStackPush (tAddS *S, void *item)
+int AddStackPush (tAddS *S, void *item)
 {
 	void **temp;
 	int new_size = 0;
@@ -194,6 +210,8 @@ void AddStackPush (tAddS *S, void *item)
 	{
 		new_size = S->StackSize + 20;
 		temp = malloc(sizeof(void*) * new_size);
+		if (temp == NULL)
+			return INTERNAL_ERR;
 		for (int i = 0; i < S->StackSize; i++)
 			temp[i] = S->add_stack[i];
 		for (int i = S->StackSize; i < new_size; i++)
@@ -203,6 +221,7 @@ void AddStackPush (tAddS *S, void *item)
 		S->StackSize = new_size;
 	} 
 	S->add_stack[S->top] = item;
+	return 0;
 }
 
 void* AddStackPop (tAddS *S)
@@ -212,201 +231,3 @@ void* AddStackPop (tAddS *S)
 	else
 		return (S->add_stack[S->top--]);
 }
-
-
-/*
-int main ()
-{
-
-	int StackSize = 5;
-	tVarS *stack = malloc(sizeof(tVarS));
-	stack->var_stack = malloc(sizeof(void*)*StackSize);
-	VarStackInit(stack,StackSize);
-
-	int *a = malloc(sizeof(int));
-	*a = 5;
-	
-	int *b = malloc(sizeof(int));
-	
-	char *c = malloc(sizeof(char)*5);
-	memcpy(c,"ahoj",5);
-
-	char *d = malloc(sizeof(char)*5);
-
-	double *e = malloc(sizeof(double));
-	double *f = malloc(sizeof(double));
-
-	*e = 9.0;
-
-	VarStackPush(stack,a,NULL,NULL,NULL);
-
-	*b = IntVarStackPop(stack);
-
-	VarStackPush(stack, NULL, NULL, c,NULL);
-	
-	memcpy(d, StrVarStackPop(stack), 5);
-
-	VarStackPush(stack, NULL, e, NULL,NULL);
-
-	*f = DoubleVarStackPop(stack);
-	
-	printf("%d -- %g -- %s\n", *b, *f, d);
-
-	DisposeVarStack(stack);	
-
-	return 0;
-}*/
-
-
-/*vararr NewArray (vararr array, int size)
-{
-	array = malloc(sizeof(void*) * size);
-	for (int i = 0; i < size; i++)
-	{
-		array[i] = NULL;
-	}
-	return array;
-}*/
-
-
-
-
-/*vararr array = NewArray(array, 5);
-
-	tLVS *stack = malloc(sizeof(tLVS));
-	stack->l_stack = malloc(sizeof(vararr)*StackSize);
-	LStackInit(stack,StackSize);
-	if (LStackEmpty(stack))
-		printf("stack is empty -- correct\n\n");
-	else
-		printf("stack isn't empty -- wrong\n\n");
-	LStackPush(stack, &array);
-	array = NULL;
-	if (LStackEmpty(stack))
-		printf("stack is empty -- wrong\n\n");
-	else
-		printf("stack isn't empty -- correct\n\n");
-	array = LStackPop(stack);
-	if (array != NULL)
-		printf("vratilo se!\n\n");
-	if (LStackEmpty(stack))
-		printf("stack is empty -- correct\n\n");
-	else
-		printf("stack isn't empty -- wrong\n\n");
-	
-	free(stack);
-	free(array);*/
-
-/*int StackSize = 10;
-	vararr array = malloc(sizeof(void*) * 2);
-	array[0] = malloc(sizeof(int));
-	array[1] = malloc(sizeof(double));
-
-	*((int*) array[0]) = 1;
-	*((double*) array[1]) = 2.0;
-
-	tLVS *stack = malloc(sizeof(tLVS));
-	stack->l_stack = malloc(sizeof(vararr)*StackSize);
-	LStackInit(stack,StackSize);
-	LStackPush(stack, array);
-
-	array = NULL;
-	array = LStackPop(stack);
-
-	printf("%d --- %f\n", *((int*) array[0]), *((double*) array[1]));
-	
-	free(stack);
-	free(array);*/
-
-
-
-/*int *a = malloc(sizeof(int));
-	*a = 5;
-	
-	int *b = malloc(sizeof(int));
-	
-	char *c = malloc(sizeof(char)*5);
-	memcpy(c,"ahoj",5);
-
-	char *d = malloc(sizeof(char)*5);
-
-	double *e = malloc(sizeof(double));
-	double *f = malloc(sizeof(double));
-
-	*e = 9.0;
-
-	VarStackPush(stack,a,NULL,NULL,NULL);
-
-	*b = IntVarStackPop(stack);
-
-	VarStackPush(stack, NULL, NULL, c,NULL);
-	
-	memcpy(d, StrVarStackPop(stack), 5);
-
-	VarStackPush(stack, NULL, e, NULL,NULL);
-
-	*f = DoubleVarStackPop(stack);*/
-
-
-/*tVarS *stack = malloc(sizeof(tVarS));
-	stack->var_stack = malloc(sizeof(void*)*StackSize);
-	VarStackInit(stack, StackSize);
-	
-	void **a = malloc(sizeof(void*)*3);
-
-	a[0] = malloc(sizeof(int));
-	a[1] = malloc(sizeof(double));
-	a[2] = malloc(sizeof(char) * 3);
-
-	*((int*) a[0]) = 5;
-	*((double*) a[1]) = 10.0;
-	memcpy(((char*) a[2]), "ah", sizeof(char)*3);
-
-	VarStackPush(stack, ((int*) a[0]), NULL, NULL, NULL);
-	VarStackPush(stack, NULL, ((double*) a[1]), NULL, NULL);
-	VarStackPush(stack, NULL, NULL, ((char*) a[2]), NULL);
-
-	*((int*) a[0]) = 1;
-	*((double*) a[1]) = 0.0;
-	memcpy(((char*) a[2]), "ha", sizeof(char)*3);
-
-	memcpy(((char*) a[2]), StrVarStackPop(stack), sizeof(char)*3);
-	*((double*) a[1]) = DoubleVarStackPop(stack);
-	*((int*) a[0]) = IntVarStackPop(stack);
-
-	
-
-	printf("%d -- %f -- %s\n\n",*((int*) a[0]),*((double*) a[1]),((char*) a[2]));*/
-
-
-
-/*int StackSize = 10;
-	tAddS *stack = malloc(sizeof(tAddS));
-	stack->add_stack = malloc(sizeof(tItem)*StackSize);
-	AddStackInit(stack, StackSize);
-
-	tInstr I;
-	I.Type = 0;
-	I.addr1 = NULL;
-	I.addr2 = NULL;
-	I.addr3 = NULL;
-
-	tItem *item = malloc(sizeof(tItem));
-	item->Instruction = I;
-	item->NextItem = NULL;
-
-	AddStackPush(stack, item);
-	
-	item = NULL;
-
-	if (item == NULL)
-		printf("yep\n");
-	else
-		printf("nope\n");
-
-	item = AddStackPop(stack);
-	
-	if (item != NULL)
-		printf("yep\n");
-	else
-		printf("nope\n");*/

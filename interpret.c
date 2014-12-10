@@ -326,7 +326,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				((htab_item*) I->addr3)->initialized = 1;
 
 				if (l_arr != NULL)
-					LStackPush(LS, l_arr);
+					if ((LStackPush(LS, l_arr)) == INTERNAL_ERR)
+						return INTERNAL_ERR;
 
 				l_arr = NULL;
 				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
@@ -401,7 +402,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				((htab_item*) I->addr3)->initialized = 1;
 
 				if (l_arr != NULL)
-					LStackPush(LS, l_arr);
+					if ((LStackPush(LS, l_arr)) == INTERNAL_ERR)
+						return INTERNAL_ERR;
 
 				l_arr = NULL;
 				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
@@ -498,7 +500,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				((htab_item*) I->addr3)->initialized = 1;
 
 				if (l_arr != NULL)
-					LStackPush(LS, l_arr);
+					if ((LStackPush(LS, l_arr)) == INTERNAL_ERR)
+						return INTERNAL_ERR;
 
 				l_arr = NULL;
 				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
@@ -565,7 +568,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				((htab_item*) I->addr3)->initialized = 1;
 
 				if (l_arr != NULL)
-					LStackPush(LS, l_arr);
+					if ((LStackPush(LS, l_arr)) == INTERNAL_ERR)
+						return INTERNAL_ERR;
 
 				l_arr = NULL;
 				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
@@ -2170,41 +2174,66 @@ int interpret(symbol_table_item *GTable, tList *List)
 					case 0:
 					{
 						if (scope3 == 0)
-							VarStackPush(VS, ((int*) l_arr[index3]), NULL, NULL, NULL);
+						{
+							if ((VarStackPush(VS, ((int*) l_arr[index3]), NULL, NULL, NULL)) == INTERNAL_ERR)
+								return INTERNAL_ERR;
+						}
 						else
-							VarStackPush(VS, ((int*) g_arr[index3]), NULL, NULL, NULL);
+						{
+							if ((VarStackPush(VS, ((int*) g_arr[index3]), NULL, NULL, NULL)) == INTERNAL_ERR)
+								return INTERNAL_ERR;
+						}
 						break;
 					}
 
 					case 1:
 					{
 						if (scope3 == 0)
-							VarStackPush(VS, NULL, ((double*) l_arr[index3]), NULL, NULL);
+						{
+							if ((VarStackPush(VS, NULL, ((double*) l_arr[index3]), NULL, NULL)) == INTERNAL_ERR)
+								return INTERNAL_ERR;
+						}
 						else
-							VarStackPush(VS, NULL, ((double*) g_arr[index3]), NULL, NULL);
+						{
+							if ((VarStackPush(VS, NULL, ((double*) g_arr[index3]), NULL, NULL)) == INTERNAL_ERR)
+								return INTERNAL_ERR;
+						}
 						break;
 					}
 
 					case 2:
 					{
 						if (scope3 == 0)
-							VarStackPush(VS, NULL, NULL, ((char*) l_arr[index3]), NULL);
+						{
+							if ((VarStackPush(VS, NULL, NULL, ((char*) l_arr[index3]), NULL)) == INTERNAL_ERR)
+								return INTERNAL_ERR;
+						}
 						else
-							VarStackPush(VS, NULL, NULL, ((char*) g_arr[index3]), NULL);
+						{
+							if ((VarStackPush(VS, NULL, NULL, ((char*) g_arr[index3]), NULL)) == INTERNAL_ERR)
+								return INTERNAL_ERR;
+						}
 						break;
 					}
 
 					case 3:
 					{
 						if (scope3 == 0)
-							VarStackPush(VS, NULL, NULL, NULL, ((bool*) l_arr[index3]));
+						{
+							if ((VarStackPush(VS, NULL, NULL, NULL, ((bool*) l_arr[index3]))) == INTERNAL_ERR)
+								return INTERNAL_ERR;
+						}
 						else
-							VarStackPush(VS, NULL, NULL, NULL, ((bool*) g_arr[index3]));
+						{
+							if ((VarStackPush(VS, NULL, NULL, NULL, ((bool*) g_arr[index3]))) == INTERNAL_ERR)
+								return INTERNAL_ERR;
+						}
 						break;
 					}
 				}
 
-				VarStackPush(VS, NULL, NULL, NULL, init_temp);
+				if ((VarStackPush(VS, NULL, NULL, NULL, init_temp)) == INTERNAL_ERR)
+					return INTERNAL_ERR;
 				break;
 			}
 
@@ -2229,7 +2258,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				((htab_item*) I->addr3)->initialized = 1;
 
 				if (l_arr != NULL)
-					LStackPush(LS, l_arr);
+					if ((LStackPush(LS, l_arr)) == INTERNAL_ERR)
+						return INTERNAL_ERR;
 
 				l_arr = NULL;
 				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
@@ -2289,12 +2319,17 @@ int interpret(symbol_table_item *GTable, tList *List)
 				}
 				
 				
-				VarStackPush(VS, index_temp, NULL, NULL, NULL);
-				VarStackPush(VS, NULL, NULL, NULL, scope_temp);
-				VarStackPush(VS, size_temp, NULL, NULL, NULL);
-				VarStackPush(VS, type_temp, NULL, NULL, NULL);
+				if ((VarStackPush(VS, index_temp, NULL, NULL, NULL)) == INTERNAL_ERR)
+					return INTERNAL_ERR;
+				if ((VarStackPush(VS, NULL, NULL, NULL, scope_temp)) == INTERNAL_ERR)
+					return INTERNAL_ERR;
+				if ((VarStackPush(VS, size_temp, NULL, NULL, NULL)) == INTERNAL_ERR)
+					return INTERNAL_ERR;
+				if ((VarStackPush(VS, type_temp, NULL, NULL, NULL)) == INTERNAL_ERR)
+					return INTERNAL_ERR;
 				if (return_addr != NULL)
-					AddStackPush(AS, return_addr);
+					if ((AddStackPush(AS, return_addr)) == INTERNAL_ERR)
+						return INTERNAL_ERR;
 				return_addr = CurrentItemAddress(List);
 				
 				GoToItem(List, ((htab_item*) I->addr1)->label);

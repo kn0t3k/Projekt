@@ -24,12 +24,12 @@ typedef struct AddS{ //Return Address Stack
 
 void LStackInit (tLVS *S, int StackSize);
 int LStackEmpty (tLVS *S);
-void LStackPush (tLVS *S, vararr Array);
+int LStackPush (tLVS *S, vararr Array);
 vararr LStackPop (tLVS *S);
 //-------------------
 void VarStackInit (tVarS *S, int StackSize);
 int VarStackEmpty (tVarS *S);
-void VarStackPush (tVarS *S, int *intvar, double *doublevar, char *stringvar, bool *boolvar);
+int VarStackPush (tVarS *S, int *intvar, double *doublevar, char *stringvar, bool *boolvar);
 int IntVarStackPop (tVarS *S);
 double DoubleVarStackPop (tVarS *S);
 char* StrVarStackPop (tVarS *S);
@@ -38,5 +38,5 @@ void DisposeVarStack (tVarS *S);
 //--------------------
 void AddStackInit (tAddS *S, int StackSize);
 int AddStackEmpty (tAddS *S);
-void AddStackPush (tAddS *S, void *item);
+int AddStackPush (tAddS *S, void *item);
 void* AddStackPop (tAddS *S);
