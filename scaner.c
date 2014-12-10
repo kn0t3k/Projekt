@@ -23,6 +23,7 @@
     short obs = 0;   //kontorla, zda ciselne exponentu, nebo cisla obsahuji nejakou hodnotu
     string pom;
 
+
     void setSourceFile(FILE *f)
     {
       source = f;
@@ -111,7 +112,6 @@
 
        int state = 0;
        int c;
-       int plusko = NEPRAVDA;
 
        strClear(attr);
        strClear(&pom);
@@ -402,9 +402,8 @@
                    {
                        if(c == '+')
                         {
-                            if (plusko == PRAVDA) return LEX_ERROR;
-                          state = 8;  //kladny exp nema vliv
-                          plusko = PRAVDA;
+                            obs = 0;
+                            state = 17;  //kladny exp nema vliv
                         }
                        else
                        {
@@ -459,12 +458,8 @@
                    {
                        if(c == '+')
                        {
-                           //printf("\n\ntady u pluska\n");
-                           if(plusko == PRAVDA) return LEX_ERROR;
-                           else plusko = PRAVDA;
-
                             obs = 0;
-                           state = 10; //e^+neco
+                           state = 16; //e^+neco
                        }
                        else
                        {
@@ -562,7 +557,6 @@
                     {
                         if(c != '0')
                         {
-                            //printf("lepim... %c\n", c);
                             strAddChar(&pom, c);
                             obs = 1;
                         }
@@ -593,6 +587,45 @@
                     return LEX_ERROR;
                 }
             break;
+
+           case 16:
+               if(c>='0' && c<='9')
+                {
+                    strAddChar(attr, c);
+                    obs = 1;
+                }
+                else
+                {
+                    if(obs == 0) return LEX_ERROR;
+                    if(isalpha(c) && ((c != ' ') || (c != ';'))) return LEX_ERROR;
+                    else
+                    {
+                        ungetc(c, source);
+                        obs = 0;
+                        return EXP;
+                    }
+                }
+            break;
+
+            case 17:
+               if(c>='0' && c<='9')
+                {
+                    strAddChar(attr, c);
+                    obs = 1;
+                }
+                else
+                {
+                    if(obs == 0) return LEX_ERROR;
+                    if(isalpha(c) && ((c != ' ') || (c != ';'))) return LEX_ERROR;
+                    else
+                    {
+                        ungetc(c, source);
+                        obs = 0;
+                        return DES_EXP;
+                    }
+                }
+            break;
+
         }
       }
     }
