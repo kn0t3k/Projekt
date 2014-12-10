@@ -9,6 +9,6 @@ begin
 
 	retezec2 := sort(retezec1);
 
-	write(retezec1, '		', retezec2)
+	write(retezec1, '		', retezec2) { velka mezera se sklada z tabulatoru }
 
 end.

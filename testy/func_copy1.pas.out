@@ -1,0 +1,586 @@
+
+**VAR
+**ID
+**COLON
+**T_STRING
+**SEMICOLON
+**ID
+**COLON
+**T_STRING
+**SEMICOLON
+**ID
+**COLON
+**T_INTEGER
+**SEMICOLON
+**ID
+**COLON
+**T_INTEGER
+**SEMICOLON
+**BEGIN
+**ID
+**ASS
+**INTEGER
+
+Precedencni syntakticka analyza vyrazu
+
+Na vrcholu zasobniku je token: DOLLAR
+Aktualni token na vstupu je: INTEGER
+Podle tabulky rozhodnu co mam delat:
+SHIFT
+**push INTEGER
+Dalsi token bude:
+**SEMICOLON
+Na vrcholu zasobniku je token: INTEGER
+Aktualni token na vstupu je: SEMICOLON
+Podle tabulky rozhodnu co mam delat:
+REDUCE
+
+Vyprazdneni zasobniku
+**pop EXPRESSION
+
+Konec precedencni syntakticke analyzy vyrazu
+
+**ID
+**ASS
+**STRING
+
+Precedencni syntakticka analyza vyrazu
+
+Na vrcholu zasobniku je token: DOLLAR
+Aktualni token na vstupu je: STRING
+Podle tabulky rozhodnu co mam delat:
+SHIFT
+**push STRING
+Dalsi token bude:
+**SEMICOLON
+Na vrcholu zasobniku je token: STRING
+Aktualni token na vstupu je: SEMICOLON
+Podle tabulky rozhodnu co mam delat:
+REDUCE
+
+Vyprazdneni zasobniku
+**pop EXPRESSION
+
+Konec precedencni syntakticke analyzy vyrazu
+
+**ID
+**ASS
+**ID_FUNCTION
+**L_BRAKET
+**ID
+**COMA
+**ID
+**COMA
+**INTEGER
+**R_BRACKET
+Porovnavam parametry volane funkce (COPY): sii se zadanymi parametry: sii
+**SEMICOLON
+**WRITE
+**L_BRAKET
+**ID
+**COMA
+**STRING
+**R_BRACKET
+**SEMICOLON
+**ID
+**ASS
+**STRING
+
+Precedencni syntakticka analyza vyrazu
+
+Na vrcholu zasobniku je token: DOLLAR
+Aktualni token na vstupu je: STRING
+Podle tabulky rozhodnu co mam delat:
+SHIFT
+**push STRING
+Dalsi token bude:
+**SEMICOLON
+Na vrcholu zasobniku je token: STRING
+Aktualni token na vstupu je: SEMICOLON
+Podle tabulky rozhodnu co mam delat:
+REDUCE
+
+Vyprazdneni zasobniku
+**pop EXPRESSION
+
+Konec precedencni syntakticke analyzy vyrazu
+
+**ID
+**ASS
+**ID_FUNCTION
+**L_BRAKET
+**ID
+**COMA
+**INTEGER
+**COMA
+**INTEGER
+**R_BRACKET
+Porovnavam parametry volane funkce (COPY): sii se zadanymi parametry: sii
+**SEMICOLON
+**WRITE
+**L_BRAKET
+**ID
+**COMA
+**STRING
+**R_BRACKET
+**SEMICOLON
+**ID
+**ASS
+**STRING
+
+Precedencni syntakticka analyza vyrazu
+
+Na vrcholu zasobniku je token: DOLLAR
+Aktualni token na vstupu je: STRING
+Podle tabulky rozhodnu co mam delat:
+SHIFT
+**push STRING
+Dalsi token bude:
+**SEMICOLON
+Na vrcholu zasobniku je token: STRING
+Aktualni token na vstupu je: SEMICOLON
+Podle tabulky rozhodnu co mam delat:
+REDUCE
+
+Vyprazdneni zasobniku
+**pop EXPRESSION
+
+Konec precedencni syntakticke analyzy vyrazu
+
+**ID
+**ASS
+**ID_FUNCTION
+**L_BRAKET
+**ID
+**COMA
+**INTEGER
+**COMA
+**INTEGER
+**R_BRACKET
+Porovnavam parametry volane funkce (COPY): sii se zadanymi parametry: sii
+**SEMICOLON
+**WRITE
+**L_BRAKET
+**ID
+**COMA
+**STRING
+**R_BRACKET
+**SEMICOLON
+**ID
+**ASS
+**STRING
+
+Precedencni syntakticka analyza vyrazu
+
+Na vrcholu zasobniku je token: DOLLAR
+Aktualni token na vstupu je: STRING
+Podle tabulky rozhodnu co mam delat:
+SHIFT
+**push STRING
+Dalsi token bude:
+**SEMICOLON
+Na vrcholu zasobniku je token: STRING
+Aktualni token na vstupu je: SEMICOLON
+Podle tabulky rozhodnu co mam delat:
+REDUCE
+
+Vyprazdneni zasobniku
+**pop EXPRESSION
+
+Konec precedencni syntakticke analyzy vyrazu
+
+**ID
+**ASS
+**ID_FUNCTION
+**L_BRAKET
+**ID
+**COMA
+**ID
+**COMA
+**INTEGER
+**R_BRACKET
+Porovnavam parametry volane funkce (COPY): sii se zadanymi parametry: sii
+**SEMICOLON
+**WRITE
+**L_BRAKET
+**ID
+**COMA
+**STRING
+**R_BRACKET
+**SEMICOLON
+**ID
+**ASS
+**STRING
+
+Precedencni syntakticka analyza vyrazu
+
+Na vrcholu zasobniku je token: DOLLAR
+Aktualni token na vstupu je: STRING
+Podle tabulky rozhodnu co mam delat:
+SHIFT
+**push STRING
+Dalsi token bude:
+**SEMICOLON
+Na vrcholu zasobniku je token: STRING
+Aktualni token na vstupu je: SEMICOLON
+Podle tabulky rozhodnu co mam delat:
+REDUCE
+
+Vyprazdneni zasobniku
+**pop EXPRESSION
+
+Konec precedencni syntakticke analyzy vyrazu
+
+**ID
+**ASS
+**ID_FUNCTION
+**L_BRAKET
+**ID
+**COMA
+**INTEGER
+**COMA
+**INTEGER
+**R_BRACKET
+Porovnavam parametry volane funkce (COPY): sii se zadanymi parametry: sii
+**SEMICOLON
+**WRITE
+**L_BRAKET
+**ID
+**COMA
+**STRING
+**R_BRACKET
+**SEMICOLON
+**ID
+**ASS
+**STRING
+
+Precedencni syntakticka analyza vyrazu
+
+Na vrcholu zasobniku je token: DOLLAR
+Aktualni token na vstupu je: STRING
+Podle tabulky rozhodnu co mam delat:
+SHIFT
+**push STRING
+Dalsi token bude:
+**SEMICOLON
+Na vrcholu zasobniku je token: STRING
+Aktualni token na vstupu je: SEMICOLON
+Podle tabulky rozhodnu co mam delat:
+REDUCE
+
+Vyprazdneni zasobniku
+**pop EXPRESSION
+
+Konec precedencni syntakticke analyzy vyrazu
+
+**ID
+**ASS
+**ID_FUNCTION
+**L_BRAKET
+**ID
+**COMA
+**INTEGER
+**COMA
+**INTEGER
+**R_BRACKET
+Porovnavam parametry volane funkce (COPY): sii se zadanymi parametry: sii
+**SEMICOLON
+**WRITE
+**L_BRAKET
+**ID
+**COMA
+**STRING
+**R_BRACKET
+**SEMICOLON
+**ID
+**ASS
+**STRING
+
+Precedencni syntakticka analyza vyrazu
+
+Na vrcholu zasobniku je token: DOLLAR
+Aktualni token na vstupu je: STRING
+Podle tabulky rozhodnu co mam delat:
+SHIFT
+**push STRING
+Dalsi token bude:
+**SEMICOLON
+Na vrcholu zasobniku je token: STRING
+Aktualni token na vstupu je: SEMICOLON
+Podle tabulky rozhodnu co mam delat:
+REDUCE
+
+Vyprazdneni zasobniku
+**pop EXPRESSION
+
+Konec precedencni syntakticke analyzy vyrazu
+
+**ID
+**ASS
+**ID_FUNCTION
+**L_BRAKET
+**ID
+**COMA
+**INTEGER
+**COMA
+**INTEGER
+**R_BRACKET
+Porovnavam parametry volane funkce (COPY): sii se zadanymi parametry: sii
+**SEMICOLON
+**WRITE
+**L_BRAKET
+**ID
+**COMA
+**STRING
+**R_BRACKET
+**SEMICOLON
+**ID
+**ASS
+**STRING
+
+Precedencni syntakticka analyza vyrazu
+
+Na vrcholu zasobniku je token: DOLLAR
+Aktualni token na vstupu je: STRING
+Podle tabulky rozhodnu co mam delat:
+SHIFT
+**push STRING
+Dalsi token bude:
+**SEMICOLON
+Na vrcholu zasobniku je token: STRING
+Aktualni token na vstupu je: SEMICOLON
+Podle tabulky rozhodnu co mam delat:
+REDUCE
+
+Vyprazdneni zasobniku
+**pop EXPRESSION
+
+Konec precedencni syntakticke analyzy vyrazu
+
+**ID
+**ASS
+**ID_FUNCTION
+**L_BRAKET
+**ID
+**COMA
+**INTEGER
+**COMA
+**INTEGER
+**R_BRACKET
+Porovnavam parametry volane funkce (COPY): sii se zadanymi parametry: sii
+**SEMICOLON
+**WRITE
+**L_BRAKET
+**ID
+**COMA
+**STRING
+**R_BRACKET
+**SEMICOLON
+**ID
+**ASS
+**STRING
+
+Precedencni syntakticka analyza vyrazu
+
+Na vrcholu zasobniku je token: DOLLAR
+Aktualni token na vstupu je: STRING
+Podle tabulky rozhodnu co mam delat:
+SHIFT
+**push STRING
+Dalsi token bude:
+**SEMICOLON
+Na vrcholu zasobniku je token: STRING
+Aktualni token na vstupu je: SEMICOLON
+Podle tabulky rozhodnu co mam delat:
+REDUCE
+
+Vyprazdneni zasobniku
+**pop EXPRESSION
+
+Konec precedencni syntakticke analyzy vyrazu
+
+**ID
+**ASS
+**ID_FUNCTION
+**L_BRAKET
+**ID
+**COMA
+**INTEGER
+**COMA
+**INTEGER
+**R_BRACKET
+Porovnavam parametry volane funkce (COPY): sii se zadanymi parametry: sii
+**SEMICOLON
+**WRITE
+**L_BRAKET
+**ID
+**COMA
+**STRING
+**R_BRACKET
+**SEMICOLON
+**ID
+**ASS
+**STRING
+
+Precedencni syntakticka analyza vyrazu
+
+Na vrcholu zasobniku je token: DOLLAR
+Aktualni token na vstupu je: STRING
+Podle tabulky rozhodnu co mam delat:
+SHIFT
+**push STRING
+Dalsi token bude:
+**SEMICOLON
+Na vrcholu zasobniku je token: STRING
+Aktualni token na vstupu je: SEMICOLON
+Podle tabulky rozhodnu co mam delat:
+REDUCE
+
+Vyprazdneni zasobniku
+**pop EXPRESSION
+
+Konec precedencni syntakticke analyzy vyrazu
+
+**ID
+**ASS
+**ID_FUNCTION
+**L_BRAKET
+**ID
+**COMA
+**INTEGER
+**COMA
+**INTEGER
+**R_BRACKET
+Porovnavam parametry volane funkce (COPY): sii se zadanymi parametry: sii
+**SEMICOLON
+**WRITE
+**L_BRAKET
+**ID
+**COMA
+**STRING
+**R_BRACKET
+**SEMICOLON
+**ID
+**ASS
+**ID_FUNCTION
+**L_BRAKET
+**STRING
+**COMA
+**INTEGER
+**COMA
+**INTEGER
+**R_BRACKET
+Porovnavam parametry volane funkce (COPY): sii se zadanymi parametry: sii
+**SEMICOLON
+**WRITE
+**L_BRAKET
+**ID
+**COMA
+**STRING
+**R_BRACKET
+**SEMICOLON
+**ID
+**ASS
+**INTEGER
+
+Precedencni syntakticka analyza vyrazu
+
+Na vrcholu zasobniku je token: DOLLAR
+Aktualni token na vstupu je: INTEGER
+Podle tabulky rozhodnu co mam delat:
+SHIFT
+**push INTEGER
+Dalsi token bude:
+**SEMICOLON
+Na vrcholu zasobniku je token: INTEGER
+Aktualni token na vstupu je: SEMICOLON
+Podle tabulky rozhodnu co mam delat:
+REDUCE
+
+Vyprazdneni zasobniku
+**pop EXPRESSION
+
+Konec precedencni syntakticke analyzy vyrazu
+
+**ID
+**ASS
+**ID_FUNCTION
+**L_BRAKET
+**STRING
+**COMA
+**ID
+**COMA
+**INTEGER
+**R_BRACKET
+Porovnavam parametry volane funkce (COPY): sii se zadanymi parametry: sii
+**SEMICOLON
+**WRITE
+**L_BRAKET
+**ID
+**COMA
+**STRING
+**R_BRACKET
+**SEMICOLON
+**ID
+**ASS
+**STRING
+
+Precedencni syntakticka analyza vyrazu
+
+Na vrcholu zasobniku je token: DOLLAR
+Aktualni token na vstupu je: STRING
+Podle tabulky rozhodnu co mam delat:
+SHIFT
+**push STRING
+Dalsi token bude:
+**SEMICOLON
+Na vrcholu zasobniku je token: STRING
+Aktualni token na vstupu je: SEMICOLON
+Podle tabulky rozhodnu co mam delat:
+REDUCE
+
+Vyprazdneni zasobniku
+**pop EXPRESSION
+
+Konec precedencni syntakticke analyzy vyrazu
+
+**ID
+**ASS
+**ID_FUNCTION
+**L_BRAKET
+**ID
+**COMA
+**INTEGER
+**COMA
+**INTEGER
+**R_BRACKET
+Porovnavam parametry volane funkce (COPY): sii se zadanymi parametry: sii
+**SEMICOLON
+**WRITE
+**L_BRAKET
+**ID
+**COMA
+**STRING
+**R_BRACKET
+**END
+**DOT
+**vse OK**
+
+
+Zacatek interpretu:
+
+testovaci
+123456
+ t
+
+
+...
+ .fd;terqt.erq[lf[eq45454df46 4++++44956 fd*/gdf*sg/-s/g-as/gd 5{}}}
+ .fd;terqt.erq[lf[eq45454df46 4++++44956 fd*/gdf*sg/-s/g-as/gd 5{}}
+1
+1
+ab
+p
+ahoj toto
+
+

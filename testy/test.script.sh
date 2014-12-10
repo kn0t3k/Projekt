@@ -10,7 +10,7 @@ result=0
 ./$exe $file >/dev/null
 realresult=$?
 if [ $realresult -ne $result ]; then
-   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
 fi
 #=========================================================
 #=========================================================
@@ -20,7 +20,7 @@ result=0
 ./$exe $file >/dev/null
 realresult=$?
 if [ $realresult -ne $result ]; then
-   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
 fi
 #=========================================================
 #=========================================================
@@ -30,7 +30,7 @@ result=0
 ./$exe $file >/dev/null
 realresult=$?
 if [ $realresult -ne $result ]; then
-   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
 fi
 #=========================================================
 #=========================================================
@@ -40,7 +40,7 @@ result=0
 ./$exe $file >/dev/null
 realresult=$?
 if [ $realresult -ne $result ]; then
-   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
 fi
 #=========================================================
 #=========================================================
@@ -50,7 +50,7 @@ result=0
 ./$exe $file >/dev/null
 realresult=$?
 if [ $realresult -ne $result ]; then
-   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
 fi
 #=========================================================
 #=========================================================
@@ -60,7 +60,7 @@ result=8
 ./$exe $file >/dev/null
 realresult=$?
 if [ $realresult -ne $result ]; then
-   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
 fi
 #=========================================================
 #=========================================================
@@ -70,7 +70,7 @@ result=0
 ./$exe $file >/dev/null
 realresult=$?
 if [ $realresult -ne $result ]; then
-   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
 fi
 #=========================================================
 #=========================================================
@@ -80,7 +80,7 @@ result=0
 ./$exe $file >/dev/null
 realresult=$?
 if [ $realresult -ne $result ]; then
-   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
 fi
 #=========================================================
 #=========================================================
@@ -90,18 +90,18 @@ result=2
 ./$exe $file >/dev/null
 realresult=$?
 if [ $realresult -ne $result ]; then
-   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
 fi
 #=========================================================
 #=========================================================
-file=readln.pas
-result=0
+#file=readln.pas
+#result=0
 #-------------
-./$exe $file >/dev/null
-realresult=$?
-if [ $realresult -ne $result ]; then
-   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
-fi
+#./$exe $file >/dev/null
+#realresult=$?
+#if [ $realresult -ne $result ]; then
+#         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
+#fi
 #=========================================================
 #=========================================================
 file=sort.pas
@@ -110,7 +110,7 @@ result=0
 ./$exe $file >/dev/null
 realresult=$?
 if [ $realresult -ne $result ]; then
-   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
 fi
 #=========================================================
 #=========================================================
@@ -120,7 +120,7 @@ result=0
 ./$exe $file >/dev/null
 realresult=$?
 if [ $realresult -ne $result ]; then
-   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
 fi
 #=========================================================
 #=========================================================
@@ -130,7 +130,7 @@ result=0
 ./$exe $file >/dev/null
 realresult=$?
 if [ $realresult -ne $result ]; then
-   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
 fi
 #=========================================================
 #=========================================================
@@ -140,7 +140,7 @@ result=0
 ./$exe $file >/dev/null
 realresult=$?
 if [ $realresult -ne $result ]; then
-   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
 fi
 #=========================================================
 #=========================================================
@@ -150,7 +150,7 @@ result=0
 ./$exe $file >/dev/null
 realresult=$?
 if [ $realresult -ne $result ]; then
-   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
 fi
 #=========================================================
 #=========================================================
@@ -160,7 +160,7 @@ result=0
 ./$exe $file >/dev/null
 realresult=$?
 if [ $realresult -ne $result ]; then
-   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
 fi
 #=========================================================
 #=========================================================
@@ -170,7 +170,7 @@ result=3
 ./$exe $file >/dev/null
 realresult=$?
 if [ $realresult -ne $result ]; then
-   		echo -e "  \e[0;31m--$file--\e[0;00m		vystup $realresult	ocekavany $result"
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
 fi
 #=========================================================
 #=========================================================
