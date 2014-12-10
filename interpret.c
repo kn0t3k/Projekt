@@ -164,7 +164,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 	if (g_arr == NULL)
 		return INTERNAL_ERR;
 	initarray(g_arr, GTable->item_count);
-	loadarray(g_arr, GTable);
+	if ((loadarray(g_arr, GTable)) == INTERNAL_ERR)
+		return INTERNAL_ERR;
 	void **l_arr = NULL;
 
 	tLVS *LS = malloc(sizeof(tLVS)); //local array stack
@@ -332,7 +333,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if (l_arr == NULL)
 					return INTERNAL_ERR;
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
-				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
+				if ((loadarray(l_arr, ((htab_item*) I->addr1)->func_table)) == INTERNAL_ERR)
+					return INTERNAL_ERR;
 
 				if ((BoolVarStackPop(VS)) == 0)
 				{
@@ -406,7 +408,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if (l_arr == NULL)
 					return INTERNAL_ERR;
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
-				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
+				if ((loadarray(l_arr, ((htab_item*) I->addr1)->func_table)) == INTERNAL_ERR)
+					return INTERNAL_ERR;
 
 				if ((BoolVarStackPop(VS)) == 0)
 				{
@@ -502,7 +505,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if (l_arr == NULL)
 					return INTERNAL_ERR;
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
-				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
+				if ((loadarray(l_arr, ((htab_item*) I->addr1)->func_table)) == INTERNAL_ERR)
+					return INTERNAL_ERR;
 
 				if ((BoolVarStackPop(VS)) == 0)
 				{
@@ -525,7 +529,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 				//free(str_temp); ??
 
 				value_temp = malloc(sizeof(int));
-				if (l_arr[value_temp] == NULL)
+				if (value_temp == NULL)
 					return INTERNAL_ERR;
 
 				SPtr1 = malloc(sizeof(string));
@@ -568,7 +572,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if (l_arr == NULL)
 					return INTERNAL_ERR;
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
-				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
+				if ((loadarray(l_arr, ((htab_item*) I->addr1)->func_table)) == INTERNAL_ERR)
+					return INTERNAL_ERR;
 
 				if ((BoolVarStackPop(VS)) == 0)
 				{
@@ -2231,7 +2236,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if (l_arr == NULL)
 					return INTERNAL_ERR;
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
-				loadarray(l_arr, ((htab_item*) I->addr1)->func_table);
+				if ((loadarray(l_arr, ((htab_item*) I->addr1)->func_table)) == INTERNAL_ERR)
+					return INTERNAL_ERR;
 
 				if ((((htab_item*) I->addr1)->func_data) != NULL)
 					i = strlen(((htab_item*) I->addr1)->func_data);
