@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "printlist.h"
+#define INTERNAL_ERR -99
 
 void InitPrintList (tPrintList *L)
 {
@@ -27,12 +28,12 @@ void DisposePrintList (tPrintList *L)
 	}
 }
 
-void InsertPrintNew (tPrintList *L, int type, void *var)
+int InsertPrintNew (tPrintList *L, int type, void *var)
 {
 	tPrintItem *NewItem;
 
 	if ((NewItem = malloc(sizeof(tPrintItem))) == NULL)
-			printf("nealokovalo se\n");
+			return INTERNAL_ERR;
 	NewItem->var = var;
 	NewItem->type = type;
 	NewItem->NextItem = NULL;
@@ -46,6 +47,7 @@ void InsertPrintNew (tPrintList *L, int type, void *var)
 		L->Last = NewItem;
 		L->First = NewItem;
 	}
+	return 0;
 }
 
 void PrintAll (tPrintList *L)

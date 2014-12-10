@@ -14,5 +14,5 @@ typedef struct
 } tPrintList;
 
 void InitPrintList (tPrintList *L);
-void InsertPrintNew (tPrintList *L, int type, void *var);
+int InsertPrintNew (tPrintList *L, int type, void *var);
 void PrintAll (tPrintList *L);

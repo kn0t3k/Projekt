@@ -116,13 +116,12 @@ int interpret(symbol_table_item *GTable, tList *List)
 	if (List == NULL)
 		return 0;
 	tInstr *I;
-	string *SPtr1;
-	string *SPtr2;
+	string *SPtr = NULL;
 	tPrintList *PrintList = malloc(sizeof(tPrintList));
 	if (PrintList == NULL)
 		return INTERNAL_ERR;
 	InitPrintList(PrintList);
-	char *str_temp;
+	char *str_temp = NULL;
 	int *index_temp = malloc(sizeof(int));
 	if (index_temp == NULL)
 		return INTERNAL_ERR;
@@ -148,7 +147,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 	bool scope1 = -1; //pro scope plati: 0 == local, 1 == global
 	bool scope2 = -1;
 	bool scope3 = -1;
-	void *value_temp;
+	void *value_temp = NULL;
 	void *return_addr = NULL;
 	void *var1 = NULL;
 	void *var2 = NULL;
@@ -270,7 +269,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 							//printf("%d", *((int*) value_temp));
 							//free(value_temp);
 							//value_temp = NULL;
-							InsertPrintNew(PrintList, 0, ((void*) value_temp));
+							if ((InsertPrintNew(PrintList, 0, ((void*) value_temp))) == INTERNAL_ERR)
+								return INTERNAL_ERR;
 							break;
 						}
 
@@ -283,13 +283,15 @@ int interpret(symbol_table_item *GTable, tList *List)
 							//printf("%g", *((double*) value_temp));
 							//free(value_temp);
 							//value_temp = NULL;
-							InsertPrintNew(PrintList, 1, ((void*) value_temp));
+							if ((InsertPrintNew(PrintList, 1, ((void*) value_temp))) == INTERNAL_ERR)
+								return INTERNAL_ERR;
 							break;
 						}
 			
 						case 's':
 						{
-							InsertPrintNew(PrintList, 2, ((void*) StrVarStackPop(VS)));
+							if ((InsertPrintNew(PrintList, 2, ((void*) StrVarStackPop(VS)))) == INTERNAL_ERR)
+								return INTERNAL_ERR;
 							break;
 						}
 
@@ -302,7 +304,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 							//printf("%d", *((bool*) value_temp));
 							//free(value_temp);
 							//value_temp = NULL;
-							InsertPrintNew(PrintList, 3, ((void*) value_temp));
+							if ((InsertPrintNew(PrintList, 3, ((void*) value_temp))) == INTERNAL_ERR)
+								return INTERNAL_ERR;
 							break;
 						}
 					}
@@ -432,17 +435,17 @@ int interpret(symbol_table_item *GTable, tList *List)
 				}
 				memcpy(((char*) l_arr[0]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 				//free(str_temp) ??
-				SPtr1 = malloc(sizeof(string));
-				if (SPtr1 == NULL)
+				SPtr = malloc(sizeof(string));
+				if (SPtr == NULL)
 					return INTERNAL_ERR;
-				SPtr1->str = ((char*) l_arr[0]);
-				SPtr1->length = strlen((char*) l_arr[0]);
-				SPtr1->allocSize = SPtr1->length + 1;
+				SPtr->str = ((char*) l_arr[0]);
+				SPtr->length = strlen((char*) l_arr[0]);
+				SPtr->allocSize = SPtr->length + 1;
 				
 				value_temp = malloc(sizeof(int));
 				if (value_temp == NULL)
 					return INTERNAL_ERR;
-				*((int*) value_temp) = sort(SPtr1);
+				*((int*) value_temp) = sort(SPtr);
 				
 				if ((*((int*) value_temp)) == 1)
 					printf("chyba\n");
@@ -485,10 +488,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				}
 
 				free(value_temp);
-				free(SPtr1);
-				SPtr1 = NULL;
-				free(SPtr2);
-				SPtr2 = NULL;
+				free(SPtr);
+				SPtr = NULL;
 				break;
 			}
 
@@ -535,14 +536,14 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if (value_temp == NULL)
 					return INTERNAL_ERR;
 
-				SPtr1 = malloc(sizeof(string));
-				if (SPtr1 == NULL)
+				SPtr = malloc(sizeof(string));
+				if (SPtr == NULL)
 					return INTERNAL_ERR;
-				SPtr1->str = ((char*) l_arr[1]);
-				SPtr1->length = strlen((char*) l_arr[1]);
-				SPtr1->allocSize = SPtr1->length + 1;
+				SPtr->str = ((char*) l_arr[1]);
+				SPtr->length = strlen((char*) l_arr[1]);
+				SPtr->allocSize = SPtr->length + 1;
 
-				*((int*) value_temp) = length(SPtr1);
+				*((int*) value_temp) = length(SPtr);
 
 				disposearray(l_arr, (*size_temp));
 				l_arr = NULL;
@@ -555,8 +556,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 					*((int*) g_arr[*index_temp]) = *((int*) value_temp);
 
 				free(value_temp);
-				free(SPtr1);
-				SPtr1 = NULL;
+				free(SPtr);
+				SPtr = NULL;
 				break;
 			}
 
@@ -625,17 +626,17 @@ int interpret(symbol_table_item *GTable, tList *List)
 				}
 				memcpy(((char*) l_arr[0]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 
-				SPtr1 = malloc(sizeof(string));
-				if (SPtr1 == NULL)
+				SPtr = malloc(sizeof(string));
+				if (SPtr == NULL)
 					return INTERNAL_ERR;
-				SPtr1->str = ((char*) l_arr[0]);
-				SPtr1->length = strlen((char*) l_arr[0]);
-				SPtr1->allocSize = SPtr1->length + 1;
+				SPtr->str = ((char*) l_arr[0]);
+				SPtr->length = strlen((char*) l_arr[0]);
+				SPtr->allocSize = SPtr->length + 1;
 				value_temp = malloc(sizeof(int));
 				if (value_temp == NULL)
 					return INTERNAL_ERR;
 
-				*((int*) value_temp) = copy(((char*) l_arr[1]), SPtr1, *((int*) l_arr[2]), *((int*) l_arr[3]), strlen((char*) l_arr[1]));
+				*((int*) value_temp) = copy(((char*) l_arr[1]), SPtr, *((int*) l_arr[2]), *((int*) l_arr[3]), strlen((char*) l_arr[1]));
 
 				if (*((int*) value_temp) == SEM_ERROR)
 					return SEM_ERROR;
@@ -680,8 +681,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				}
 
 				free(value_temp);
-				free(SPtr1);
-				SPtr1 = NULL;
+				free(SPtr);
+				SPtr = NULL;
 				break;
 			}
 
