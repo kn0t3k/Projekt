@@ -83,3 +83,8 @@ int find(char *s, char *search, int s_len, int search_len);
 void sort(string *dest);
 void sort_main(char *A, int left, int right);
 void partition(char *A, int left, int right, int *i, int *j);
+
+int readln_int(void);
+double readln_real(void);
+char* readln_string(int *);
+char* doubleAddChar(char *, char, int *, int *);
