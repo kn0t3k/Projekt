@@ -1111,6 +1111,7 @@ int function_readln(){/*<FUNCTION_READLN>*/
 	  if (token != R_BRACKET) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  //Volat instrukci pro READLN, item je ukazatel na danou polozku v tabulce, tu co je v zavorce
+      if ((generateInstruction(I_READ, NULL, NULL, (void*) item)) == INTERNAL_ERR) return INTERNAL_ERR;
 	  return SYNTAX_OK;
 	  break;
 	
