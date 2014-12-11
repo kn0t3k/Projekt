@@ -15,11 +15,14 @@ BIN=project
 CC=gcc
 RM=rm -f
 
-all: printlist.o  ial.o str.o list.o parser.o scaner.o  inter-stacks.o  interpret.o main.o project
+all: printlist.o garbage.o ial.o str.o list.o parser.o scaner.o  inter-stacks.o  interpret.o main.o project
 
 #-----------jednotlive moduly--------------------------------------------
 printlist.o: printlist.c printlist.h
 	$(CC) $(CFLAGS) -c -o printlist.o printlist.c
+	
+garbage.o: garbage.c garbage.h
+	$(CC) $(CFLAGS) -c -o garbage.o garbage.c	
 
 ial.o: ial.c ial.h
 	$(CC) $(CFLAGS) -c -o ial.o ial.c
@@ -39,16 +42,16 @@ scaner.o: scaner.c scaner.h str.c str.h
 inter-stacks.o: inter-stacks.c inter-stacks.h list.c list.h
 	$(CC) $(CFLAGS) -c -o inter-stacks.o inter-stacks.c
 	
-interpret.o: interpret.c interpret.h inter-stacks.h inter-stacks.c list.c list.h ial.c ial.h printlist.c printlist.h
+interpret.o: interpret.c interpret.h inter-stacks.h inter-stacks.c list.c list.h ial.c ial.h printlist.c printlist.h garbage.c garbage.h
 	$(CC) $(CFLAGS) -c -o interpret.o interpret.c
 	
-main.o: str.c str.h parser.c parser.h scaner.c scaner.h main.c interpret.h interpret.c list.c list.h inter-stacks.c inter-stacks.h
+main.o: str.c str.h parser.c parser.h scaner.c scaner.h main.c interpret.h interpret.c list.c list.h inter-stacks.c inter-stacks.h garbage.c garbage.h
 	$(CC) $(CFLAGS) -c -o main.o main.c	
 
 #-----------prelozeni projektu z jednotlivych .o modulu--------------------------------------------	
 
-project: str.o ial.o parser.o scaner.o inter-stacks.o interpret.o main.o
-	$(CC) $(CFLAGS) -o $(BIN) printlist.o str.o ial.o  scaner.o inter-stacks.o interpret.o list.o parser.o main.o
+project: str.o ial.o garbage.o parser.o scaner.o inter-stacks.o interpret.o main.o
+	$(CC) $(CFLAGS) -o $(BIN)  garbage.o printlist.o str.o ial.o  scaner.o inter-stacks.o interpret.o list.o parser.o main.o
 
 
 #-----------smazani souboru--------------------------------------------	
