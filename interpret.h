@@ -29,8 +29,7 @@
 #define I_SUB 336
 #define I_MUL 337
 #define I_DIV 338
-//#define I_INC 339
-//#define I_DEC 310
+#define I_READ 339
 #define I_GREAT 311
 #define I_SMALL 312
 #define I_EQUAL 313

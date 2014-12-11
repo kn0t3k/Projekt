@@ -231,10 +231,76 @@ int interpret(symbol_table_item *GTable, tList *List)
 			}			
 
 			//instrukce nacteni a zapsani
-			/*case I_READ:
+			case I_READ:
 			{
+				int errcheck = 0;
+				char *temp = NULL;
+				index3 = ((htab_item*) I->addr3)->index;
+				type3 = ((htab_item*) I->addr3)->type;
+				scope3 = ((htab_item*) I->addr3)->global;
+
+				if (scope3 == 0)
+					l_arr[index3].init = 1;
+				else
+					g_arr[index3].init = 1;
+
+				switch (type3)
+				{
+					case 0:
+					{
+						if (scope3 == 0)
+							*((int*) l_arr[index3].var) = readln_int(&errcheck);
+						else
+							*((int*) g_arr[index3].var) = readln_int(&errcheck);
+						if (errcheck != 0)
+							return errcheck;
+						break;
+					}
+					case 1:
+					{
+						if (scope3 == 0)
+							*((double*) l_arr[index3].var) = readln_real(&errcheck);
+						else
+							*((double*) g_arr[index3].var) = readln_real(&errcheck);
+						if (errcheck != 0)
+							return errcheck;
+						break;
+					}
+					case 2:
+					{
+						temp = readln_string(&errcheck);
+						if (errcheck != 0)
+							return errcheck;
+						garbage_add(Garbage, temp);
+						if (scope3 == 0)
+						{
+							if (strlen(temp) != strlen(((char*) l_arr[index3].var)))
+							{
+								free(l_arr[index3].var);
+								l_arr[index3].var = NULL;
+								l_arr[index3].var = malloc(sizeof(char) * (strlen(temp) + 1));
+								if (l_arr[index3].var == NULL)
+									return INTERNAL_ERR;
+							}
+							memcpy(((char*) l_arr[index3].var), temp, (strlen(temp) + 1) * sizeof(char));
+						}
+						else
+						{
+							if (strlen(temp) != strlen(((char*) g_arr[index3].var)))
+							{
+								free(g_arr[index3].var);
+								g_arr[index3].var = NULL;
+								g_arr[index3].var = malloc(sizeof(char) * (strlen(temp) + 1));
+								if (g_arr[index3].var == NULL)
+									return INTERNAL_ERR;
+							}
+							memcpy(((char*) g_arr[index3].var), temp, (strlen(temp) + 1) * sizeof(char));
+						}
+						break;
+					}
+				}
 				break;
-			}*/
+			}
 
 			case I_WRITE:
 			{
@@ -391,7 +457,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
 				*index_temp = ((htab_item*) I->addr3)->index;
 				*scope_temp = ((htab_item*) I->addr3)->global;
-				((htab_item*) I->addr3)->initialized = 1;
 
 				if (l_arr != NULL)
 					if ((LStackPush(LS, l_arr)) == INTERNAL_ERR)
@@ -548,7 +613,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
 				*index_temp = ((htab_item*) I->addr3)->index;
 				*scope_temp = ((htab_item*) I->addr3)->global;
-				((htab_item*) I->addr3)->initialized = 1;
 
 				if (l_arr != NULL)
 					if ((LStackPush(LS, l_arr)) == INTERNAL_ERR)
