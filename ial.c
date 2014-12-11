@@ -736,7 +736,12 @@ int find(char *s, char *search, int s_len, int search_len)
 				else
 				{
 					j = j+tmp; 
-					if (tmp != 0) max = j;
+					if (j == max)
+					{
+						max++;
+						j = max;
+					}
+					if (tmp != 0 && max < j) max = j;
 				}
 				
 				if (tmp == 0) j = max+1;
