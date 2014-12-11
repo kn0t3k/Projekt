@@ -94,14 +94,14 @@ if [ $realresult -ne $result ]; then
 fi
 #=========================================================
 #=========================================================
-#file=readln.pas
-#result=0
-#-------------
-#./$exe $file >/dev/null
-#realresult=$?
-#if [ $realresult -ne $result ]; then
-#         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
-#fi
+file=readln.pas
+result=0
+-------------
+./$exe $file >/dev/null
+realresult=$?
+if [ $realresult -ne $result ]; then
+         echo -e "  \e[0;31m--$file--\e[0;00m      vystup $realresult   ocekavany $result"
+fi
 #=========================================================
 #=========================================================
 file=sort.pas
