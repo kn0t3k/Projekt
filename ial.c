@@ -978,7 +978,7 @@ double readln_real(void)
 	            else
 	            if (c == '-') /* zaporne cislo */
 				{
-					if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+					if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        		{
 	        			free(s_vysledek);
 	        			return INTERNAL_ERR;
@@ -988,7 +988,7 @@ double readln_real(void)
 	            else
 	            if(c >= '0' && c <= '9') /* jdeme nacitat samotne cislo */
 	            {
-	                if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	                if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        		{
 	        			free(s_vysledek);
 	        			return INTERNAL_ERR;
@@ -1008,7 +1008,7 @@ double readln_real(void)
 
 	        	if (c >= '0' && c <= '9')
 	        	{
-	        		if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	        		if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        		{
 	        			free(s_vysledek);
 	        			return INTERNAL_ERR;
@@ -1018,7 +1018,7 @@ double readln_real(void)
                 {
                 	if(c == '.') /* destinne cislo */
                     {
-                        if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+                        if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        			{
 	        				free(s_vysledek);
 	        				return INTERNAL_ERR;
@@ -1030,7 +1030,7 @@ double readln_real(void)
                     {
                         if(c == 'e' || c == 'E') /* cislo s exponentem */
                         {
-                            if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+                            if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        				{
 	        					free(s_vysledek);
 	        					return INTERNAL_ERR;
@@ -1053,7 +1053,7 @@ double readln_real(void)
 
                 if(c >= '0' && c <= '9')
                 {
-                    if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+                    if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        		{
 	        			free(s_vysledek);
 	        			return INTERNAL_ERR;
@@ -1069,7 +1069,7 @@ double readln_real(void)
                     }
                     if(c == 'e' || c == 'E') /* desetinne cislo s exp */
                     {
-                        if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+                        if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        			{
 	        				free(s_vysledek);
 	        				return INTERNAL_ERR;
@@ -1094,7 +1094,7 @@ double readln_real(void)
                 if (c >= '0' && c <= '9')
                 {
                     obs = 1;
-                    if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+                    if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        		{
 	        			free(s_vysledek);
 	        			return INTERNAL_ERR;
@@ -1104,7 +1104,7 @@ double readln_real(void)
                 {
                     if (c == '-' && obs == 0) /* e^-neco */
                     {
-                        if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+                        if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        			{
 	        				free(s_vysledek);
 	        				return INTERNAL_ERR;
@@ -1144,7 +1144,7 @@ double readln_real(void)
 
             	if(c>='0' && c<='9')
                 {
-                    if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+                    if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        		{
 	        			free(s_vysledek);
 	        			return INTERNAL_ERR;
@@ -1156,7 +1156,7 @@ double readln_real(void)
                 	if(c == '-' && obs == 0) /* zaporny exp */
                     {
                     	obs = 0;
-                        if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+                        if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        			{
 	        				free(s_vysledek);
 	        				return INTERNAL_ERR;
