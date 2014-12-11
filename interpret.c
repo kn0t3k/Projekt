@@ -238,6 +238,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				index3 = ((htab_item*) I->addr3)->index;
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
+				if (type3 == 3)
+					return SEM_ERROR_TYPE;
 
 				if (scope3 == 0)
 					l_arr[index3].init = 1;
