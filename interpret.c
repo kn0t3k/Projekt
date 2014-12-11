@@ -266,7 +266,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 					if ((BoolVarStackPop(VS)) == 0)
 					{
 						//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-						printf("Neinicializovany operand."); //smazat!!
 						return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 					}
 					switch (((char*) I->addr3)[i])
@@ -351,7 +350,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if ((BoolVarStackPop(VS)) == 0)
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 
@@ -369,7 +367,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if ((BoolVarStackPop(VS)) == 0)
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 
@@ -424,7 +421,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if ((BoolVarStackPop(VS)) == 0)
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 
@@ -446,16 +442,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 				SPtr->length = strlen((char*) l_arr[0]);
 				SPtr->allocSize = SPtr->length + 1;
 				
-				value_temp = malloc(sizeof(int));
-				if (value_temp == NULL)
-					return INTERNAL_ERR;
-				*((int*) value_temp) = sort(SPtr);
-				
-				if ((*((int*) value_temp)) == 1)
-					printf("chyba\n");
-
-				free(value_temp);
-				value_temp = NULL;
+				sort(SPtr);
 				value_temp = malloc(sizeof(char) * (strlen((char*) l_arr[0]) + 1));
 				if (value_temp == NULL)
 					return INTERNAL_ERR;
@@ -519,7 +506,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if ((BoolVarStackPop(VS)) == 0)
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 
@@ -585,7 +571,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if ((BoolVarStackPop(VS)) == 0)
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 
@@ -594,7 +579,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if ((BoolVarStackPop(VS)) == 0)
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 
@@ -603,7 +587,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if ((BoolVarStackPop(VS)) == 0)
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 
@@ -696,7 +679,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 				((htab_item*) I->addr3)->initialized = 1;
@@ -823,7 +805,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 				((htab_item*) I->addr3)->initialized = 1;
@@ -880,7 +861,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 				((htab_item*) I->addr3)->initialized = 1;
@@ -937,7 +917,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 				((htab_item*) I->addr3)->initialized = 1;
@@ -975,7 +954,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 							if (*((int*) var2) == 0)
 							{
 								//clearall - nejdriv uvolnit vsechny local array, pak global a vse 												 ostatni
-								printf("Behova chyba, deleni nulou."); //smazat!!
 								return RUN_ZERO_ERROR; //deleni nulou, behova chyba 8
 							}
 							*((double*) var3) = ((double)*((int*) var1)) / ((double)(*((int*) var2)));
@@ -985,7 +963,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 							if (*((double*) var2) == 0.0)
 							{
 								//clearall
-								printf("Behova chyba, deleni nulou."); //smazat!!
 								return RUN_ZERO_ERROR; //deleni nulou, behova chyba 8
 							}
 							*((double*) var3) = ((double)*((int*) var1)) / (*((double*) var2));
@@ -1000,7 +977,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 								if (*((int*) var2) == 0)
 								{
 									//clearall
-									printf("Behova chyba, deleni nulou."); //smazat!!
 									return RUN_ZERO_ERROR; //deleni nulou, behova chyba 8
 								}
 								*((double*) var3) = (*((double*) var1)) / ((double)*((int*) var2));
@@ -1010,7 +986,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 								if (*((double*) var2) == 0.0)
 								{
 									//clearall
-									printf("Behova chyba, deleni nulou."); //smazat!!
 									return RUN_ZERO_ERROR; //deleni nulou, behova chyba 8
 								}
 								*((double*) var3) = (*((double*) var1)) / (*((double*) var2));
@@ -1069,7 +1044,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 				((htab_item*) I->addr3)->initialized = 1;
@@ -1215,7 +1189,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 				((htab_item*) I->addr3)->initialized = 1;
@@ -1361,7 +1334,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 				((htab_item*) I->addr3)->initialized = 1;
@@ -1507,7 +1479,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 				((htab_item*) I->addr3)->initialized = 1;
@@ -1653,7 +1624,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 				((htab_item*) I->addr3)->initialized = 1;
@@ -1799,7 +1769,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 				((htab_item*) I->addr3)->initialized = 1;
@@ -2029,7 +1998,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if (((htab_item*) I->addr1)->initialized == 0)
 				{
 					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					printf("Neinicializovany operand."); //smazat!!
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 				((htab_item*) I->addr3)->initialized = 1;

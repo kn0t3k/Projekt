@@ -114,7 +114,40 @@ int main(int argc, char** argv)
    }
    printf("\n**vse OK**\n");
    printf("\n\nZacatek interpretu:\n\n");
-   interpret(table -> global, &list);
+   result = interpret(table -> global, &list);
+
+   switch (result)
+   {
+     case SEM_ERROR:
+       printf("\nerr SEM \n");
+       symbol_table_free(table);
+       DisposeList(&list);
+       fclose(f);
+       return -result;
+       break;
+	 case INTERNAL_ERR:
+       printf("\nerr INTERNAL_ERR \n");
+       symbol_table_free(table);
+       DisposeList(&list);
+       fclose(f);
+       return -result;
+	   break;
+     case RUN_INIT_ERROR:
+       printf("\nerr INIT\n");	   
+	   symbol_table_free(table);
+       DisposeList(&list);
+       fclose(f);
+       return -result;
+	 case RUN_ZERO_ERROR:
+       printf("\nerr DIV BY ZERO\n");	   
+	   symbol_table_free(table);
+       DisposeList(&list);
+       fclose(f);
+       return -result;
+	 default:
+	   break;
+	 
+   }
    symbol_table_free(table);
    DisposeList(&list);
    fclose(f);

@@ -770,15 +770,12 @@ int find(char *s, char *search, int s_len, int search_len)
 * @return chyba nebo uspech
 */
 
-int sort(string *dest)
+void sort(string *dest)
 {
-	if (dest->length == 0)
-	{
-		return 0; /* neni co radit */
-	}
+	if (dest->length <= 1)
+		return; /* neni co radit */
 	/* hlavni funkce */
 	sort_main(dest->str, 0, (dest->length)-1);
-	return 0;
 }
 
 
