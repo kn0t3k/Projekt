@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <stdbool.h>
 #include <errno.h> 
 #include "err.h"
@@ -904,10 +905,10 @@ int value(struct htab_item** item){
 	  bool *value_b;
       if ((value_b = (bool *) malloc(sizeof(bool))) == NULL)/*Alokace mista pro hodnotu promenne*/
 	    return INTERNAL_ERR;
-	  if (strcmp(attr.str, "true") == 0)
-	    *value_b = TRUE;
+	  if (strcasecmp(attr.str, "true") == 0)
+	    *value_b = 1;
 	  else
-	    *value_b = FALSE;
+	    *value_b = 0;
 	  strInit(&new_variable);
 	  generateVariable(&new_variable);
 	  if (((*item) = add_var(new_variable.str, table, &result)) == NULL){
