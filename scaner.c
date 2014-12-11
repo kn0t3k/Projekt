@@ -112,6 +112,7 @@
 
        int state = 0;
        int c;
+       int plusko = NEPRAVDA;
 
        strClear(attr);
        strClear(&pom);
@@ -394,6 +395,12 @@
                {
                    if(c == '-') //zaporny exp
                    {
+                       if(obs == 1)
+                       {
+                           ungetc(c, source);
+                           return DES_EXP;
+                       }
+                       if(plusko == PRAVDA) return LEX_ERROR;
                         obs = 0;
                         strAddChar(attr, c);
                         state = 9;
@@ -402,8 +409,16 @@
                    {
                        if(c == '+')
                         {
+                            if(obs == 1)
+                           {
+                               ungetc(c, source);
+                               return DES_EXP;
+                           }
+                            if(plusko == PRAVDA) return LEX_ERROR;
+                            else plusko = PRAVDA;
                             obs = 0;
-                            state = 17;  //kladny exp nema vliv
+                            state = 8;
+                            //printf("jdu do stavu 16\n");
                         }
                        else
                        {
@@ -413,6 +428,7 @@
                                 if(obs == 0) return LEX_ERROR;
                                 ungetc(c, source);
                                 obs = 0;
+                                plusko = NEPRAVDA;
                                 return DES_EXP;
                             }
                        }
@@ -432,6 +448,7 @@
                     if(isalpha(c) && ((c != ' ') || (c != ';'))) return LEX_ERROR;
                     else
                     {
+                        //printf("\nvracim des exp neg, znak na vstupu je: %c\n", c);
                         ungetc(c, source);
                         obs = 0;
                         return DES_EXP_NEG;
@@ -450,6 +467,12 @@
                {
                    if(c == '-') //e^-neco
                    {
+                       if(obs == 1)
+                       {
+                           ungetc(c, source);
+                           return EXP;
+                       }
+                       if(plusko == PRAVDA) return LEX_ERROR;
                         strAddChar(attr, c);
                         obs = 0;
                         state = 11;
@@ -458,8 +481,15 @@
                    {
                        if(c == '+')
                        {
+                           if(obs == 1)
+                           {
+                               ungetc(c, source);
+                               return EXP;
+                           }
+                           if(plusko == PRAVDA) return LEX_ERROR;
+                           else plusko = PRAVDA;
                             obs = 0;
-                           state = 16; //e^+neco
+                           state = 10; //e^+neco
                        }
                        else
                        {
@@ -469,6 +499,7 @@
                                 if(obs == 0) return LEX_ERROR;
                                 ungetc(c, source);
                                 obs = 0;
+                                plusko = NEPRAVDA;
                                 return EXP;
                             }
                        }
@@ -587,45 +618,6 @@
                     return LEX_ERROR;
                 }
             break;
-
-           case 16:
-               if(c>='0' && c<='9')
-                {
-                    strAddChar(attr, c);
-                    obs = 1;
-                }
-                else
-                {
-                    if(obs == 0) return LEX_ERROR;
-                    if(isalpha(c) && ((c != ' ') || (c != ';'))) return LEX_ERROR;
-                    else
-                    {
-                        ungetc(c, source);
-                        obs = 0;
-                        return EXP;
-                    }
-                }
-            break;
-
-            case 17:
-               if(c>='0' && c<='9')
-                {
-                    strAddChar(attr, c);
-                    obs = 1;
-                }
-                else
-                {
-                    if(obs == 0) return LEX_ERROR;
-                    if(isalpha(c) && ((c != ' ') || (c != ';'))) return LEX_ERROR;
-                    else
-                    {
-                        ungetc(c, source);
-                        obs = 0;
-                        return DES_EXP;
-                    }
-                }
-            break;
-
         }
       }
     }
