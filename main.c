@@ -150,6 +150,12 @@ int main(int argc, char** argv)
        DisposeList(&list);
        fclose(f);
        return -result;
+      case SEM_ERROR_TYPE:
+	   printf("\nerr TYPE ERR\n");	   
+	   symbol_table_free(table);
+       DisposeList(&list);
+       fclose(f);
+       return -result;
 	 default:
 	   break;
 	 
