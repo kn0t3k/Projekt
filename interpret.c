@@ -16,13 +16,13 @@
 #define ADS_STACK_SIZE 50
 #define LVS_STACK_SIZE 50
 
-void initarray(void **array, int size)
+void initarray(tVarArr *array, int size)
 {
 	for (int i = 0; i < size; i++)
-		array[i] = NULL;
+		array[i].var = NULL;
 }
 
-int loadarray(void **array, symbol_table_item *TB)
+int loadarray(tVarArr *array, symbol_table_item *TB)
 {
 	int hash_size = TB->table->htab_size;
 	htab_item *iptr = NULL;
@@ -35,38 +35,38 @@ int loadarray(void **array, symbol_table_item *TB)
 			if (!(iptr->function))
 			{
 				int type = iptr->type;
-				iptr->initialized = 0;
+				array[iptr->index].init = 0;
 				switch (type)
 				{
 					case 0:
 					{
-						array[iptr->index] = malloc(sizeof(int));
-						if (array[iptr->index] == NULL)
+						array[iptr->index].var = malloc(sizeof(int));
+						if (array[iptr->index].var == NULL)
 							return INTERNAL_ERR;
 						break;
 					}
 
 					case 1:
 					{
-						array[iptr->index] = malloc(sizeof(double));
-						if (array[iptr->index] == NULL)
+						array[iptr->index].var = malloc(sizeof(double));
+						if (array[iptr->index].var == NULL)
 							return INTERNAL_ERR;
 						break;
 					}
 
 					case 2:
 					{
-						array[iptr->index] = malloc(sizeof(char));
-						if (array[iptr->index] == NULL)
+						array[iptr->index].var = malloc(sizeof(char));
+						if (array[iptr->index].var == NULL)
 							return INTERNAL_ERR;
-						((char*) array[iptr->index])[0] = '\0';
+						((char*) array[iptr->index].var)[0] = '\0';
 						break;
 					}
 
 					case 3:
 					{
-						array[iptr->index] = malloc(sizeof(bool));
-						if (array[iptr->index] == NULL)
+						array[iptr->index].var = malloc(sizeof(bool));
+						if (array[iptr->index].var == NULL)
 							return INTERNAL_ERR;
 						break;
 					}
@@ -81,34 +81,16 @@ int loadarray(void **array, symbol_table_item *TB)
 	return 0;
 }
 
-void disposearray(void **array, int size)
+void disposearray(tVarArr *array, int size)
 {
 	for (int i = 0; i < size; i++)
 	{
-		if (array[i] != NULL)
-			free(array[i]);
+		if (array[i].var != NULL)
+			free(array[i].var);
 	}
 
 	if (array != NULL)
 		free(array);
-}
-
-htab_item* FindItemOfIndex(int index, symbol_table_item *TB)
-{
-	int hash_size = TB->table->htab_size;
-	htab_item *iptr = NULL;
-
-	for (int i = 0; i < hash_size; i++)
-	{
-		iptr = TB->table->ptr[i];
-		while (iptr != NULL)
-		{
-			if (iptr->index == index)
-				return iptr;			
-			iptr = iptr->next;
-		}
-	}
-	return NULL;
 }
 
 int interpret(symbol_table_item *GTable, tList *List)
@@ -162,18 +144,18 @@ int interpret(symbol_table_item *GTable, tList *List)
 	if (VS->var_stack == NULL)
 		return INTERNAL_ERR;
 	VarStackInit(VS,VAR_STACK_SIZE);
-	void **g_arr = malloc(sizeof(void*) * GTable->item_count);
+	tVarArr *g_arr = malloc(sizeof(tVarArr) * GTable->item_count);
 	if (g_arr == NULL)
 		return INTERNAL_ERR;
 	initarray(g_arr, GTable->item_count);
 	if ((loadarray(g_arr, GTable)) == INTERNAL_ERR)
 		return INTERNAL_ERR;
-	void **l_arr = NULL;
+	tVarArr *l_arr = NULL;
 
 	tLVS *LS = malloc(sizeof(tLVS)); //local array stack
 	if (LS == NULL)
 		return INTERNAL_ERR;
-	LS->l_stack = malloc(sizeof(vararr) * (LVS_STACK_SIZE));
+	LS->l_stack = malloc(sizeof(tVarArr) * (LVS_STACK_SIZE));
 	if (LS->l_stack == NULL)
 		return INTERNAL_ERR;
 	LStackInit(LS, LVS_STACK_SIZE);
@@ -209,12 +191,12 @@ int interpret(symbol_table_item *GTable, tList *List)
 				{
 					if (scope1 == 0)
 					{
-						if (!(*((bool*) l_arr[index1])))
+						if (!(*((bool*) l_arr[index1].var)))
 							GoToItem(List,((tItem*) I->addr3)); //melo by fungovat...
 					}
 					else
 					{
-						if (!(*((bool*) g_arr[index1])))
+						if (!(*((bool*) g_arr[index1].var)))
 							GoToItem(List,((tItem*) I->addr3));
 					}
 				}
@@ -260,6 +242,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 					*size_temp = strlen(((char*) I->addr3));
 				else
 					*size_temp = 0;
+				if ((garbage_add(Garbage, I->addr3)) == 1)
+					return INTERNAL_ERR; 
 
 				for (int i = (*size_temp - 1); i >= 0; i--)
 				{
@@ -322,8 +306,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 							
 				}
 				PrintAll(PrintList);
-				if ((garbage_add(Garbage, I->addr3)) == 1)
-					return INTERNAL_ERR; 
 				break;
 			}
 
@@ -333,14 +315,13 @@ int interpret(symbol_table_item *GTable, tList *List)
 				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
 				*index_temp = ((htab_item*) I->addr3)->index;
 				*scope_temp = ((htab_item*) I->addr3)->global;
-				((htab_item*) I->addr3)->initialized = 1;
 
 				if (l_arr != NULL)
 					if ((LStackPush(LS, l_arr)) == INTERNAL_ERR)
 						return INTERNAL_ERR;
 
 				l_arr = NULL;
-				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
+				l_arr = malloc(sizeof(tVarArr) * (((htab_item*) I->addr1)->func_table->item_count));
 				if (l_arr == NULL)
 					return INTERNAL_ERR;
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
@@ -354,15 +335,15 @@ int interpret(symbol_table_item *GTable, tList *List)
 				}
 
 				str_temp = StrVarStackPop(VS);
-				if (strlen(str_temp) != strlen((char*) l_arr[2]))
+				if (strlen(str_temp) != strlen((char*) l_arr[2].var))
 				{
-					free(l_arr[2]);
-					l_arr[2] = NULL;
-					l_arr[2] = malloc(sizeof(char) * (strlen(str_temp) + 1));
-					if (l_arr[2] == NULL)
+					free(l_arr[2].var);
+					l_arr[2].var = NULL;
+					l_arr[2].var = malloc(sizeof(char) * (strlen(str_temp) + 1));
+					if (l_arr[2].var == NULL)
 						return INTERNAL_ERR;
 				}
-				memcpy(((char*) l_arr[2]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
+				memcpy(((char*) l_arr[2].var), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 
 				if ((BoolVarStackPop(VS)) == 0)
 				{
@@ -371,19 +352,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 				}
 
 				str_temp = StrVarStackPop(VS);
-				if (strlen(str_temp) != strlen((char*) l_arr[1]))
+				if (strlen(str_temp) != strlen((char*) l_arr[1].var))
 				{
-					free(l_arr[1]);
-					l_arr[1] = NULL;
-					l_arr[1] = malloc(sizeof(char) * (strlen(str_temp) + 1));
-					if (l_arr[1] == NULL)
+					free(l_arr[1].var);
+					l_arr[1].var = NULL;
+					l_arr[1].var = malloc(sizeof(char) * (strlen(str_temp) + 1));
+					if (l_arr[1].var == NULL)
 						return INTERNAL_ERR;
 				}
-				memcpy(((char*) l_arr[1]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
+				memcpy(((char*) l_arr[1].var), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 				value_temp = malloc(sizeof(int));
 				if (value_temp == NULL)
 					return INTERNAL_ERR;
-				*((int*) value_temp) = find(((char*) l_arr[1]), ((char*) l_arr[2]), strlen((char*) l_arr[1]), strlen((char*) l_arr[2]));
+				*((int*) value_temp) = find(((char*) l_arr[1].var), ((char*) l_arr[2].var), strlen((char*) l_arr[1].var), strlen((char*) l_arr[2].var));
 
 				disposearray(l_arr, (*size_temp));
 				l_arr = NULL;
@@ -391,9 +372,15 @@ int interpret(symbol_table_item *GTable, tList *List)
 					l_arr = LStackPop(LS);
 
 				if (*scope_temp == 0)
-					*((int*) l_arr[*index_temp]) = *((int*) value_temp);
+				{
+					*((int*) l_arr[*index_temp].var) = *((int*) value_temp);
+					l_arr[*index_temp].init = 1;
+				}
 				else
-					*((int*) g_arr[*index_temp]) = *((int*) value_temp);
+				{
+					*((int*) g_arr[*index_temp].var) = *((int*) value_temp);
+					g_arr[*index_temp].init = 1;
+				}
 
 				free(value_temp);
 				break;
@@ -411,7 +398,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 						return INTERNAL_ERR;
 
 				l_arr = NULL;
-				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
+				l_arr = malloc(sizeof(tVarArr) * (((htab_item*) I->addr1)->func_table->item_count));
 				if (l_arr == NULL)
 					return INTERNAL_ERR;
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
@@ -426,27 +413,27 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 				str_temp = StrVarStackPop(VS);
 				
-				if (strlen(str_temp) != strlen((char*) l_arr[0]))
+				if (strlen(str_temp) != strlen((char*) l_arr[0].var))
 				{
-					free(l_arr[0]);
-					l_arr[0] = NULL;
-					l_arr[0] = malloc(sizeof(char) * (strlen(str_temp) + 1));
-					if (l_arr[0] == NULL)
+					free(l_arr[0].var);
+					l_arr[0].var = NULL;
+					l_arr[0].var = malloc(sizeof(char) * (strlen(str_temp) + 1));
+					if (l_arr[0].var == NULL)
 						return INTERNAL_ERR;
 				}
-				memcpy(((char*) l_arr[0]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
+				memcpy(((char*) l_arr[0].var), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 				SPtr = malloc(sizeof(string));
 				if (SPtr == NULL)
 					return INTERNAL_ERR;
-				SPtr->str = ((char*) l_arr[0]);
-				SPtr->length = strlen((char*) l_arr[0]);
+				SPtr->str = ((char*) l_arr[0].var);
+				SPtr->length = strlen((char*) l_arr[0].var);
 				SPtr->allocSize = SPtr->length + 1;
 				
 				sort(SPtr);
-				value_temp = malloc(sizeof(char) * (strlen((char*) l_arr[0]) + 1));
+				value_temp = malloc(sizeof(char) * (strlen((char*) l_arr[0].var) + 1));
 				if (value_temp == NULL)
 					return INTERNAL_ERR;
-				memcpy(((char*) value_temp), ((char*) l_arr[0]), sizeof(char) * (strlen((char*) l_arr[0]) + 1));
+				memcpy(((char*) value_temp), ((char*) l_arr[0].var), sizeof(char) * (strlen((char*) l_arr[0].var) + 1));
 
 				disposearray(l_arr, (*size_temp));
 				l_arr = NULL;
@@ -455,27 +442,29 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 				if (*scope_temp == 0)
 				{
-					if (strlen((char*) l_arr[*index_temp]) != strlen((char*) value_temp))
+					if (strlen((char*) l_arr[*index_temp].var) != strlen((char*) value_temp))
 					{
-						free(l_arr[*index_temp]);
-						l_arr[*index_temp] = NULL;
-						l_arr[*index_temp] = malloc(sizeof(char) * (strlen(value_temp) + 1));
-						if (l_arr[*index_temp] == NULL)
+						free(l_arr[*index_temp].var);
+						l_arr[*index_temp].var = NULL;
+						l_arr[*index_temp].var = malloc(sizeof(char) * (strlen(value_temp) + 1));
+						if (l_arr[*index_temp].var == NULL)
 							return INTERNAL_ERR;
 					}
-					memcpy(((char*) l_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
+					memcpy(((char*) l_arr[*index_temp].var), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
+					l_arr[*index_temp].init = 1;
 				}
 				else
 				{
-					if (strlen((char*) g_arr[*index_temp]) != strlen((char*) value_temp))
+					if (strlen((char*) g_arr[*index_temp].var) != strlen((char*) value_temp))
 					{
-						free(g_arr[*index_temp]);
-						g_arr[*index_temp] = NULL;
-						g_arr[*index_temp] = malloc(sizeof(char) * (strlen(value_temp) + 1));
-						if (g_arr[*index_temp] == NULL)
+						free(g_arr[*index_temp].var);
+						g_arr[*index_temp].var = NULL;
+						g_arr[*index_temp].var = malloc(sizeof(char) * (strlen(value_temp) + 1));
+						if (g_arr[*index_temp].var == NULL)
 							return INTERNAL_ERR;
 					}
-					memcpy(((char*) g_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
+					memcpy(((char*) g_arr[*index_temp].var), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
+					l_arr[*index_temp].init = 1;
 				}
 
 				free(value_temp);
@@ -489,14 +478,13 @@ int interpret(symbol_table_item *GTable, tList *List)
 				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
 				*index_temp = ((htab_item*) I->addr3)->index;
 				*scope_temp = ((htab_item*) I->addr3)->global;
-				((htab_item*) I->addr3)->initialized = 1;
 
 				if (l_arr != NULL)
 					if ((LStackPush(LS, l_arr)) == INTERNAL_ERR)
 						return INTERNAL_ERR;
 
 				l_arr = NULL;
-				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
+				l_arr = malloc(sizeof(tVarArr) * (((htab_item*) I->addr1)->func_table->item_count));
 				if (l_arr == NULL)
 					return INTERNAL_ERR;
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
@@ -511,15 +499,15 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 				str_temp = StrVarStackPop(VS);
 				
-				if (strlen(str_temp) != strlen((char*) l_arr[1]))
+				if (strlen(str_temp) != strlen((char*) l_arr[1].var))
 				{
-					free(l_arr[1]);
-					l_arr[1] = NULL;
-					l_arr[1] = malloc(sizeof(char) * (strlen(str_temp) + 1));
-					if (l_arr[1] == NULL)
+					free(l_arr[1].var);
+					l_arr[1].var = NULL;
+					l_arr[1].var = malloc(sizeof(char) * (strlen(str_temp) + 1));
+					if (l_arr[1].var == NULL)
 						return INTERNAL_ERR;
 				}
-				memcpy(((char*) l_arr[1]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
+				memcpy(((char*) l_arr[1].var), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 				value_temp = malloc(sizeof(int));
 				if (value_temp == NULL)
 					return INTERNAL_ERR;
@@ -527,8 +515,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				SPtr = malloc(sizeof(string));
 				if (SPtr == NULL)
 					return INTERNAL_ERR;
-				SPtr->str = ((char*) l_arr[1]);
-				SPtr->length = strlen((char*) l_arr[1]);
+				SPtr->str = ((char*) l_arr[1].var);
+				SPtr->length = strlen((char*) l_arr[1].var);
 				SPtr->allocSize = SPtr->length + 1;
 
 				*((int*) value_temp) = length(SPtr);
@@ -539,9 +527,15 @@ int interpret(symbol_table_item *GTable, tList *List)
 					l_arr = LStackPop(LS);
 
 				if (*scope_temp == 0)
-					*((int*) l_arr[*index_temp]) = *((int*) value_temp);
+				{
+					*((int*) l_arr[*index_temp].var) = *((int*) value_temp);
+					l_arr[*index_temp].init = 1;
+				}
 				else
-					*((int*) g_arr[*index_temp]) = *((int*) value_temp);
+				{
+					*((int*) g_arr[*index_temp].var) = *((int*) value_temp);
+					g_arr[*index_temp].init = 1;
+				}
 
 				free(value_temp);
 				free(SPtr);
@@ -561,7 +555,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 						return INTERNAL_ERR;
 
 				l_arr = NULL;
-				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
+				l_arr = malloc(sizeof(tVarArr) * (((htab_item*) I->addr1)->func_table->item_count));
 				if (l_arr == NULL)
 					return INTERNAL_ERR;
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
@@ -574,7 +568,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 
-				*((int*) l_arr[3]) = IntVarStackPop(VS);
+				*((int*) l_arr[3].var) = IntVarStackPop(VS);
 
 				if ((BoolVarStackPop(VS)) == 0)
 				{
@@ -582,7 +576,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
 				}
 
-				*((int*) l_arr[2]) = IntVarStackPop(VS);
+				*((int*) l_arr[2].var) = IntVarStackPop(VS);
 
 				if ((BoolVarStackPop(VS)) == 0)
 				{
@@ -591,48 +585,48 @@ int interpret(symbol_table_item *GTable, tList *List)
 				}
 
 				str_temp = StrVarStackPop(VS);
-				if (strlen(str_temp) != strlen((char*) l_arr[1]))
+				if (strlen(str_temp) != strlen((char*) l_arr[1].var))
 				{
-					free(l_arr[1]);
-					l_arr[1] = NULL;
-					l_arr[1] = malloc(sizeof(char) * (strlen(str_temp) + 1));
-					if (l_arr[1] == NULL)
+					free(l_arr[1].var);
+					l_arr[1].var = NULL;
+					l_arr[1].var = malloc(sizeof(char) * (strlen(str_temp) + 1));
+					if (l_arr[1].var == NULL)
 						return INTERNAL_ERR;
 				}
-				memcpy(((char*) l_arr[1]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
+				memcpy(((char*) l_arr[1].var), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 
-				if (strlen(str_temp) != strlen((char*) l_arr[0]))
+				if (strlen(str_temp) != strlen((char*) l_arr[0].var))
 				{
-					free(l_arr[0]);
-					l_arr[0] = NULL;
-					l_arr[0] = malloc(sizeof(char) * (strlen(str_temp) + 1));
-					if (l_arr[0] == NULL)
+					free(l_arr[0].var);
+					l_arr[0].var = NULL;
+					l_arr[0].var = malloc(sizeof(char) * (strlen(str_temp) + 1));
+					if (l_arr[0].var == NULL)
 						return INTERNAL_ERR;
 				}
-				memcpy(((char*) l_arr[0]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
+				memcpy(((char*) l_arr[0].var), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 
 				SPtr = malloc(sizeof(string));
 				if (SPtr == NULL)
 					return INTERNAL_ERR;
-				SPtr->str = ((char*) l_arr[0]);
-				SPtr->length = strlen((char*) l_arr[0]);
+				SPtr->str = ((char*) l_arr[0].var);
+				SPtr->length = strlen((char*) l_arr[0].var);
 				SPtr->allocSize = SPtr->length + 1;
 				value_temp = malloc(sizeof(int));
 				if (value_temp == NULL)
 					return INTERNAL_ERR;
 
-				*((int*) value_temp) = copy(((char*) l_arr[1]), SPtr, *((int*) l_arr[2]), *((int*) l_arr[3]), strlen((char*) l_arr[1]));
+				*((int*) value_temp) = copy(((char*) l_arr[1].var), SPtr, *((int*) l_arr[2].var), *((int*) l_arr[3].var), strlen((char*) l_arr[1].var));
 
 				if (*((int*) value_temp) == SEM_ERROR)
 					return SEM_ERROR;
 
 				free(value_temp);
 				value_temp = NULL;
-				value_temp = malloc(sizeof(char) * (strlen((char*) l_arr[0]) + 1));
+				value_temp = malloc(sizeof(char) * (strlen((char*) l_arr[0].var) + 1));
 				if (value_temp == NULL)
 					return INTERNAL_ERR;
 
-				memcpy(((char*) value_temp), ((char*) l_arr[0]), sizeof(char) * (strlen((char*) l_arr[0]) + 1));
+				memcpy(((char*) value_temp), ((char*) l_arr[0].var), sizeof(char) * (strlen((char*) l_arr[0].var) + 1));
 
 				
 				disposearray(l_arr, (*size_temp));
@@ -642,27 +636,29 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 				if (*scope_temp == 0)
 				{
-					if (strlen((char*) l_arr[*index_temp]) != strlen((char*) value_temp))
+					if (strlen((char*) l_arr[*index_temp].var) != strlen((char*) value_temp))
 					{
-						free(l_arr[*index_temp]);
-						l_arr[*index_temp] = NULL;
-						l_arr[*index_temp] = malloc(sizeof(char) * (strlen(value_temp) + 1));
-						if (l_arr[*index_temp] == NULL)
+						free(l_arr[*index_temp].var);
+						l_arr[*index_temp].var = NULL;
+						l_arr[*index_temp].var = malloc(sizeof(char) * (strlen(value_temp) + 1));
+						if (l_arr[*index_temp].var == NULL)
 							return INTERNAL_ERR;
 					}
-					memcpy(((char*) l_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
+					memcpy(((char*) l_arr[*index_temp].var), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
+					l_arr[*index_temp].init = 1;
 				}
 				else
 				{
-					if (strlen((char*) g_arr[*index_temp]) != strlen((char*) value_temp))
+					if (strlen((char*) g_arr[*index_temp].var) != strlen((char*) value_temp))
 					{
-						free(g_arr[*index_temp]);
-						g_arr[*index_temp] = NULL;
-						g_arr[*index_temp] = malloc(sizeof(char) * (strlen(value_temp) + 1));
-						if (g_arr[*index_temp] == NULL)
+						free(g_arr[*index_temp].var);
+						g_arr[*index_temp].var = NULL;
+						g_arr[*index_temp].var = malloc(sizeof(char) * (strlen(value_temp) + 1));
+						if (g_arr[*index_temp].var == NULL)
 							return INTERNAL_ERR;
 					}
-					memcpy(((char*) g_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
+					memcpy(((char*) g_arr[*index_temp].var), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
+					g_arr[*index_temp].init = 1;
 				}
 
 				free(value_temp);
@@ -676,12 +672,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 			{
 				//get type, scope, index
 
-				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
-				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -692,22 +682,54 @@ int interpret(symbol_table_item *GTable, tList *List)
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
 
+				if (scope1 == 0)
+				{
+					if (scope2 ==0)
+					{
+						if ((l_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((l_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				else
+				{
+					if (scope2 ==0)
+					{
+						if ((g_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((g_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				
+				if (scope3 == 0)
+					l_arr[index3].init = 1;
+				else
+					g_arr[index3].init = 1;
+
 				if ((type1 != 2) && (type2 != 2) && (type3 != 2))
 				{
 					if (scope1 == 0)
-						var1 = l_arr[index1];
+						var1 = l_arr[index1].var;
 					else
-						var1 = g_arr[index1];
+						var1 = g_arr[index1].var;
 
 					if (scope2 == 0)
-						var2 = l_arr[index2];
+						var2 = l_arr[index2].var;
 					else
-						var2 = g_arr[index2];
+						var2 = g_arr[index2].var;
 
 					if (scope3 == 0)
-						var3 = l_arr[index3];
+						var3 = l_arr[index3].var;
 					else
-						var3 = g_arr[index3];
+						var3 = g_arr[index3].var;
 
 					if (type1 == 0)
 					{
@@ -731,32 +753,32 @@ int interpret(symbol_table_item *GTable, tList *List)
 				{
 					if (scope1 == 0)
 					{
-						var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
+						var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1].var)) + 1));
 						if (var1 == NULL)
 							return INTERNAL_ERR;
-						memcpy(((char*) var1), ((char*) l_arr[index1]), strlen(((char*) l_arr[index1])) + 1);
+						memcpy(((char*) var1), ((char*) l_arr[index1].var), strlen(((char*) l_arr[index1].var)) + 1);
 					}
 					else
 					{
-						var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+						var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1].var)) + 1));
 						if (var1 == NULL)
 							return INTERNAL_ERR;
-						memcpy(((char*) var1), ((char*) g_arr[index1]), strlen(((char*) g_arr[index1])) + 1);
+						memcpy(((char*) var1), ((char*) g_arr[index1].var), strlen(((char*) g_arr[index1].var)) + 1);
 					}
 
 					if (scope2 == 0)
 					{
-						var2 = malloc(sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+						var2 = malloc(sizeof(char) * (strlen(((char*) l_arr[index2].var)) + 1));
 						if (var2 == NULL)
 							return INTERNAL_ERR;
-						memcpy(((char*) var2), ((char*) l_arr[index2]), strlen(((char*) l_arr[index2])) + 1);
+						memcpy(((char*) var2), ((char*) l_arr[index2].var), strlen(((char*) l_arr[index2].var)) + 1);
 					}
 					else
 					{
-						var2 = malloc(sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
+						var2 = malloc(sizeof(char) * (strlen(((char*) g_arr[index2].var)) + 1));
 						if (var2 == NULL)
 							return INTERNAL_ERR;
-						memcpy(((char*) var2), ((char*) g_arr[index2]), strlen(((char*) g_arr[index2])) + 1);
+						memcpy(((char*) var2), ((char*) g_arr[index2].var), strlen(((char*) g_arr[index2].var)) + 1);
 					}
 
 					var3 = malloc(sizeof(char) * (strlen(var1) + strlen(var2) + 1));
@@ -767,27 +789,27 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 					if (scope3 == 0)
 					{
-						if (strlen(((char*) var3)) != strlen(((char*) l_arr[index3])))
+						if (strlen(((char*) var3)) != strlen(((char*) l_arr[index3].var)))
 						{
-							free(l_arr[index3]);
-							l_arr[index3] = NULL;
-							l_arr[index3] = malloc(sizeof(char) * (strlen((char*) var3) + 1));
-							if (l_arr[index3] == NULL)
+							free(l_arr[index3].var);
+							l_arr[index3].var = NULL;
+							l_arr[index3].var = malloc(sizeof(char) * (strlen((char*) var3) + 1));
+							if (l_arr[index3].var == NULL)
 								return INTERNAL_ERR;
 						}
-						memcpy(((char*) l_arr[index3]), ((char*) var3), (strlen(((char*) var3)) + 1) * sizeof(char));
+						memcpy(((char*) l_arr[index3].var), ((char*) var3), (strlen(((char*) var3)) + 1) * sizeof(char));
 					}
 					else
 					{
-						if (strlen(((char*) var3)) != strlen(((char*) g_arr[index3])))
+						if (strlen(((char*) var3)) != strlen(((char*) g_arr[index3].var)))
 						{
-							free(g_arr[index3]);
-							g_arr[index3] = NULL;
-							g_arr[index3] = malloc(sizeof(char) * (strlen((char*) var3) + 1));
-							if (g_arr[index3] == NULL)
+							free(g_arr[index3].var);
+							g_arr[index3].var = NULL;
+							g_arr[index3].var = malloc(sizeof(char) * (strlen((char*) var3) + 1));
+							if (g_arr[index3].var == NULL)
 								return INTERNAL_ERR;
 						}
-						memcpy(((char*) g_arr[index3]), ((char*) var3), (strlen(((char*) var3)) + 1) * sizeof(char));
+						memcpy(((char*) g_arr[index3].var), ((char*) var3), (strlen(((char*) var3)) + 1) * sizeof(char));
 					}
 					free(var1);
 					free(var2);
@@ -802,12 +824,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_SUB: //-
 			{
-				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
-				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -818,22 +834,54 @@ int interpret(symbol_table_item *GTable, tList *List)
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
 
+				if (scope1 == 0)
+				{
+					if (scope2 ==0)
+					{
+						if ((l_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((l_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				else
+				{
+					if (scope2 ==0)
+					{
+						if ((g_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((g_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				
+				if (scope3 == 0)
+					l_arr[index3].init = 1;
+				else
+					g_arr[index3].init = 1;
+
 				if ((type1 != 2) && (type2 != 2) && (type3 != 2))
 				{
 					if (scope1 == 0)
-						var1 = l_arr[index1];
+						var1 = l_arr[index1].var;
 					else
-						var1 = g_arr[index1];
+						var1 = g_arr[index1].var;
 
 					if (scope2 == 0)
-						var2 = l_arr[index2];
+						var2 = l_arr[index2].var;
 					else
-						var2 = g_arr[index2];
+						var2 = g_arr[index2].var;
 
 					if (scope3 == 0)
-						var3 = l_arr[index3];
+						var3 = l_arr[index3].var;
 					else
-						var3 = g_arr[index3];
+						var3 = g_arr[index3].var;
 
 					if (type1 == 0)
 					{
@@ -858,12 +906,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_MUL: // *
 			{
-				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
-				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -874,22 +916,54 @@ int interpret(symbol_table_item *GTable, tList *List)
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
 
+				if (scope1 == 0)
+				{
+					if (scope2 ==0)
+					{
+						if ((l_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((l_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				else
+				{
+					if (scope2 ==0)
+					{
+						if ((g_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((g_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				
+				if (scope3 == 0)
+					l_arr[index3].init = 1;
+				else
+					g_arr[index3].init = 1;
+
 				if ((type1 != 2) && (type2 != 2) && (type3 != 2))
 				{
 					if (scope1 == 0)
-						var1 = l_arr[index1];
+						var1 = l_arr[index1].var;
 					else
-						var1 = g_arr[index1];
+						var1 = g_arr[index1].var;
 
 					if (scope2 == 0)
-						var2 = l_arr[index2];
+						var2 = l_arr[index2].var;
 					else
-						var2 = g_arr[index2];
+						var2 = g_arr[index2].var;
 
 					if (scope3 == 0)
-						var3 = l_arr[index3];
+						var3 = l_arr[index3].var;
 					else
-						var3 = g_arr[index3];
+						var3 = g_arr[index3].var;
 
 					if (type1 == 0)
 					{
@@ -914,12 +988,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_DIV: ///
 			{
-				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
-				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -930,22 +998,54 @@ int interpret(symbol_table_item *GTable, tList *List)
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
 
+				if (scope1 == 0)
+				{
+					if (scope2 ==0)
+					{
+						if ((l_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((l_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				else
+				{
+					if (scope2 ==0)
+					{
+						if ((g_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((g_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				
+				if (scope3 == 0)
+					l_arr[index3].init = 1;
+				else
+					g_arr[index3].init = 1;
+
 				if ((type1 != 2) && (type2 != 2) && (type3 != 2))
 				{
 					if (scope1 == 0)
-						var1 = l_arr[index1];
+						var1 = l_arr[index1].var;
 					else
-						var1 = g_arr[index1];
+						var1 = g_arr[index1].var;
 
 					if (scope2 == 0)
-						var2 = l_arr[index2];
+						var2 = l_arr[index2].var;
 					else
-						var2 = g_arr[index2];
+						var2 = g_arr[index2].var;
 
 					if (scope3 == 0)
-						var3 = l_arr[index3];
+						var3 = l_arr[index3].var;
 					else
-						var3 = g_arr[index3];
+						var3 = g_arr[index3].var;
 
 					if (type1 == 0)
 					{
@@ -1005,9 +1105,9 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if (type3 != 2)
 				{
 					if (scope3 == 0)
-						var3 = l_arr[index3];
+						var3 = l_arr[index3].var;
 					else
-						var3 = g_arr[index3];
+						var3 = g_arr[index3].var;
 
 					if (type3 == 0)
 						(*((int*) var3))++;
@@ -1026,9 +1126,9 @@ int interpret(symbol_table_item *GTable, tList *List)
 				if (type3 != 2)
 				{
 					if (scope3 == 0)
-						var3 = l_arr[index3];
+						var3 = l_arr[index3].var;
 					else
-						var3 = g_arr[index3];
+						var3 = g_arr[index3].var;
 
 					if (type3 == 0)
 						(*((int*) var3))--;
@@ -1041,12 +1141,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 			//porovnavaci instrukce
 			case I_GREAT: //>
 			{
-				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
-				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -1057,6 +1151,38 @@ int interpret(symbol_table_item *GTable, tList *List)
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
 
+				if (scope1 == 0)
+				{
+					if (scope2 ==0)
+					{
+						if ((l_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((l_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				else
+				{
+					if (scope2 ==0)
+					{
+						if ((g_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((g_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				
+				if (scope3 == 0)
+					l_arr[index3].init = 1;
+				else
+					g_arr[index3].init = 1;
+
 				switch(type1)
 				{
 					case 0:
@@ -1064,19 +1190,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 0) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((int*) var1) > *((int*) var2);
 						}
@@ -1089,19 +1215,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 1) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((double*) var1) > *((double*) var2);
 						}
@@ -1113,19 +1239,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 3) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((bool*) var1) > *((bool*) var2);
 						}
@@ -1138,38 +1264,38 @@ int interpret(symbol_table_item *GTable, tList *List)
 						{
 							if (scope1 == 0)
 							{
-								var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
+								var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1].var)) + 1));
 								if (var1 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var1, ((char*) l_arr[index1]), sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
+								memcpy(var1, ((char*) l_arr[index1].var), sizeof(char) * (strlen(((char*) l_arr[index1].var)) + 1));
 							}
 							else
 							{
-								var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+								var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1].var)) + 1));
 								if (var1 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var1, ((char*) g_arr[index1]), sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+								memcpy(var1, ((char*) g_arr[index1].var), sizeof(char) * (strlen(((char*) g_arr[index1].var)) + 1));
 							}
 
 							if (scope2 == 0)
 							{
-								var2 = malloc(sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+								var2 = malloc(sizeof(char) * (strlen(((char*) l_arr[index2].var)) + 1));
 								if (var2 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var2, ((char*) l_arr[index2]), sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+								memcpy(var2, ((char*) l_arr[index2].var), sizeof(char) * (strlen(((char*) l_arr[index2].var)) + 1));
 							}
 							else
 							{
-								var2 = malloc(sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
+								var2 = malloc(sizeof(char) * (strlen(((char*) g_arr[index2].var)) + 1));
 								if (var2 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var2, ((char*) g_arr[index2]), sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
+								memcpy(var2, ((char*) g_arr[index2].var), sizeof(char) * (strlen(((char*) g_arr[index2].var)) + 1));
 							}
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							if (strcmp(var1,var2) > 0)
 								*((bool*) var3) = true;
@@ -1186,12 +1312,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_SMALL: //<
 			{
-				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
-				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -1202,6 +1322,38 @@ int interpret(symbol_table_item *GTable, tList *List)
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
 
+				if (scope1 == 0)
+				{
+					if (scope2 ==0)
+					{
+						if ((l_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((l_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				else
+				{
+					if (scope2 ==0)
+					{
+						if ((g_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((g_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				
+				if (scope3 == 0)
+					l_arr[index3].init = 1;
+				else
+					g_arr[index3].init = 1;
+
 				switch(type1)
 				{
 					case 0:
@@ -1209,19 +1361,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 0) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((int*) var1) < *((int*) var2);
 						}
@@ -1234,19 +1386,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 1) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((double*) var1) < *((double*) var2);
 						}
@@ -1258,19 +1410,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 3) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((bool*) var1) < *((bool*) var2);
 						}
@@ -1283,38 +1435,38 @@ int interpret(symbol_table_item *GTable, tList *List)
 						{
 							if (scope1 == 0)
 							{
-								var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
+								var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1].var)) + 1));
 								if (var1 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var1, ((char*) l_arr[index1]), sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
+								memcpy(var1, ((char*) l_arr[index1].var), sizeof(char) * (strlen(((char*) l_arr[index1].var)) + 1));
 							}
 							else
 							{
-								var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+								var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1].var)) + 1));
 								if (var1 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var1, ((char*) g_arr[index1]), sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+								memcpy(var1, ((char*) g_arr[index1].var), sizeof(char) * (strlen(((char*) g_arr[index1].var)) + 1));
 							}
 
 							if (scope2 == 0)
 							{
-								var2 = malloc(sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+								var2 = malloc(sizeof(char) * (strlen(((char*) l_arr[index2].var)) + 1));
 								if (var1 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var2, ((char*) l_arr[index2]), sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+								memcpy(var2, ((char*) l_arr[index2].var), sizeof(char) * (strlen(((char*) l_arr[index2].var)) + 1));
 							}
 							else
 							{
-								var2 = malloc(sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
+								var2 = malloc(sizeof(char) * (strlen(((char*) g_arr[index2].var)) + 1));
 								if (var2 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var2, ((char*) g_arr[index2]), sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
+								memcpy(var2, ((char*) g_arr[index2].var), sizeof(char) * (strlen(((char*) g_arr[index2].var)) + 1));
 							}
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							if (strcmp(var1,var2) < 0)
 								*((bool*) var3) = true;
@@ -1331,12 +1483,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_EQUAL: //=
 			{
-				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
-				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -1347,6 +1493,38 @@ int interpret(symbol_table_item *GTable, tList *List)
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;				
 
+				if (scope1 == 0)
+				{
+					if (scope2 ==0)
+					{
+						if ((l_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((l_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				else
+				{
+					if (scope2 ==0)
+					{
+						if ((g_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((g_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				
+				if (scope3 == 0)
+					l_arr[index3].init = 1;
+				else
+					g_arr[index3].init = 1;
+
 				switch(type1)
 				{
 					case 0:
@@ -1354,19 +1532,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 0) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((int*) var1) == *((int*) var2);
 						}
@@ -1379,19 +1557,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 1) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((double*) var1) == *((double*) var2);
 						}
@@ -1403,19 +1581,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 3) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((bool*) var1) == *((bool*) var2);
 						}
@@ -1428,38 +1606,38 @@ int interpret(symbol_table_item *GTable, tList *List)
 						{
 							if (scope1 == 0)
 							{
-								var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
+								var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1].var)) + 1));
 								if (var1 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var1, ((char*) l_arr[index1]), sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
+								memcpy(var1, ((char*) l_arr[index1].var), sizeof(char) * (strlen(((char*) l_arr[index1].var)) + 1));
 							}
 							else
 							{
-								var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+								var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1].var)) + 1));
 								if (var1 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var1, ((char*) g_arr[index1]), sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+								memcpy(var1, ((char*) g_arr[index1].var), sizeof(char) * (strlen(((char*) g_arr[index1].var)) + 1));
 							}
 
 							if (scope2 == 0)
 							{
-								var2 = malloc(sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+								var2 = malloc(sizeof(char) * (strlen(((char*) l_arr[index2].var)) + 1));
 								if (var2 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var2, ((char*) l_arr[index2]), sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+								memcpy(var2, ((char*) l_arr[index2].var), sizeof(char) * (strlen(((char*) l_arr[index2].var)) + 1));
 							}
 							else
 							{
-								var2 = malloc(sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
+								var2 = malloc(sizeof(char) * (strlen(((char*) g_arr[index2].var)) + 1));
 								if (var2 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var2, ((char*) g_arr[index2]), sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
+								memcpy(var2, ((char*) g_arr[index2].var), sizeof(char) * (strlen(((char*) g_arr[index2].var)) + 1));
 							}
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							if (strcmp(var1,var2) == 0)
 								*((bool*) var3) = true;
@@ -1476,12 +1654,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_GREQ: //>=
 			{
-				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
-				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -1492,6 +1664,38 @@ int interpret(symbol_table_item *GTable, tList *List)
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
 
+				if (scope1 == 0)
+				{
+					if (scope2 ==0)
+					{
+						if ((l_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((l_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				else
+				{
+					if (scope2 ==0)
+					{
+						if ((g_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((g_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				
+				if (scope3 == 0)
+					l_arr[index3].init = 1;
+				else
+					g_arr[index3].init = 1;
+
 				switch(type1)
 				{
 					case 0:
@@ -1499,19 +1703,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 0) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((int*) var1) >= *((int*) var2);
 						}
@@ -1524,19 +1728,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 1) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((double*) var1) >= *((double*) var2);
 						}
@@ -1548,19 +1752,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 3) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((bool*) var1) >= *((bool*) var2);
 						}
@@ -1573,38 +1777,38 @@ int interpret(symbol_table_item *GTable, tList *List)
 						{
 							if (scope1 == 0)
 							{
-								var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
+								var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1].var)) + 1));
 								if (var1 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var1, ((char*) l_arr[index1]), sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
+								memcpy(var1, ((char*) l_arr[index1].var), sizeof(char) * (strlen(((char*) l_arr[index1].var)) + 1));
 							}
 							else
 							{
-								var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+								var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1].var)) + 1));
 								if (var1 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var1, ((char*) g_arr[index1]), sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+								memcpy(var1, ((char*) g_arr[index1].var), sizeof(char) * (strlen(((char*) g_arr[index1].var)) + 1));
 							}
 
 							if (scope2 == 0)
 							{
-								var2 = malloc(sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+								var2 = malloc(sizeof(char) * (strlen(((char*) l_arr[index2].var)) + 1));
 								if (var2 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var2, ((char*) l_arr[index2]), sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+								memcpy(var2, ((char*) l_arr[index2].var), sizeof(char) * (strlen(((char*) l_arr[index2].var)) + 1));
 							}
 							else
 							{
-								var2 = malloc(sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
+								var2 = malloc(sizeof(char) * (strlen(((char*) g_arr[index2].var)) + 1));
 								if (var2 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var2, ((char*) g_arr[index2]), sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
+								memcpy(var2, ((char*) g_arr[index2].var), sizeof(char) * (strlen(((char*) g_arr[index2].var)) + 1));
 							}
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							if (strcmp(var1,var2) >= 0)
 								*((bool*) var3) = true;
@@ -1621,12 +1825,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_SMEQ: //<=
 			{
-				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
-				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -1637,6 +1835,38 @@ int interpret(symbol_table_item *GTable, tList *List)
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
 
+				if (scope1 == 0)
+				{
+					if (scope2 ==0)
+					{
+						if ((l_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((l_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				else
+				{
+					if (scope2 ==0)
+					{
+						if ((g_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((g_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				
+				if (scope3 == 0)
+					l_arr[index3].init = 1;
+				else
+					g_arr[index3].init = 1;
+
 				switch(type1)
 				{
 					case 0:
@@ -1644,19 +1874,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 0) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((int*) var1) <= *((int*) var2);
 						}
@@ -1669,19 +1899,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 1) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((double*) var1) <= *((double*) var2);
 						}
@@ -1693,19 +1923,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 3) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((bool*) var1) <= *((bool*) var2);
 						}
@@ -1718,38 +1948,38 @@ int interpret(symbol_table_item *GTable, tList *List)
 						{
 							if (scope1 == 0)
 							{
-								var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
+								var1 = malloc(sizeof(char) * (strlen(((char*) l_arr[index1].var)) + 1));
 								if (var1 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var1, ((char*) l_arr[index1]), sizeof(char) * (strlen(((char*) l_arr[index1])) + 1));
+								memcpy(var1, ((char*) l_arr[index1].var), sizeof(char) * (strlen(((char*) l_arr[index1].var)) + 1));
 							}
 							else
 							{
-								var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+								var1 = malloc(sizeof(char) * (strlen(((char*) g_arr[index1].var)) + 1));
 								if (var1 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var1, ((char*) g_arr[index1]), sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+								memcpy(var1, ((char*) g_arr[index1].var), sizeof(char) * (strlen(((char*) g_arr[index1].var)) + 1));
 							}
 
 							if (scope2 == 0)
 							{
-								var2 = malloc(sizeof(char) * (strlen((char*) l_arr[index2]) + 1));
+								var2 = malloc(sizeof(char) * (strlen((char*) l_arr[index2].var) + 1));
 								if (var2 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var2, ((char*) l_arr[index2]), sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+								memcpy(var2, ((char*) l_arr[index2].var), sizeof(char) * (strlen(((char*) l_arr[index2].var)) + 1));
 							}
 							else
 							{
-								var2 = malloc(sizeof(char) * (strlen((char*) g_arr[index2]) + 1));
+								var2 = malloc(sizeof(char) * (strlen((char*) g_arr[index2].var) + 1));
 								if (var2 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var2, ((char*) g_arr[index2]), sizeof(char) * (strlen((char*) g_arr[index2]) + 1));
+								memcpy(var2, ((char*) g_arr[index2].var), sizeof(char) * (strlen((char*) g_arr[index2].var) + 1));
 							}
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							if (strcmp(var1,var2) <= 0)
 								*((bool*) var3) = true;
@@ -1766,12 +1996,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_NONEQ: //=!
 			{
-				if ((((htab_item*) I->addr1)->initialized == 0) || (((htab_item*) I->addr2)->initialized == 0))
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
-				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -1782,6 +2006,38 @@ int interpret(symbol_table_item *GTable, tList *List)
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
 
+				if (scope1 == 0)
+				{
+					if (scope2 ==0)
+					{
+						if ((l_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((l_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				else
+				{
+					if (scope2 ==0)
+					{
+						if ((g_arr[index1].init == 0) || (l_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+					else
+					{
+						if ((g_arr[index1].init == 0) || (g_arr[index2].init == 0))
+							return RUN_INIT_ERROR;
+					}
+				}
+				
+				if (scope3 == 0)
+					l_arr[index3].init = 1;
+				else
+					g_arr[index3].init = 1;
+
 				switch(type1)
 				{
 					case 0:
@@ -1789,19 +2045,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 0) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((int*) var1) != *((int*) var2);
 						}
@@ -1814,19 +2070,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 1) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((double*) var1) != *((double*) var2);
 						}
@@ -1838,19 +2094,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if ((type2 == 3) && (type3 == 3))
 						{
 							if (scope1 == 0)
-								var1 = l_arr[index1];
+								var1 = l_arr[index1].var;
 							else
-								var1 = g_arr[index1];
+								var1 = g_arr[index1].var;
 
 							if (scope2 == 0)
-								var2 = l_arr[index2];
+								var2 = l_arr[index2].var;
 							else
-								var2 = g_arr[index2];
+								var2 = g_arr[index2].var;
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							*((bool*) var3) = *((bool*) var1) != *((bool*) var2);
 						}
@@ -1863,38 +2119,38 @@ int interpret(symbol_table_item *GTable, tList *List)
 						{
 							if (scope1 == 0)
 							{
-								var1 = malloc(sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
+								var1 = malloc(sizeof(char) * (strlen((char*) l_arr[index1].var) + 1));
 								if (var1 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var1, l_arr[index1], sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
+								memcpy(var1, l_arr[index1].var, sizeof(char) * (strlen((char*) l_arr[index1].var) + 1));
 							}
 							else
 							{
-								var1 = malloc(sizeof(char) * (strlen((char*) g_arr[index1]) + 1));
+								var1 = malloc(sizeof(char) * (strlen((char*) g_arr[index1].var) + 1));
 								if (var1 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var1, ((char*) g_arr[index1]), sizeof(char) * (strlen(((char*) g_arr[index1])) + 1));
+								memcpy(var1, ((char*) g_arr[index1].var), sizeof(char) * (strlen(((char*) g_arr[index1].var)) + 1));
 							}
 
 							if (scope2 == 0)
 							{
-								var2 = malloc(sizeof(char) * (strlen((char*) l_arr[index2]) + 1));
+								var2 = malloc(sizeof(char) * (strlen((char*) l_arr[index2].var) + 1));
 								if (var2 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var2, ((char*) l_arr[index2]), sizeof(char) * (strlen(((char*) l_arr[index2])) + 1));
+								memcpy(var2, ((char*) l_arr[index2].var), sizeof(char) * (strlen(((char*) l_arr[index2].var)) + 1));
 							}
 							else
 							{
-								var2 = malloc(sizeof(char) * (strlen((char*) g_arr[index2]) + 1));
+								var2 = malloc(sizeof(char) * (strlen((char*) g_arr[index2].var) + 1));
 								if (var2 == NULL)
 									return INTERNAL_ERR;
-								memcpy(var2, ((char*) g_arr[index2]), sizeof(char) * (strlen(((char*) g_arr[index2])) + 1));
+								memcpy(var2, ((char*) g_arr[index2].var), sizeof(char) * (strlen(((char*) g_arr[index2].var)) + 1));
 							}
 
 							if (scope3 == 0)
-								var3 = l_arr[index3];
+								var3 = l_arr[index3].var;
 							else
-								var3 = g_arr[index3];
+								var3 = g_arr[index3].var;
 
 							if (strcmp(var1,var2) != 0)
 								*((bool*) var3) = true;
@@ -1914,10 +2170,15 @@ int interpret(symbol_table_item *GTable, tList *List)
 			{
 				if (I->addr1 == NULL)
 					break;
-				((htab_item*) I->addr3)->initialized = 1;
+				if ((garbage_add(Garbage, I->addr1)) == 1)
+					return INTERNAL_ERR; 
 				index3 = ((htab_item*) I->addr3)->index;
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
+				if (scope3 == 0)
+					l_arr[index3].init = 1;
+				else
+					g_arr[index3].init = 1;
 				//addr3 - address of storage variable
 				//addr1 - temp pointer for value
 				//---------------------------------
@@ -1929,22 +2190,18 @@ int interpret(symbol_table_item *GTable, tList *List)
 					case 0:
 					{
 						if (scope3 == 0)
-							*((int*) l_arr[index3]) = *((int*) I->addr1);
+							*((int*) l_arr[index3].var) = *((int*) I->addr1);
 						else
-							*((int*) g_arr[index3]) = *((int*) I->addr1);
-						if ((garbage_add(Garbage, I->addr1)) == 1)
-							return INTERNAL_ERR; 
+							*((int*) g_arr[index3].var) = *((int*) I->addr1);
 						break;
 					}
 
 					case 1:
 					{
 						if (scope3 == 0)
-							*((double*) l_arr[index3]) = *((double*) I->addr1);
+							*((double*) l_arr[index3].var) = *((double*) I->addr1);
 						else
-							*((double*) g_arr[index3]) = *((double*) I->addr1);
-						if ((garbage_add(Garbage, I->addr1)) == 1)
-							return INTERNAL_ERR; 
+							*((double*) g_arr[index3].var) = *((double*) I->addr1);
 						break;
 					}
 
@@ -1952,41 +2209,37 @@ int interpret(symbol_table_item *GTable, tList *List)
 					{
 						if (scope3 == 0)
 						{
-							if (strlen((char*) I->addr1) != strlen((char*) l_arr[index3]))
+							if (strlen((char*) I->addr1) != strlen((char*) l_arr[index3].var))
 							{
-								free(l_arr[index3]);
-								l_arr[index3] = NULL;
-								l_arr[index3] = malloc(sizeof(char) * (strlen((char*) I->addr1) + 1));
-								if (l_arr[index3] == NULL)
+								free(l_arr[index3].var);
+								l_arr[index3].var = NULL;
+								l_arr[index3].var = malloc(sizeof(char) * (strlen((char*) I->addr1) + 1));
+								if (l_arr[index3].var == NULL)
 									return INTERNAL_ERR;
 							}
-							memcpy(((char*) l_arr[index3]), ((char*) I->addr1), (strlen((char*) I->addr1) + 1) * sizeof(char));
+							memcpy(((char*) l_arr[index3].var), ((char*) I->addr1), (strlen((char*) I->addr1) + 1) * sizeof(char));
 						}
 						else
 						{
-							if (strlen((char*) I->addr1) != strlen((char*) g_arr[index3]))
+							if (strlen((char*) I->addr1) != strlen((char*) g_arr[index3].var))
 							{
-								free(g_arr[index3]);
-								g_arr[index3] = NULL;
-								g_arr[index3] = malloc(sizeof(char) * (strlen((char*) I->addr1) + 1));
-								if (g_arr[index3] == NULL)
+								free(g_arr[index3].var);
+								g_arr[index3].var = NULL;
+								g_arr[index3].var = malloc(sizeof(char) * (strlen((char*) I->addr1) + 1));
+								if (g_arr[index3].var == NULL)
 									return INTERNAL_ERR;
 							}
-							memcpy(((char*) g_arr[index3]), ((char*) I->addr1), (strlen((char*) I->addr1) + 1) * sizeof(char));
+							memcpy(((char*) g_arr[index3].var), ((char*) I->addr1), (strlen((char*) I->addr1) + 1) * sizeof(char));
 						}
-						if ((garbage_add(Garbage, I->addr1)) == 1)
-							return INTERNAL_ERR; 
 						break;
 					}
 
 					case 3:
 					{
 						if (scope3 == 0)
-							*((bool*) l_arr[index3]) = *((bool*) I->addr1);
+							*((bool*) l_arr[index3].var) = *((bool*) I->addr1);
 						else
-							*((bool*) g_arr[index3]) = *((bool*) I->addr1);
-						if ((garbage_add(Garbage, I->addr1)) == 1)
-							return INTERNAL_ERR; 
+							*((bool*) g_arr[index3].var) = *((bool*) I->addr1);
 						break;
 					}
 				}
@@ -1995,12 +2248,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 			case I_COPYVAR:
 			{
-				if (((htab_item*) I->addr1)->initialized == 0)
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
-				((htab_item*) I->addr3)->initialized = 1;
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -2008,6 +2255,22 @@ int interpret(symbol_table_item *GTable, tList *List)
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
 				
+				if (scope1 == 0)
+				{
+					if (l_arr[index1].init == 0)
+						return RUN_INIT_ERROR;
+				}
+				else
+				{
+					if (g_arr[index1].init == 0)
+						return RUN_INIT_ERROR;
+				}
+
+				if (scope3 == 0)
+					l_arr[index3].init = 1;
+				else
+					g_arr[index3].init = 1;
+
 				switch (type1)
 				{
 					case 0:
@@ -2015,16 +2278,16 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if (scope3 == 0)
 						{
 							if (scope1 == 0)
-								*((int*) l_arr[index3]) = *((int*) l_arr[index1]);
+								*((int*) l_arr[index3].var) = *((int*) l_arr[index1].var);
 							else
-								*((int*) l_arr[index3]) = *((int*) g_arr[index1]);
+								*((int*) l_arr[index3].var) = *((int*) g_arr[index1].var);
 						}
 						else
 						{
 							if (scope1 == 0)
-								*((int*) g_arr[index3]) = *((int*) l_arr[index1]);
+								*((int*) g_arr[index3].var) = *((int*) l_arr[index1].var);
 							else
-								*((int*) g_arr[index3]) = *((int*) g_arr[index1]);
+								*((int*) g_arr[index3].var) = *((int*) g_arr[index1].var);
 						}
 						break;
 					}
@@ -2034,16 +2297,16 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if (scope3 == 0)
 						{
 							if (scope1 == 0)
-								*((double*) l_arr[index3]) = *((double*) l_arr[index1]);
+								*((double*) l_arr[index3].var) = *((double*) l_arr[index1].var);
 							else
-								*((double*) l_arr[index3]) = *((double*) g_arr[index1]);
+								*((double*) l_arr[index3].var) = *((double*) g_arr[index1].var);
 						}
 						else
 						{
 							if (scope1 == 0)
-								*((double*) g_arr[index3]) = *((double*) l_arr[index1]);
+								*((double*) g_arr[index3].var) = *((double*) l_arr[index1].var);
 							else
-								*((double*) g_arr[index3]) = *((double*) g_arr[index1]);
+								*((double*) g_arr[index3].var) = *((double*) g_arr[index1].var);
 						}
 						break;
 					}
@@ -2054,54 +2317,54 @@ int interpret(symbol_table_item *GTable, tList *List)
 						{
 							if (scope1 == 0)
 							{
-								if (strlen((char*) l_arr[index3]) != strlen((char*) l_arr[index1]))
+								if (strlen((char*) l_arr[index3].var) != strlen((char*) l_arr[index1].var))
 								{
-									free(l_arr[index3]);
-									l_arr[index3] = NULL;
-									l_arr[index3] = malloc(sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
-									if (l_arr[index3] == NULL)
+									free(l_arr[index3].var);
+									l_arr[index3].var = NULL;
+									l_arr[index3].var = malloc(sizeof(char) * (strlen((char*) l_arr[index1].var) + 1));
+									if (l_arr[index3].var == NULL)
 										return INTERNAL_ERR;
 								}
-								memcpy(((char*) l_arr[index3]), ((char*) l_arr[index1]), sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
+								memcpy(((char*) l_arr[index3].var), ((char*) l_arr[index1].var), sizeof(char) * (strlen((char*) l_arr[index1].var) + 1));
 							}
 							else
 							{
-								if (strlen((char*) l_arr[index3]) != strlen((char*) g_arr[index1]))
+								if (strlen((char*) l_arr[index3].var) != strlen((char*) g_arr[index1].var))
 								{
-									free(l_arr[index3]);
-									l_arr[index3] = NULL;
-									l_arr[index3] = malloc(sizeof(char) * (strlen((char*) g_arr[index1]) + 1));
-									if (l_arr[index3] == NULL)
+									free(l_arr[index3].var);
+									l_arr[index3].var = NULL;
+									l_arr[index3].var = malloc(sizeof(char) * (strlen((char*) g_arr[index1].var) + 1));
+									if (l_arr[index3].var == NULL)
 										return INTERNAL_ERR;
 								}
-								memcpy(((char*) l_arr[index3]), ((char*) g_arr[index1]), sizeof(char) * (strlen((char*) g_arr[index1]) + 1));
+								memcpy(((char*) l_arr[index3].var), ((char*) g_arr[index1].var), sizeof(char) * (strlen((char*) g_arr[index1].var) + 1));
 							}
 						}
 						else
 						{
 							if (scope1 == 0)
 							{
-								if (strlen((char*) g_arr[index3]) != strlen((char*) l_arr[index1]))
+								if (strlen((char*) g_arr[index3].var) != strlen((char*) l_arr[index1].var))
 								{
-									free(g_arr[index3]);
-									g_arr[index3] = NULL;
-									g_arr[index3] = malloc(sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
-									if (g_arr[index3] == NULL)
+									free(g_arr[index3].var);
+									g_arr[index3].var = NULL;
+									g_arr[index3].var = malloc(sizeof(char) * (strlen((char*) l_arr[index1].var) + 1));
+									if (g_arr[index3].var == NULL)
 										return INTERNAL_ERR;
 								}
-								memcpy(((char*) g_arr[index3]), ((char*) l_arr[index1]), sizeof(char) * (strlen((char*) l_arr[index1]) + 1));
+								memcpy(((char*) g_arr[index3].var), ((char*) l_arr[index1].var), sizeof(char) * (strlen((char*) l_arr[index1].var) + 1));
 							}
 							else
 							{
-								if (strlen((char*) g_arr[index3]) != strlen((char*) g_arr[index1]))
+								if (strlen((char*) g_arr[index3].var) != strlen((char*) g_arr[index1].var))
 								{
-									free(g_arr[index3]);
-									g_arr[index3] = NULL;
-									g_arr[index3] = malloc(sizeof(char) * (strlen((char*) g_arr[index1]) + 1));
-									if (g_arr[index3] == NULL)
+									free(g_arr[index3].var);
+									g_arr[index3].var = NULL;
+									g_arr[index3].var = malloc(sizeof(char) * (strlen((char*) g_arr[index1].var) + 1));
+									if (g_arr[index3].var == NULL)
 										return INTERNAL_ERR;
 								}
-								memcpy(((char*) g_arr[index3]), ((char*) g_arr[index1]), sizeof(char) * (strlen((char*) g_arr[index1]) + 1));
+								memcpy(((char*) g_arr[index3].var), ((char*) g_arr[index1].var), sizeof(char) * (strlen((char*) g_arr[index1].var) + 1));
 							}
 						}
 						break;
@@ -2112,16 +2375,16 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if (scope3 == 0)
 						{
 							if (scope1 == 0)
-								*((bool*) l_arr[index3]) = *((bool*) l_arr[index1]);
+								*((bool*) l_arr[index3].var) = *((bool*) l_arr[index1].var);
 							else
-								*((bool*) l_arr[index3]) = *((bool*) g_arr[index1]);
+								*((bool*) l_arr[index3].var) = *((bool*) g_arr[index1].var);
 						}
 						else
 						{
 							if (scope1 == 0)
-								*((bool*) g_arr[index3]) = *((bool*) l_arr[index1]);
+								*((bool*) g_arr[index3].var) = *((bool*) l_arr[index1].var);
 							else
-								*((bool*) g_arr[index3]) = *((bool*) g_arr[index1]);
+								*((bool*) g_arr[index3].var) = *((bool*) g_arr[index1].var);
 						}
 						break;
 					}
@@ -2137,7 +2400,10 @@ int interpret(symbol_table_item *GTable, tList *List)
 				index3 = ((htab_item*) I->addr3)->index;
 				type3 = ((htab_item*) I->addr3)->type;
 				scope3 = ((htab_item*) I->addr3)->global;
-				*init_temp = ((htab_item*) I->addr3)->initialized;
+				if (scope3 == 0)
+					*init_temp = l_arr[index3].init;
+				else
+					*init_temp = g_arr[index3].init;
 				//search table for type, index and scope
 				//push value from array
 				switch (type3)
@@ -2146,12 +2412,12 @@ int interpret(symbol_table_item *GTable, tList *List)
 					{
 						if (scope3 == 0)
 						{
-							if ((VarStackPush(VS, ((int*) l_arr[index3]), NULL, NULL, NULL)) == INTERNAL_ERR)
+							if ((VarStackPush(VS, ((int*) l_arr[index3].var), NULL, NULL, NULL)) == INTERNAL_ERR)
 								return INTERNAL_ERR;
 						}
 						else
 						{
-							if ((VarStackPush(VS, ((int*) g_arr[index3]), NULL, NULL, NULL)) == INTERNAL_ERR)
+							if ((VarStackPush(VS, ((int*) g_arr[index3].var), NULL, NULL, NULL)) == INTERNAL_ERR)
 								return INTERNAL_ERR;
 						}
 						break;
@@ -2161,12 +2427,12 @@ int interpret(symbol_table_item *GTable, tList *List)
 					{
 						if (scope3 == 0)
 						{
-							if ((VarStackPush(VS, NULL, ((double*) l_arr[index3]), NULL, NULL)) == INTERNAL_ERR)
+							if ((VarStackPush(VS, NULL, ((double*) l_arr[index3].var), NULL, NULL)) == INTERNAL_ERR)
 								return INTERNAL_ERR;
 						}
 						else
 						{
-							if ((VarStackPush(VS, NULL, ((double*) g_arr[index3]), NULL, NULL)) == INTERNAL_ERR)
+							if ((VarStackPush(VS, NULL, ((double*) g_arr[index3].var), NULL, NULL)) == INTERNAL_ERR)
 								return INTERNAL_ERR;
 						}
 						break;
@@ -2176,12 +2442,12 @@ int interpret(symbol_table_item *GTable, tList *List)
 					{
 						if (scope3 == 0)
 						{
-							if ((VarStackPush(VS, NULL, NULL, ((char*) l_arr[index3]), NULL)) == INTERNAL_ERR)
+							if ((VarStackPush(VS, NULL, NULL, ((char*) l_arr[index3].var), NULL)) == INTERNAL_ERR)
 								return INTERNAL_ERR;
 						}
 						else
 						{
-							if ((VarStackPush(VS, NULL, NULL, ((char*) g_arr[index3]), NULL)) == INTERNAL_ERR)
+							if ((VarStackPush(VS, NULL, NULL, ((char*) g_arr[index3].var), NULL)) == INTERNAL_ERR)
 								return INTERNAL_ERR;
 						}
 						break;
@@ -2191,12 +2457,12 @@ int interpret(symbol_table_item *GTable, tList *List)
 					{
 						if (scope3 == 0)
 						{
-							if ((VarStackPush(VS, NULL, NULL, NULL, ((bool*) l_arr[index3]))) == INTERNAL_ERR)
+							if ((VarStackPush(VS, NULL, NULL, NULL, ((bool*) l_arr[index3].var))) == INTERNAL_ERR)
 								return INTERNAL_ERR;
 						}
 						else
 						{
-							if ((VarStackPush(VS, NULL, NULL, NULL, ((bool*) g_arr[index3]))) == INTERNAL_ERR)
+							if ((VarStackPush(VS, NULL, NULL, NULL, ((bool*) g_arr[index3].var))) == INTERNAL_ERR)
 								return INTERNAL_ERR;
 						}
 						break;
@@ -2226,14 +2492,13 @@ int interpret(symbol_table_item *GTable, tList *List)
 				*type_temp = ((htab_item*) I->addr3)->type;
 				*index_temp = ((htab_item*) I->addr3)->index;
 				*scope_temp = ((htab_item*) I->addr3)->global;
-				((htab_item*) I->addr3)->initialized = 1;
 
 				if (l_arr != NULL)
 					if ((LStackPush(LS, l_arr)) == INTERNAL_ERR)
 						return INTERNAL_ERR;
 
 				l_arr = NULL;
-				l_arr = malloc(sizeof(void*) * (((htab_item*) I->addr1)->func_table->item_count));
+				l_arr = malloc(sizeof(tVarArr) * (((htab_item*) I->addr1)->func_table->item_count));
 				if (l_arr == NULL)
 					return INTERNAL_ERR;
 				initarray(l_arr, ((htab_item*) I->addr1)->func_table->item_count);
@@ -2248,40 +2513,39 @@ int interpret(symbol_table_item *GTable, tList *List)
 				while (i > 0)
 				{
 					char *temp;
-					htab_item* Item = FindItemOfIndex(i, ((htab_item*) I->addr1)->func_table);
-					Item->initialized = BoolVarStackPop(VS);
+					l_arr[i].init = BoolVarStackPop(VS);
 					switch (((htab_item*) I->addr1)->func_data[(i-1)]) //cteni znaku retezce typu - strlen ==3 -> posledni znak je na pozici [2]
 					{
 						case 'i':
 						{
-							*((int*) l_arr[i]) = IntVarStackPop(VS);
+							*((int*) l_arr[i].var) = IntVarStackPop(VS);
 							break;
 						}
 
 						case 's':
 						{
 							temp = StrVarStackPop(VS);
-							if (strlen(temp) != strlen((char*) l_arr[i]))
+							if (strlen(temp) != strlen((char*) l_arr[i].var))
 							{
-								free(l_arr[i]);
-								l_arr[i] = NULL;
-								l_arr[i] = malloc(sizeof(char) * (strlen(temp) + 1));
-								if (l_arr[i] == NULL)
+								free(l_arr[i].var);
+								l_arr[i].var = NULL;
+								l_arr[i].var = malloc(sizeof(char) * (strlen(temp) + 1));
+								if (l_arr[i].var == NULL)
 									return INTERNAL_ERR;
 							}
-							memcpy(((char*) l_arr[i]), temp, sizeof(char) * (strlen(temp) + 1));
+							memcpy(((char*) l_arr[i].var), temp, sizeof(char) * (strlen(temp) + 1));
 							break;	
 						}
 
 						case 'r':
 						{
-							*((double*) l_arr[i]) = DoubleVarStackPop(VS);
+							*((double*) l_arr[i].var) = DoubleVarStackPop(VS);
 							break;
 						}
 
 						case 'b':
 						{
-							*((bool*) l_arr[i]) = BoolVarStackPop(VS);
+							*((bool*) l_arr[i].var) = BoolVarStackPop(VS);
 							break;
 						}
 					}
@@ -2328,7 +2592,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 						value_temp = malloc(sizeof(int));
 						if (value_temp == NULL)
 							return INTERNAL_ERR;
-						*((int*) value_temp) = *((int*) l_arr[0]);
+						*((int*) value_temp) = *((int*) l_arr[0].var);
 						break;
 					}
 
@@ -2337,16 +2601,16 @@ int interpret(symbol_table_item *GTable, tList *List)
 						value_temp = malloc(sizeof(double));
 						if (value_temp == NULL)
 							return INTERNAL_ERR;
-						*((double*) value_temp) = *((double*) l_arr[0]);
+						*((double*) value_temp) = *((double*) l_arr[0].var);
 						break;
 					}
 
 					case 2:
 					{
-						value_temp = malloc(sizeof(char) * (strlen((char*) l_arr[0]) + 1));
+						value_temp = malloc(sizeof(char) * (strlen((char*) l_arr[0].var) + 1));
 						if (value_temp == NULL)
 							return INTERNAL_ERR;
-						memcpy(((char*) value_temp), ((char*) l_arr[0]), sizeof(char) * (strlen((char*) l_arr[0]) + 1));
+						memcpy(((char*) value_temp), ((char*) l_arr[0].var), sizeof(char) * (strlen((char*) l_arr[0].var) + 1));
 						break;
 					}
 
@@ -2355,7 +2619,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 						value_temp = malloc(sizeof(bool));
 						if (value_temp == NULL)
 							return INTERNAL_ERR;
-						*((bool*) value_temp) = *((bool*) l_arr[0]);
+						*((bool*) value_temp) = *((bool*) l_arr[0].var);
 						break;
 					}
 				}
@@ -2371,33 +2635,33 @@ int interpret(symbol_table_item *GTable, tList *List)
 					{
 						case 0:
 						{
-							*((int*) l_arr[*index_temp]) = *((int*) value_temp);
+							*((int*) l_arr[*index_temp].var) = *((int*) value_temp);
 							break;
 						}
 
 						case 1:
 						{
-							*((double*) l_arr[*index_temp]) = *((double*) value_temp);
+							*((double*) l_arr[*index_temp].var) = *((double*) value_temp);
 							break;
 						}
 
 						case 2:
 						{
-							if ((strlen((char*) value_temp)) != strlen((char*) l_arr[*index_temp]))
+							if ((strlen((char*) value_temp)) != strlen((char*) l_arr[*index_temp].var))
 							{
-								free(l_arr[*index_temp]);
-								l_arr[*index_temp] = NULL;
-								l_arr[*index_temp] = malloc(sizeof(char) * (strlen((char*) value_temp) + 1));
-								if (l_arr[*index_temp] == NULL)
+								free(l_arr[*index_temp].var);
+								l_arr[*index_temp].var = NULL;
+								l_arr[*index_temp].var = malloc(sizeof(char) * (strlen((char*) value_temp) + 1));
+								if (l_arr[*index_temp].var == NULL)
 									return INTERNAL_ERR;
 							}
-							memcpy(((char*) l_arr[*index_temp]), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
+							memcpy(((char*) l_arr[*index_temp].var), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
 							break;
 						}
 
 						case 3:
 						{
-							*((bool*) l_arr[*index_temp]) = *((bool*) value_temp);
+							*((bool*) l_arr[*index_temp].var) = *((bool*) value_temp);
 							break;
 						}
 					}
@@ -2409,37 +2673,42 @@ int interpret(symbol_table_item *GTable, tList *List)
 					{
 						case 0:
 						{
-							*((int*) g_arr[*index_temp]) = *((int*) value_temp);
+							*((int*) g_arr[*index_temp].var) = *((int*) value_temp);
 							break;
 						}
 
 						case 1:
 						{
-							*((double*) g_arr[*index_temp]) = *((double*) value_temp);
+							*((double*) g_arr[*index_temp].var) = *((double*) value_temp);
 							break;
 						}
 
 						case 2:
 						{
-							if ((strlen((char*) value_temp)) != strlen((char*) g_arr[*index_temp]))
+							if ((strlen((char*) value_temp)) != strlen((char*) g_arr[*index_temp].var))
 							{
-								free(g_arr[*index_temp]);
-								g_arr[*index_temp] = NULL;
-								g_arr[*index_temp] = malloc(sizeof(char) * (strlen((char*) value_temp) + 1));
-								if (g_arr[*index_temp] == NULL)
+								free(g_arr[*index_temp].var);
+								g_arr[*index_temp].var = NULL;
+								g_arr[*index_temp].var = malloc(sizeof(char) * (strlen((char*) value_temp) + 1));
+								if (g_arr[*index_temp].var == NULL)
 									return INTERNAL_ERR;
 							}
-							memcpy(((char*) g_arr[*index_temp]), ((char*) value_temp), (sizeof(char) * (strlen((char*) value_temp) + 1)));
+							memcpy(((char*) g_arr[*index_temp].var), ((char*) value_temp), (sizeof(char) * (strlen((char*) value_temp) + 1)));
 							break;
 						}
 
 						case 3:
 						{
-							*((bool*) g_arr[*index_temp]) = *((bool*) value_temp);
+							*((bool*) g_arr[*index_temp].var) = *((bool*) value_temp);
 							break;
 						}
 					}
 				}
+
+				if (*scope_temp == 0)
+					l_arr[*index_temp].init = 1;
+				else
+					g_arr[*index_temp].init = 1;
 
 				free(value_temp);
 				GoToItem(List, return_addr);

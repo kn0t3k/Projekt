@@ -24,15 +24,15 @@ int LStackEmpty (tLVS *S)
 	return (S->top == 0);
 }
 
-int LStackPush (tLVS *S, vararr Array)
+int LStackPush (tLVS *S, tVarArr *Array)
 {
-	vararr *temp;
+	tVarArr **temp;
 	int new_size = 0;
 	S->top++;
 	if (S->top == S->StackSize)
 	{
 		new_size = S->StackSize + 20;
-		temp = malloc(sizeof(vararr) * new_size);
+		temp = malloc(sizeof(tVarArr) * new_size);
 		if (temp == NULL)
 			return INTERNAL_ERR;
 		for (int i = 0; i < S->StackSize; i++)
@@ -47,11 +47,10 @@ int LStackPush (tLVS *S, vararr Array)
 	return 0;
 }
 
-vararr LStackPop (tLVS *S)
+tVarArr *LStackPop (tLVS *S)
 {
 	if (S->top == 0)
 	{
-		printf("Stack is empty!1");
 		return NULL;
 	}
 	else
@@ -133,46 +132,22 @@ int VarStackPush (tVarS *S, int *intvar, double *doublevar, char *stringvar, boo
 
 int IntVarStackPop (tVarS *S)
 {
-	if (S->top == 0)
-	{
-		printf("Stack is empty!2\n");
-		return -1;
-	}
-	else
-		return *((int*)(S->var_stack[S->top--]));
+	return *((int*)(S->var_stack[S->top--]));
 }
 
 bool BoolVarStackPop (tVarS *S)
 {
-	if (S->top == 0)
-	{
-		printf("Stack is empty!3\n");
-		return 0;
-	}
-	else
-		return *((bool*)(S->var_stack[S->top--]));
+	return *((bool*)(S->var_stack[S->top--]));
 }
 
 double DoubleVarStackPop (tVarS *S)
 {
-	if (S->top == 0)
-	{
-		printf("Stack is empty!4\n");
-		return -1.0;
-	}
-	else
-		return *((double*)(S->var_stack[S->top--]));
+	return *((double*)(S->var_stack[S->top--]));
 }
 
 char* StrVarStackPop (tVarS *S)
 {
-	if (S->top == 0)
-	{
-		printf("Stack is empty!5\n");
-		return NULL;
-	}
-	else
-		return ((char*)(S->var_stack[S->top--]));
+	return ((char*)(S->var_stack[S->top--]));
 }
 
 void DisposeVarStack(tVarS *S)
@@ -226,8 +201,5 @@ int AddStackPush (tAddS *S, void *item)
 
 void* AddStackPop (tAddS *S)
 {
-	if (S->top == 0)
-		return NULL;
-	else
-		return (S->add_stack[S->top--]);
+	return (S->add_stack[S->top--]);
 }

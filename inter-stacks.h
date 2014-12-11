@@ -1,16 +1,18 @@
 #include <stdbool.h>
 
-typedef void** vararr; //variable array
+typedef struct VarArr{
+	void *var;
+	bool init;
+} tVarArr;
 
 typedef struct LVS{ //Local Variable Stack
-	vararr *l_stack;
+	tVarArr **l_stack;
 	int top;
 	int StackSize;
 } tLVS; 
 
-
 typedef struct VarS{ //Parameter and Return Variable Stack
-	vararr var_stack;
+	void **var_stack;
 	int top;
 	int StackSize;
 } tVarS;
@@ -24,8 +26,8 @@ typedef struct AddS{ //Return Address Stack
 
 void LStackInit (tLVS *S, int StackSize);
 int LStackEmpty (tLVS *S);
-int LStackPush (tLVS *S, vararr Array);
-vararr LStackPop (tLVS *S);
+int LStackPush (tLVS *S, tVarArr *Array);
+tVarArr *LStackPop (tLVS *S);
 //-------------------
 void VarStackInit (tVarS *S, int StackSize);
 int VarStackEmpty (tVarS *S);
