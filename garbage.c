@@ -12,6 +12,13 @@ struct garbage_list* garbage_init(){
 
 
 int garbage_add(struct garbage_list* Glist, void* Gptr){
+	struct garbage_item* tmp = Glist->first;
+	while(tmp){
+		if(tmp->ptr == Gptr) return 0;
+		tmp = tmp->next;
+	}
+	
+	
 	struct garbage_item* new = malloc(sizeof(struct garbage_item));
 	if(new == NULL) return 1;
 	
