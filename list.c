@@ -30,14 +30,15 @@ void SetFirst (tList *L, void *ItemAddress)
 
 void DisposeList (tList *L)
 {
-	if (L->First != NULL)
+	if (L->Top != NULL)
 	{
-		while (L->First != NULL)
+		while (L->Top != NULL)
 		{
-			L->Act = L->First;
-			L->First = L->First->NextItem;
+			L->Act = L->Top;
+			L->Top = L->Top->NextItem;
 			free(L->Act);
 		}
+		L->Top = NULL;
 		L->First = NULL;
 		L->Last = NULL;
 		L->Act = NULL;
@@ -59,6 +60,7 @@ int InsertNew (tList *L, tInstr NewIns)
 	}
 	else
 	{
+		L->Top = NewItem;
 		L->Last = NewItem;
 		L->First = NewItem;
 	}

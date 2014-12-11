@@ -26,9 +26,10 @@ typedef struct Item
     
 typedef struct
 {
-  struct Item *First;  //ukazatel na prvni prvek
+  struct Item *First;  //ukazatel na prvni instrukci programu
   struct Item *Last;   //ukazatel na posledni prvek
   struct Item *Act; //ukazatel na aktivni prvek
+  struct Item *Top; //ukazatel na prvni prvek seznamu
 } tList;
 
 void InitList (tList *LS);
