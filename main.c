@@ -144,6 +144,12 @@ int main(int argc, char** argv)
        DisposeList(&list);
        fclose(f);
        return -result;
+     case STDIN_NUM_ERROR:
+	   printf("\nerr STDIN NUM\n");	   
+	   symbol_table_free(table);
+       DisposeList(&list);
+       fclose(f);
+       return -result;
 	 default:
 	   break;
 	 
