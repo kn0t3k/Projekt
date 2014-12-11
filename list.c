@@ -21,6 +21,7 @@ void InitList (tList *L)
 	L->First = NULL;
 	L->Last = NULL;
 	L->Act = NULL;
+	L->Top = NULL;
 }
 
 void SetFirst (tList *L, void *ItemAddress)
