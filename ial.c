@@ -860,9 +860,10 @@ int readln_int(int *err)
 {
 	int state = 0;
 	int c;
-	int vysledek; /* zde bude vysledek */
-	long int overflow; /* tady nahravam to same co do i...kdyby i melo pretect tak to overflow pozna */
+	int vysledek = 0; /* zde bude vysledek */
+	long int overflow = 0; /* tady nahravam to same co do i...kdyby i melo pretect tak to overflow pozna */
 	int znamenko = 0; /*  0=+  1=-  */
+
 	*err = 0;
 
 	while (1)
@@ -880,13 +881,13 @@ int readln_int(int *err)
 	            else
 	            if(c == '+') /* kladne cislo */
 	            {
-	                state = 1;
+	                state = 2;
 	            }
 	            else
 	            if(c == '-') /* kladne cislo */
 	            {
 	                znamenko = 1;
-	                state = 1;
+	                state = 2;
 	            }
 	            else
 	            if(c >= '0' && c <= '9') /* jdeme nacitat samotne cislo */
@@ -909,12 +910,23 @@ int readln_int(int *err)
 				if (c >= '0' && c <= '9')
 				{
 					overflow = overflow * 10 + (c - '0'); /* detekce int overflow */
-					if (znamenko) overflow = -overflow;
-					if (overflow > INT_MAX || overflow < INT_MIN) /* cislo preteklo/podteklo */
+					if (znamenko == 1)
 					{
-						*err = STDIN_NUM_ERROR;
-						return STDIN_NUM_ERROR;
-					}	
+						if (-overflow < INT_MIN) /* cislo preteklo/podteklo */
+						{
+							*err = STDIN_NUM_ERROR;
+							return STDIN_NUM_ERROR;
+						}	
+					}
+					else
+					{
+						if (overflow > INT_MAX) /* cislo preteklo/podteklo */
+						{
+							*err = STDIN_NUM_ERROR;
+							return STDIN_NUM_ERROR;
+						}	
+					}
+					
 					vysledek = vysledek * 10 + (c - '0');			
 				}
 				else /* cokoliv jineho nez cislo - nezadouci - ignor */
@@ -927,6 +939,40 @@ int readln_int(int *err)
 					{
 						return vysledek;
 					}
+				}
+
+			break;
+
+
+			case 2:
+
+				if (c >= '0' && c <= '9')
+				{
+					overflow = overflow * 10 + (c - '0'); /* detekce int overflow */
+					if (znamenko == 1)
+					{
+						if (-overflow < INT_MIN) /* cislo preteklo/podteklo */
+						{
+							*err = STDIN_NUM_ERROR;
+							return STDIN_NUM_ERROR;
+						}	
+					}
+					else
+					{
+						if (overflow > INT_MAX) /* cislo preteklo/podteklo */
+						{
+							*err = STDIN_NUM_ERROR;
+							return STDIN_NUM_ERROR;
+						}	
+					}
+					
+					vysledek = vysledek * 10 + (c - '0');
+					state = 1;			
+				}
+				else
+				{
+					*err = STDIN_NUM_ERROR;
+					return STDIN_NUM_ERROR;
 				}
 
 			break;
@@ -978,7 +1024,7 @@ double readln_real(int *err)
 	            else
 	            if (c == '+') /* kladne cislo */
 				{
-					state = 1;
+					state = 8;
 				}
 	            else
 	            if (c == '-') /* zaporne cislo */
@@ -989,7 +1035,7 @@ double readln_real(int *err)
 	        			*err = INTERNAL_ERR;
 	        			return INTERNAL_ERR;
 	        		}
-	        		state = 1;
+	        		state = 8;
 				}
 	            else
 	            if(c >= '0' && c <= '9') /* jdeme nacitat samotne cislo */
@@ -1296,6 +1342,29 @@ double readln_real(int *err)
             break;
 
 
+            case 8: /* samotne + nebo - */
+
+            	if(c >= '0' && c <= '9')
+                {
+                    if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	        		{
+	        			free(s_vysledek);
+	        			*err = INTERNAL_ERR;
+	        			return INTERNAL_ERR;
+	        		}
+                    state = 1;
+                }
+                else
+                {
+                	free(s_vysledek);
+                    *err = STDIN_NUM_ERROR;
+                    return STDIN_NUM_ERROR;
+                }
+
+
+            break;
+
+
             case 9:  /* desetinne cislo se zapornym exp */
 
             	if(c >= '0' && c <= '9')
@@ -1372,7 +1441,8 @@ char* readln_string(int *err)
 	
 	vysledek[counter] = '\0'; /* zakonceni retezce */
 
-	if (strcmp(vysledek,"true") == 0 || strcmp(vysledek,"false") == 0) /* booleovske vyrazy */
+	if (strcmp(vysledek,"true") == 0 || strcmp(vysledek,"false") == 0 ||
+		strcmp(vysledek,"TRUE") == 0 || strcmp(vysledek,"FALSE") == 0) /* booleovske vyrazy */
 	{
 		*err = SEM_ERROR_TYPE;
 		return NULL; /* kontrolovat v interpretu! */
