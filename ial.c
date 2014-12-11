@@ -856,13 +856,14 @@ void sort_main(char *A, int left, int right)
 * @return typ int, nebo chyba STDIN_NUM_ERROR
 */
 
-int readln_int(void)
+int readln_int(int *err)
 {
 	int state = 0;
 	int c;
 	int vysledek; /* zde bude vysledek */
 	long int overflow; /* tady nahravam to same co do i...kdyby i melo pretect tak to overflow pozna */
 	int znamenko = 0; /*  0=+  1=-  */
+	*err = 0;
 
 	while (1)
 	{
@@ -896,6 +897,7 @@ int readln_int(void)
 	            }
 	            else
 	            {
+	            	*err = STDIN_NUM_ERROR;
 	            	return STDIN_NUM_ERROR;
 	            }
 
@@ -910,6 +912,7 @@ int readln_int(void)
 					if (znamenko) overflow = -overflow;
 					if (overflow > INT_MAX || overflow < INT_MIN) /* cislo preteklo/podteklo */
 					{
+						*err = STDIN_NUM_ERROR;
 						return STDIN_NUM_ERROR;
 					}	
 					vysledek = vysledek * 10 + (c - '0');			
@@ -939,7 +942,7 @@ int readln_int(void)
 * @return typ real, nebo chyba (STDIN_NUM_ERROR/INTERNAL_ERR)
 */
 
-double readln_real(void)
+double readln_real(int *err)
 {
 	int state = 0;
 	int c;
@@ -949,11 +952,13 @@ double readln_real(void)
 	int *alokovano = &tmp;
 	int tmp2 = 0; /* pocatecni delka retezce */
 	int *delka = &tmp2;
+	*err = 0;
 
 	char *s_vysledek;
 
 	if ((s_vysledek = (char *) malloc(sizeof(char)*(10+1))) == NULL) /* nezapomenout na FREE */
 	{
+		*err = INTERNAL_ERR;
 		return INTERNAL_ERR;
 	}
 	s_vysledek[0] = '\0';
@@ -981,6 +986,7 @@ double readln_real(void)
 					if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        		{
 	        			free(s_vysledek);
+	        			*err = INTERNAL_ERR;
 	        			return INTERNAL_ERR;
 	        		}
 	        		state = 1;
@@ -991,6 +997,7 @@ double readln_real(void)
 	                if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        		{
 	        			free(s_vysledek);
+	        			*err = INTERNAL_ERR;
 	        			return INTERNAL_ERR;
 	        		}
 	                state = 1;
@@ -998,6 +1005,7 @@ double readln_real(void)
 	            else
 	            {
 	            	free(s_vysledek);
+	            	*err = STDIN_NUM_ERROR;
 	            	return STDIN_NUM_ERROR;
 	            }
 
@@ -1011,6 +1019,7 @@ double readln_real(void)
 	        		if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        		{
 	        			free(s_vysledek);
+	        			*err = INTERNAL_ERR;
 	        			return INTERNAL_ERR;
 	        		}
 	        	}
@@ -1021,6 +1030,7 @@ double readln_real(void)
                         if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        			{
 	        				free(s_vysledek);
+	        				*err = INTERNAL_ERR;
 	        				return INTERNAL_ERR;
 	        			}
                         obs = 0;
@@ -1033,6 +1043,7 @@ double readln_real(void)
                             if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        				{
 	        					free(s_vysledek);
+	        					*err = INTERNAL_ERR;
 	        					return INTERNAL_ERR;
 	        				}
                             obs = 0;
@@ -1041,6 +1052,7 @@ double readln_real(void)
                         else
                         {
                         	free(s_vysledek);
+                        	*err = STDIN_NUM_ERROR;
                            	return STDIN_NUM_ERROR;
                         }
                     }
@@ -1056,6 +1068,7 @@ double readln_real(void)
                     if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        		{
 	        			free(s_vysledek);
+	        			*err = INTERNAL_ERR;
 	        			return INTERNAL_ERR;
 	        		}
                     obs = 1; /* desetinna cast musi neco obsahovat */
@@ -1065,6 +1078,7 @@ double readln_real(void)
                     if(obs == 0) /* ukonceni desetinne casti bez obsahu - chyba */
                     {
                     	free(s_vysledek);
+                    	*err = STDIN_NUM_ERROR;
                     	return STDIN_NUM_ERROR;
                     }
                     if(c == 'e' || c == 'E') /* desetinne cislo s exp */
@@ -1072,6 +1086,7 @@ double readln_real(void)
                         if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        			{
 	        				free(s_vysledek);
+	        				*err = INTERNAL_ERR;
 	        				return INTERNAL_ERR;
 	        			}
                         obs = 0;
@@ -1097,6 +1112,7 @@ double readln_real(void)
                     if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        		{
 	        			free(s_vysledek);
+	        			*err = INTERNAL_ERR;
 	        			return INTERNAL_ERR;
 	        		}
                 }
@@ -1107,6 +1123,7 @@ double readln_real(void)
                         if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        			{
 	        				free(s_vysledek);
+	        				*err = INTERNAL_ERR;
 	        				return INTERNAL_ERR;
 	        			}
                         obs = 0;
@@ -1124,6 +1141,7 @@ double readln_real(void)
 	                        if (obs == 0)
 	                        {
 	                        	free(s_vysledek);
+	                        	*err = STDIN_NUM_ERROR;
 	                          	return STDIN_NUM_ERROR; 
 	                        }
 	                        else
@@ -1147,6 +1165,7 @@ double readln_real(void)
                     if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        		{
 	        			free(s_vysledek);
+	        			*err = INTERNAL_ERR;
 	        			return INTERNAL_ERR;
 	        		}
                     obs = 1;
@@ -1159,6 +1178,7 @@ double readln_real(void)
                         if ((s_vysledek = doubleAddChar(s_vysledek, c, alokovano, delka)) == NULL)
 	        			{
 	        				free(s_vysledek);
+	        				*err = INTERNAL_ERR;
 	        				return INTERNAL_ERR;
 	        			}
                         state = 9;
@@ -1175,6 +1195,7 @@ double readln_real(void)
                             if (obs == 0) 
                             {
                             	free(s_vysledek);
+                            	*err = STDIN_NUM_ERROR;
                             	return STDIN_NUM_ERROR;
                             }
                            	vysledek = strtod(s_vysledek, NULL);
@@ -1195,6 +1216,7 @@ double readln_real(void)
                     if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
 	        		{
 	        			free(s_vysledek);
+	        			*err = INTERNAL_ERR;
 	        			return INTERNAL_ERR;
 	        		}
                     obs = 1;
@@ -1204,6 +1226,7 @@ double readln_real(void)
                 	if(obs == 0)
                     {
                     	free(s_vysledek);
+                    	*err = STDIN_NUM_ERROR;
                     	return STDIN_NUM_ERROR;
                     }
                     vysledek = strtod(s_vysledek, NULL);
@@ -1222,6 +1245,7 @@ double readln_real(void)
                     if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
 	        		{
 	        			free(s_vysledek);
+	        			*err = INTERNAL_ERR;
 	        			return INTERNAL_ERR;
 	        		}
                     obs = 1;
@@ -1231,6 +1255,7 @@ double readln_real(void)
                     if(obs == 0)
                     {
                     	free(s_vysledek);
+                    	*err = STDIN_NUM_ERROR;
                     	return STDIN_NUM_ERROR;
                     }
                     vysledek = strtod(s_vysledek, NULL);
@@ -1249,6 +1274,7 @@ double readln_real(void)
                     if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
 	        		{
 	        			free(s_vysledek);
+	        			*err = INTERNAL_ERR;
 	        			return INTERNAL_ERR;
 	        		}
                     obs = 1;
@@ -1258,6 +1284,7 @@ double readln_real(void)
                     if(obs == 0)
                     {
                     	free(s_vysledek);
+                    	*err = STDIN_NUM_ERROR;
                     	return STDIN_NUM_ERROR;
                     }
                     vysledek = strtod(s_vysledek, NULL);
@@ -1276,6 +1303,7 @@ double readln_real(void)
                     if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
 	        		{
 	        			free(s_vysledek);
+	        			*err = INTERNAL_ERR;
 	        			return INTERNAL_ERR;
 	        		}
                     obs = 1;
@@ -1285,6 +1313,7 @@ double readln_real(void)
                     if(obs == 0)
                     {
                     	free(s_vysledek);
+                    	*err = STDIN_NUM_ERROR;
                     	return STDIN_NUM_ERROR;
                     }
                    	vysledek = strtod(s_vysledek, NULL);
