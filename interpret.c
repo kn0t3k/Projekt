@@ -529,7 +529,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 							return INTERNAL_ERR;
 					}
 					memcpy(((char*) g_arr[*index_temp].var), ((char*) value_temp), sizeof(char) * (strlen((char*) value_temp) + 1));
-					l_arr[*index_temp].init = 1;
+					g_arr[*index_temp].init = 1;
 				}
 
 				free(value_temp);
