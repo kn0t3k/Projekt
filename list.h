@@ -34,7 +34,7 @@ typedef struct
 void InitList (tList *LS);
 void SetFirst(tList *LS, void *ItemAddress);
 void DisposeList (tList *LS);
-void InsertNew (tList *LS, tInstr NewIns);
+int InsertNew (tList *LS, tInstr NewIns);
 void *LastItemAddress (tList *LS);
 void *CurrentItemAddress (tList *LS);
 void GoToItem (tList *LS, void *ItemAddress);

@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include "list.h"
 
+#define INTERNAL_ERR -99
+
 void InitList (tList *L)
 {
 	L->First = NULL;
@@ -28,7 +30,7 @@ void SetFirst (tList *L, void *ItemAddress)
 
 void DisposeList (tList *L)
 {
-	if (L->First != NULL) //Je potreba?
+	if (L->First != NULL)
 	{
 		while (L->First != NULL)
 		{
@@ -42,12 +44,12 @@ void DisposeList (tList *L)
 	}
 }
 
-void InsertNew (tList *L, tInstr NewIns)
+int InsertNew (tList *L, tInstr NewIns)
 {
 	struct Item *NewItem;
 
 	if ((NewItem = malloc(sizeof(struct Item))) == NULL)
-			printf("nealokovalo se\n");
+			return INTERNAL_ERR;
 	NewItem->Instruction = NewIns;
 	NewItem->NextItem = NULL;
 	if (L->Last != NULL)
@@ -60,6 +62,7 @@ void InsertNew (tList *L, tInstr NewIns)
 		L->Last = NewItem;
 		L->First = NewItem;
 	}
+	return 0;
 }
 
 void *LastItemAddress (tList *L) //musi vracet void aby se pak dala ta adresa vlozit do 3. adresy instrukce CALL a IFGOTO

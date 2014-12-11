@@ -103,15 +103,17 @@ void generateVariable(string *var)
   counterVar ++;
 } 
 
-void generateInstruction(int instType, void *addr1, void *addr2, void *addr3)
+int generateInstruction(int instType, void *addr1, void *addr2, void *addr3)
 
 {
+   int check = 0;
    tInstr I;
    I.Type = instType;
    I.addr1 = addr1;
    I.addr2 = addr2;
    I.addr3 = addr3;
-   InsertNew(LS, I);
+   check = InsertNew(LS, I);
+   return check;
 }
  
 
@@ -157,7 +159,7 @@ int program(){ /*<PROGRAM>*/
 	  if (result != SYNTAX_OK) return result;/*<FUNCTION>*/
 	  if (funcs_defined(table) == SEM_ERROR) return SEM_ERROR;
 	  remove_local_table(table, &result);
-	  generateInstruction(I_LABEL, NULL, NULL, NULL);
+	  if ((generateInstruction(I_LABEL, NULL, NULL, NULL)) == INTERNAL_ERR) return INTERNAL_ERR;
 	  label =  LastItemAddress(LS);
 	  SetFirst(LS, label);
 	  result = body();	  
@@ -165,7 +167,7 @@ int program(){ /*<PROGRAM>*/
 	  if (token != DOT) return SYNTAX_ERROR;/*DOT*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != END_OF_FILE) return SYNTAX_ERROR;
-	  generateInstruction(I_END, NULL, NULL, NULL);
+	  if ((generateInstruction(I_END, NULL, NULL, NULL)) == INTERNAL_ERR) return INTERNAL_ERR;
 	  return SYNTAX_OK;/*Pokud zadne z pravidel nevrati SYNTAX_ERROR, LEX_ERROR nebo SEM_ERROR*/
 	  break;
 	
@@ -517,7 +519,7 @@ int function_body(struct htab_item **func_item){/*<FUNCTION_BODY>*/
 	    (*func_item) -> initialized = 1;
 	  result = declaration();
 	  if (result != SYNTAX_OK) return result;
-	  generateInstruction(I_LABEL, NULL, NULL, NULL);
+	  if ((generateInstruction(I_LABEL, NULL, NULL, NULL)) == INTERNAL_ERR) return INTERNAL_ERR;
 	  (*func_item) -> label = LastItemAddress(LS);
 	  result = body();
 	  if (result != SYNTAX_OK) return result;
@@ -529,7 +531,7 @@ int function_body(struct htab_item **func_item){/*<FUNCTION_BODY>*/
 		return SEM_ERROR;
 		}
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  generateInstruction(I_RETURN, NULL, NULL, NULL);
+	  if ((generateInstruction(I_RETURN, NULL, NULL, NULL)) == INTERNAL_ERR) return INTERNAL_ERR;
 	  return SYNTAX_OK;
 	  break;
 	  
@@ -690,7 +692,7 @@ int callfunass(){/*<CALLFUNASS>*/
 	  if (result != SYNTAX_OK) return result;
 	  id_item -> initialized = 1;
 	  if (is_call_of_function == 0)
-	    generateInstruction(I_COPYVAR, (void *) expression_item, NULL, (void *) id_item);   
+	    if ((generateInstruction(I_COPYVAR, (void *) expression_item, NULL, (void *) id_item)) == INTERNAL_ERR) return INTERNAL_ERR;   
 	  return SYNTAX_OK;
 	  break;
     
@@ -740,19 +742,24 @@ int callorass(struct htab_item **expected_item, int *is_call_of_function){
 	  if (result != SYNTAX_OK) return result;
 	  if (token != R_BRACKET) return SYNTAX_ERROR;
 	 
-	  if (strcmp(func_item -> name, "LENGTH") == 0)
-	     generateInstruction(I_LENGTH, (void *) func_item, NULL, (void *) (*expected_item));//instrukce pro LENGTH
+	  if (strcmp(func_item -> name, "LENGTH") == 0){
+	     if ((generateInstruction(I_LENGTH, (void *) func_item, NULL, (void *) (*expected_item))) == INTERNAL_ERR) return INTERNAL_ERR; //instrukce pro LENGTH
+      }
 	  else{
-	    if (strcmp(func_item -> name, "COPY") == 0)
-		   generateInstruction(I_COPY, (void *) func_item, NULL, (void *) (*expected_item));//instrukce pro COPY
+	    if (strcmp(func_item -> name, "COPY") == 0){
+		   if ((generateInstruction(I_COPY, (void *) func_item, NULL, (void *) (*expected_item))) == INTERNAL_ERR) return INTERNAL_ERR; //instrukce pro COPY
+        }
 		else{
-		  if (strcmp(func_item -> name, "FIND") == 0)
-		    generateInstruction(I_FIND, (void *) func_item, NULL, (void *) (*expected_item));//instrukce pro FIND
+		  if (strcmp(func_item -> name, "FIND") == 0){
+		    if ((generateInstruction(I_FIND, (void *) func_item, NULL, (void *) (*expected_item))) == INTERNAL_ERR) return INTERNAL_ERR; //instrukce pro FIND
+          }
 		  else{
-		    if (strcmp(func_item -> name, "SORT") == 0)
-			   generateInstruction(I_SORT, (void *) func_item, NULL, (void *) (*expected_item));//instrukce pro SORT
-			else
-               generateInstruction(I_CALL, (void *) func_item, NULL, (void *) (*expected_item));//instrukce pro CALL	
+		    if (strcmp(func_item -> name, "SORT") == 0){
+			   if ((generateInstruction(I_SORT, (void *) func_item, NULL, (void *) (*expected_item))) == INTERNAL_ERR) return INTERNAL_ERR; //instrukce pro SORT
+            }
+			else{
+               if ((generateInstruction(I_CALL, (void *) func_item, NULL, (void *) (*expected_item))) == INTERNAL_ERR) return INTERNAL_ERR;//instrukce pro CALL
+            }
             }
 		  }
         }		
@@ -819,7 +826,7 @@ int variable(struct htab_item **func_item){
      if ((write_string = (char*) malloc(sizeof(char)*(strlen(str_parameters -> str)+1))) == NULL)/*Alokace mista pro hodnotu promenne*/
 	    return INTERNAL_ERR;
 	 strncpy(write_string, str_parameters -> str, sizeof(char)*(strlen(str_parameters -> str)+1));
-	 generateInstruction(I_WRITE, NULL, NULL, (void *) write_string);
+	 if ((generateInstruction(I_WRITE, NULL, NULL, (void *) write_string)) == INTERNAL_ERR) return INTERNAL_ERR;
      }
   
   strFree(str_parameters);	
@@ -871,7 +878,7 @@ int value(struct htab_item** item){
 	    }
 	  strFree(&new_variable);	
 	  (*item) -> type = s_integer;
-	  generateInstruction(I_ASSIGN,(void *) value_i, NULL, (void *) (*item)); 
+	  if ((generateInstruction(I_ASSIGN,(void *) value_i, NULL, (void *) (*item))) == INTERNAL_ERR) return INTERNAL_ERR;
 	  break;
 			
     case STRING:
@@ -889,7 +896,7 @@ int value(struct htab_item** item){
 	    }
 	  strFree(&new_variable);
       (*item) -> type = s_string;
-      generateInstruction(I_ASSIGN,(void *) value_s, NULL, (void *) (*item));		
+      if ((generateInstruction(I_ASSIGN,(void *) value_s, NULL, (void *) (*item))) == INTERNAL_ERR) return INTERNAL_ERR;		
 	  break;
 			
 	case BOOLEAN:
@@ -910,7 +917,7 @@ int value(struct htab_item** item){
 	    }
 	  strFree(&new_variable);	
 	  (*item) -> type = s_boolean;
-	  generateInstruction(I_ASSIGN,(void *) value_b, NULL, (void *) (*item));
+	  if ((generateInstruction(I_ASSIGN,(void *) value_b, NULL, (void *) (*item))) == INTERNAL_ERR) return INTERNAL_ERR;
 	  break;
 			
 	  case DES_INT:
@@ -936,7 +943,7 @@ int value(struct htab_item** item){
 		  }
 		strFree(&new_variable);	
 		(*item) -> type = s_real;
-		generateInstruction(I_ASSIGN,(void *) value_d, NULL, (void *) (*item));
+		if ((generateInstruction(I_ASSIGN,(void *) value_d, NULL, (void *) (*item))) == INTERNAL_ERR) return INTERNAL_ERR;
 		break;
 	  
 	  default:
@@ -946,7 +953,7 @@ int value(struct htab_item** item){
 	}
   if (str_parameters != NULL){/*Pokud porovnamvame parametry, potrebujeme tvorit retezec a pushnou parametr*/ 
     //Dopsat instrukci pro pushnuti parametru
-	generateInstruction(I_PUSH_PARAM, NULL, NULL,(void *) (*item));
+	if ((generateInstruction(I_PUSH_PARAM, NULL, NULL,(void *) (*item))) == INTERNAL_ERR) return INTERNAL_ERR;
 	switch ((*item) -> type){
       case 0:
 	    strAddChar(str_parameters, 'i');
@@ -1010,19 +1017,19 @@ int while_condition(){/*<WHILE_CONDITION>*/
   switch (token){
     /*<WHILE_CONDITION> -> WHILE EXPRESSION DO <BODY>*/
     case WHILE:
-	  generateInstruction(I_LABEL, NULL, NULL, NULL);
+	  if ((generateInstruction(I_LABEL, NULL, NULL, NULL)) == INTERNAL_ERR) return INTERNAL_ERR;
 	  label1 = LastItemAddress(LS);
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = expression(&item);
 	  if (result != SYNTAX_OK) return result;
 	  if (token != DO) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  generateInstruction(I_IFGOTO, (void *) item, NULL, NULL);
+	  if ((generateInstruction(I_IFGOTO, (void *) item, NULL, NULL)) == INTERNAL_ERR) return INTERNAL_ERR;
 	  ifgotoadd = LastItemAddress(LS);
 	  result = body();
 	  if (result != SYNTAX_OK) return result;
-	  generateInstruction(I_GOTO, NULL, NULL, label1);
-	  generateInstruction(I_LABEL, NULL, NULL, NULL);
+	  if ((generateInstruction(I_GOTO, NULL, NULL, label1)) == INTERNAL_ERR) return INTERNAL_ERR;
+	  if ((generateInstruction(I_LABEL, NULL, NULL, NULL)) == INTERNAL_ERR) return INTERNAL_ERR;
 	  label2 = LastItemAddress(LS);
 	  GoToItem(LS, ifgotoadd);
 	  Instruction = GetData(LS);
@@ -1052,7 +1059,7 @@ int if_condition(){/*<IF_CONDITION>*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  result = expression(&item);
 	  if (result != SYNTAX_OK) return result;
-	  generateInstruction(I_IFGOTO, (void *) item, NULL, NULL);
+	  if ((generateInstruction(I_IFGOTO, (void *) item, NULL, NULL)) == INTERNAL_ERR) return INTERNAL_ERR;
 	  ifgotoadd = LastItemAddress(LS);
 	  if (token != THEN) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -1060,9 +1067,9 @@ int if_condition(){/*<IF_CONDITION>*/
 	  if (result != SYNTAX_OK) return result;
 	  if (token != ELSE) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
-	  generateInstruction(I_GOTO, NULL, NULL, NULL);
+	  if ((generateInstruction(I_GOTO, NULL, NULL, NULL)) == INTERNAL_ERR) return INTERNAL_ERR;
 	  lastofif = LastItemAddress(LS);
-	  generateInstruction(I_LABEL, NULL, NULL, NULL);
+	  if ((generateInstruction(I_LABEL, NULL, NULL, NULL)) == INTERNAL_ERR) return INTERNAL_ERR;
 	  elseadd = LastItemAddress(LS);
 	  GoToItem(LS, ifgotoadd);
 	  Instruction = GetData(LS);
@@ -1397,34 +1404,34 @@ int parse_expression(struct htab_item **expected_item){/*Precedencni syntakticka
 			
 			switch (operator){
 			  case MUL:
-			    generateInstruction(I_MUL, (void *) operand_1, (void *) operand_2, (void *) item);
+			    if ((generateInstruction(I_MUL, (void *) operand_1, (void *) operand_2, (void *) item)) == INTERNAL_ERR) return INTERNAL_ERR;
 			    break;
 	          case DIV:
-			    generateInstruction(I_DIV, (void *) operand_1, (void *) operand_2, (void *) item);
+			    if ((generateInstruction(I_DIV, (void *) operand_1, (void *) operand_2, (void *) item)) == INTERNAL_ERR) return INTERNAL_ERR;
 			    break;
               case ADD:
-			    generateInstruction(I_ADD, (void *) operand_1, (void *) operand_2, (void *) item);
+			    if ((generateInstruction(I_ADD, (void *) operand_1, (void *) operand_2, (void *) item)) == INTERNAL_ERR) return INTERNAL_ERR;
 			    break;
               case DIF:
-			    generateInstruction(I_SUB, (void *) operand_1, (void *) operand_2, (void *) item);
+			    if ((generateInstruction(I_SUB, (void *) operand_1, (void *) operand_2, (void *) item)) == INTERNAL_ERR) return INTERNAL_ERR;
 			    break;
               case S:
-			    generateInstruction(I_SMALL, (void *) operand_1, (void *) operand_2, (void *) item);
+			    if ((generateInstruction(I_SMALL, (void *) operand_1, (void *) operand_2, (void *) item)) == INTERNAL_ERR) return INTERNAL_ERR;
 			    break;
               case L:
-			    generateInstruction(I_GREAT, (void *) operand_1, (void *) operand_2, (void *) item);
+			    if ((generateInstruction(I_GREAT, (void *) operand_1, (void *) operand_2, (void *) item)) == INTERNAL_ERR) return INTERNAL_ERR;
 			    break;
               case SE:
-			    generateInstruction(I_SMEQ, (void *) operand_1, (void *) operand_2, (void *) item);
+			    if ((generateInstruction(I_SMEQ, (void *) operand_1, (void *) operand_2, (void *) item)) == INTERNAL_ERR) return INTERNAL_ERR;
 			    break;
               case LE:
-			    generateInstruction(I_GREQ, (void *) operand_1, (void *) operand_2, (void *) item);
+			    if ((generateInstruction(I_GREQ, (void *) operand_1, (void *) operand_2, (void *) item)) == INTERNAL_ERR) return INTERNAL_ERR;
 			    break;
               case EQ:
-			    generateInstruction(I_EQUAL, (void *) operand_1, (void *) operand_2, (void *) item);
+			    if ((generateInstruction(I_EQUAL, (void *) operand_1, (void *) operand_2, (void *) item)) == INTERNAL_ERR) return INTERNAL_ERR;
 			    break;
               case SL:
-			    generateInstruction(I_NONEQ, (void *) operand_1, (void *) operand_2, (void *) item);
+			    if ((generateInstruction(I_NONEQ, (void *) operand_1, (void *) operand_2, (void *) item)) == INTERNAL_ERR) return INTERNAL_ERR;
 			    break;
 			  
 			  default:

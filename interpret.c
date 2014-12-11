@@ -9,6 +9,7 @@
 #include "inter-stacks.h"
 #include "printlist.h"
 #include "err.h"
+#include "garbage.h"
 
 
 #define VAR_STACK_SIZE 50
@@ -112,6 +113,8 @@ htab_item* FindItemOfIndex(int index, symbol_table_item *TB)
 
 int interpret(symbol_table_item *GTable, tList *List)
 {
+	garbage_list* Garbage = garbage_init();
+	
 	First(List);
 	if (List == NULL)
 		return 0;
@@ -231,8 +234,17 @@ int interpret(symbol_table_item *GTable, tList *List)
 				free(size_temp);
 				free(type_temp);
 				free(scope_temp);
+				free(init_temp);
 				DisposeVarStack(VS);
+				free(VS->var_stack);
+				free(VS);
+				free(LS->l_stack);
+				free(LS);
+				free(AS->add_stack);
+				free(AS);
+				free(PrintList);
 				disposearray(g_arr, GTable->item_count);
+				garbage_free(Garbage);
 				return 0;
 			}			
 
@@ -251,7 +263,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 				for (int i = (*size_temp - 1); i >= 0; i--)
 				{
-					//char *temp;
 					if ((BoolVarStackPop(VS)) == 0)
 					{
 						//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
@@ -266,11 +277,11 @@ int interpret(symbol_table_item *GTable, tList *List)
 							if (value_temp == NULL)
 								return INTERNAL_ERR;
 							*((int*) value_temp) = IntVarStackPop(VS);
-							//printf("%d", *((int*) value_temp));
-							//free(value_temp);
-							//value_temp = NULL;
 							if ((InsertPrintNew(PrintList, 0, ((void*) value_temp))) == INTERNAL_ERR)
 								return INTERNAL_ERR;
+							if ((garbage_add(Garbage, value_temp)) == 1)
+								return INTERNAL_ERR; 
+							value_temp = NULL;
 							break;
 						}
 
@@ -280,11 +291,11 @@ int interpret(symbol_table_item *GTable, tList *List)
 							if (value_temp == NULL)
 								return INTERNAL_ERR;
 							*((double*) value_temp) = DoubleVarStackPop(VS);
-							//printf("%g", *((double*) value_temp));
-							//free(value_temp);
-							//value_temp = NULL;
 							if ((InsertPrintNew(PrintList, 1, ((void*) value_temp))) == INTERNAL_ERR)
 								return INTERNAL_ERR;
+							if ((garbage_add(Garbage, value_temp)) == 1)
+								return INTERNAL_ERR; 
+							value_temp = NULL;
 							break;
 						}
 			
@@ -301,22 +312,19 @@ int interpret(symbol_table_item *GTable, tList *List)
 							if (value_temp == NULL)
 								return INTERNAL_ERR;
 							*((bool*) value_temp) = BoolVarStackPop(VS);
-							//printf("%d", *((bool*) value_temp));
-							//free(value_temp);
-							//value_temp = NULL;
 							if ((InsertPrintNew(PrintList, 3, ((void*) value_temp))) == INTERNAL_ERR)
 								return INTERNAL_ERR;
+							if ((garbage_add(Garbage, value_temp)) == 1)
+								return INTERNAL_ERR; 
+							value_temp = NULL;
 							break;
 						}
 					}
 							
 				}
 				PrintAll(PrintList);
-				//free(PrintList);
-				//PrintList = malloc(sizeof(tPrintList));
-				//InitPrintList(PrintList);
-				/*if (I->addr3 != NULL)
-					free(I->addr3);*/
+				if ((garbage_add(Garbage, I->addr3)) == 1)
+					return INTERNAL_ERR; 
 				break;
 			}
 
@@ -357,7 +365,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 						return INTERNAL_ERR;
 				}
 				memcpy(((char*) l_arr[2]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
-				//free(str_temp); ??
 
 				if ((BoolVarStackPop(VS)) == 0)
 				{
@@ -376,8 +383,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 						return INTERNAL_ERR;
 				}
 				memcpy(((char*) l_arr[1]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
-				//free(str_temp); ??
-
 				value_temp = malloc(sizeof(int));
 				if (value_temp == NULL)
 					return INTERNAL_ERR;
@@ -434,7 +439,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 						return INTERNAL_ERR;
 				}
 				memcpy(((char*) l_arr[0]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
-				//free(str_temp) ??
 				SPtr = malloc(sizeof(string));
 				if (SPtr == NULL)
 					return INTERNAL_ERR;
@@ -530,8 +534,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 						return INTERNAL_ERR;
 				}
 				memcpy(((char*) l_arr[1]), str_temp, sizeof(char) * (strlen(str_temp) + 1));
-				//free(str_temp); ??
-
 				value_temp = malloc(sizeof(int));
 				if (value_temp == NULL)
 					return INTERNAL_ERR;
@@ -1961,8 +1963,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 							*((int*) l_arr[index3]) = *((int*) I->addr1);
 						else
 							*((int*) g_arr[index3]) = *((int*) I->addr1);
-						//free(I->addr1);
-						//I->addr1 = NULL;
+						if ((garbage_add(Garbage, I->addr1)) == 1)
+							return INTERNAL_ERR; 
 						break;
 					}
 
@@ -1972,8 +1974,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 							*((double*) l_arr[index3]) = *((double*) I->addr1);
 						else
 							*((double*) g_arr[index3]) = *((double*) I->addr1);
-						//free(I->addr1);
-						//I->addr1 = NULL;
+						if ((garbage_add(Garbage, I->addr1)) == 1)
+							return INTERNAL_ERR; 
 						break;
 					}
 
@@ -2003,8 +2005,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 							}
 							memcpy(((char*) g_arr[index3]), ((char*) I->addr1), (strlen((char*) I->addr1) + 1) * sizeof(char));
 						}
-						//free(I->addr1);
-						//I->addr1 = NULL;
+						if ((garbage_add(Garbage, I->addr1)) == 1)
+							return INTERNAL_ERR; 
 						break;
 					}
 
@@ -2014,8 +2016,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 							*((bool*) l_arr[index3]) = *((bool*) I->addr1);
 						else
 							*((bool*) g_arr[index3]) = *((bool*) I->addr1);
-						//free(I->addr1);
-						//I->addr1 = NULL;
+						if ((garbage_add(Garbage, I->addr1)) == 1)
+							return INTERNAL_ERR; 
 						break;
 					}
 				}
@@ -2300,7 +2302,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 									return INTERNAL_ERR;
 							}
 							memcpy(((char*) l_arr[i]), temp, sizeof(char) * (strlen(temp) + 1));
-							//free(temp);
 							break;	
 						}
 
