@@ -845,3 +845,536 @@ void sort_main(char *A, int left, int right)
 	if (left < *j) sort_main(A, left, *j);
 	if (*i < right) sort_main(A, *i, right);
 }
+
+
+
+/******************************** READLN ********************************/
+
+/**
+* Funkce nacita ze standardniho vstupu typ integer
+* Kostra automatu je prevzata ze scanneru
+* @return typ int, nebo chyba STDIN_NUM_ERROR
+*/
+
+int readln_int(void)
+{
+	int state = 0;
+	int c;
+	int vysledek; /* zde bude vysledek */
+	long int overflow; /* tady nahravam to same co do i...kdyby i melo pretect tak to overflow pozna */
+	int znamenko = 0; /*  0=+  1=-  */
+
+	while (1)
+	{
+		c = getchar(); /* nacitame */
+
+		switch(state)
+		{
+			case 0:
+
+				if (isspace(c)) /* pocatecni stav - vynechavame bile znaky */
+				{
+					state = 0;
+				}
+	            else
+	            if(c == '+') /* kladne cislo */
+	            {
+	                state = 1;
+	            }
+	            else
+	            if(c == '-') /* kladne cislo */
+	            {
+	                znamenko = 1;
+	                state = 1;
+	            }
+	            else
+	            if(c >= '0' && c <= '9') /* jdeme nacitat samotne cislo */
+	            {
+	                vysledek = c - '0';
+	                overflow = c - '0'; /* detekce int overflow */
+	                state = 1;
+	            }
+	            else
+	            {
+	            	return STDIN_NUM_ERROR;
+	            }
+
+	        break;
+
+
+			case 1:
+
+				if (c >= '0' && c <= '9')
+				{
+					overflow = overflow * 10 + (c - '0'); /* detekce int overflow */
+					if (znamenko) overflow = -overflow;
+					if (overflow > INT_MAX || overflow < INT_MIN) /* cislo preteklo/podteklo */
+					{
+						return STDIN_NUM_ERROR;
+					}	
+					vysledek = vysledek * 10 + (c - '0');			
+				}
+				else /* cokoliv jineho nez cislo - nezadouci - ignor */
+				{
+					if (znamenko == 1)
+					{
+						return -vysledek;
+					}
+					else
+					{
+						return vysledek;
+					}
+				}
+
+			break;
+		}
+	}
+	return vysledek;
+}
+
+
+/**
+* Funkce nacita ze standardniho vstupu typ real
+* Kostra automatu je prevzata ze scanneru
+* @return typ real, nebo chyba (STDIN_NUM_ERROR/INTERNAL_ERR)
+*/
+
+double readln_real(void)
+{
+	int state = 0;
+	int c;
+	int obs = 0; /* kontorla, zda ciselne exponentu, nebo cisla obsahuji nejakou hodnotu */
+	double vysledek;
+	int tmp = 11; /* pocatecni hodnota alokace */
+	int *alokovano = &tmp;
+	int tmp2 = 0; /* pocatecni delka retezce */
+	int *delka = &tmp2;
+
+	char *s_vysledek;
+
+	if ((s_vysledek = (char *) malloc(sizeof(char)*(10+1))) == NULL) /* nezapomenout na FREE */
+	{
+		return INTERNAL_ERR;
+	}
+	s_vysledek[0] = '\0';
+	
+	while (1)
+	{
+		c = getchar(); /* nacitame */
+
+		switch(state)
+		{
+			case 0:
+
+				if (isspace(c)) /* pocatecni stav - vynechavame bile znaky */
+				{
+					state = 0;
+				}
+	            else
+	            if (c == '+') /* kladne cislo */
+				{
+					state = 1;
+				}
+	            else
+	            if (c == '-') /* zaporne cislo */
+				{
+					if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	        		{
+	        			free(s_vysledek);
+	        			return INTERNAL_ERR;
+	        		}
+	        		state = 1;
+				}
+	            else
+	            if(c >= '0' && c <= '9') /* jdeme nacitat samotne cislo */
+	            {
+	                if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	        		{
+	        			free(s_vysledek);
+	        			return INTERNAL_ERR;
+	        		}
+	                state = 1;
+	            }
+	            else
+	            {
+	            	free(s_vysledek);
+	            	return STDIN_NUM_ERROR;
+	            }
+
+	        break;
+
+
+	        case 1:
+
+	        	if (c >= '0' && c <= '9')
+	        	{
+	        		if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	        		{
+	        			free(s_vysledek);
+	        			return INTERNAL_ERR;
+	        		}
+	        	}
+	        	else
+                {
+                	if(c == '.') /* destinne cislo */
+                    {
+                        if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	        			{
+	        				free(s_vysledek);
+	        				return INTERNAL_ERR;
+	        			}
+                        obs = 0;
+                        state = 2;
+                    }
+                    else
+                    {
+                        if(c == 'e' || c == 'E') /* cislo s exponentem */
+                        {
+                            if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	        				{
+	        					free(s_vysledek);
+	        					return INTERNAL_ERR;
+	        				}
+                            obs = 0;
+                            state = 3;
+                        }
+                        else
+                        {
+                        	free(s_vysledek);
+                           	return STDIN_NUM_ERROR;
+                        }
+                    }
+                }
+
+	        break;
+
+
+	        case 2: /* desetinna cast */
+
+                if(c >= '0' && c <= '9')
+                {
+                    if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	        		{
+	        			free(s_vysledek);
+	        			return INTERNAL_ERR;
+	        		}
+                    obs = 1; /* desetinna cast musi neco obsahovat */
+                }
+                else
+                {
+                    if(obs == 0) /* ukonceni desetinne casti bez obsahu - chyba */
+                    {
+                    	free(s_vysledek);
+                    	return STDIN_NUM_ERROR;
+                    }
+                    if(c == 'e' || c == 'E') /* desetinne cislo s exp */
+                    {
+                        if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	        			{
+	        				free(s_vysledek);
+	        				return INTERNAL_ERR;
+	        			}
+                        obs = 0;
+                        state = 4;
+                    }
+                    else
+                    {	
+                    	vysledek = strtod(s_vysledek, NULL);
+                    	free(s_vysledek);
+                    	if (vysledek == -0) vysledek = 0;
+                        return vysledek;
+                    }
+                }
+
+            break;
+
+
+            case 3: /* pouze X.e^(neco) */
+
+                if (c >= '0' && c <= '9')
+                {
+                    obs = 1;
+                    if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	        		{
+	        			free(s_vysledek);
+	        			return INTERNAL_ERR;
+	        		}
+                }
+                else
+                {
+                    if (c == '-' && obs == 0) /* e^-neco */
+                    {
+                        if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	        			{
+	        				free(s_vysledek);
+	        				return INTERNAL_ERR;
+	        			}
+                        obs = 0;
+                        state = 5;
+                    }
+                    else
+                    {
+	                    if (c == '+' && obs == 0) /* e^+neco */
+	                    {
+	                        obs = 0;
+	                        state = 6; 
+	                    }
+	                    else
+	                    {
+	                        if (obs == 0)
+	                        {
+	                        	free(s_vysledek);
+	                          	return STDIN_NUM_ERROR; 
+	                        }
+	                        else
+							{
+	                        	vysledek = strtod(s_vysledek, NULL);
+		                    	free(s_vysledek);
+		                    	if (vysledek == -0) vysledek = 0;
+		                        return vysledek;
+	                        }
+	                    }
+                   	}
+               	}
+
+            break;
+
+
+            case 4: /* desetinne cislo s exp */
+
+            	if(c>='0' && c<='9')
+                {
+                    if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	        		{
+	        			free(s_vysledek);
+	        			return INTERNAL_ERR;
+	        		}
+                    obs = 1;
+                }
+                else
+                {
+                	if(c == '-' && obs == 0) /* zaporny exp */
+                    {
+                    	obs = 0;
+                        if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	        			{
+	        				free(s_vysledek);
+	        				return INTERNAL_ERR;
+	        			}
+                        state = 9;
+                    }
+                    else
+                    {
+                    	if(c == '+' && obs == 0)
+                        {
+                            obs = 0;
+                            state = 7;  /* kladny exp nema vliv */
+                        }
+                        else
+                        {
+                            if (obs == 0) 
+                            {
+                            	free(s_vysledek);
+                            	return STDIN_NUM_ERROR;
+                            }
+                           	vysledek = strtod(s_vysledek, NULL);
+	                    	free(s_vysledek);
+	                    	if (vysledek == -0) vysledek = 0;
+	                        return vysledek;
+                        }
+                   }
+               }
+
+            break;
+
+
+            case 5: /* e^-neco */
+
+            	if(c >= '0' && c <= '9')
+                {
+                    if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	        		{
+	        			free(s_vysledek);
+	        			return INTERNAL_ERR;
+	        		}
+                    obs = 1;
+                }
+                else
+                {
+                	if(obs == 0)
+                    {
+                    	free(s_vysledek);
+                    	return STDIN_NUM_ERROR;
+                    }
+                    vysledek = strtod(s_vysledek, NULL);
+                    free(s_vysledek);
+                    if (vysledek == -0) vysledek = 0;
+                    return vysledek;
+                }
+
+            break;
+
+
+            case 6:
+
+            	if(c >= '0' && c <= '9')
+                {
+                    if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	        		{
+	        			free(s_vysledek);
+	        			return INTERNAL_ERR;
+	        		}
+                    obs = 1;
+                }
+                else
+                {
+                    if(obs == 0)
+                    {
+                    	free(s_vysledek);
+                    	return STDIN_NUM_ERROR;
+                    }
+                    vysledek = strtod(s_vysledek, NULL);
+                    free(s_vysledek);
+                    if (vysledek == -0) vysledek = 0;
+                    return vysledek;
+                }
+
+            break;
+
+
+            case 7:
+
+            	if(c >= '0' && c <= '9')
+                {
+                    if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	        		{
+	        			free(s_vysledek);
+	        			return INTERNAL_ERR;
+	        		}
+                    obs = 1;
+                }
+                else
+                {
+                    if(obs == 0)
+                    {
+                    	free(s_vysledek);
+                    	return STDIN_NUM_ERROR;
+                    }
+                    vysledek = strtod(s_vysledek, NULL);
+                    free(s_vysledek);
+                    if (vysledek == -0) vysledek = 0;
+                    return vysledek;
+                }
+
+            break;
+
+
+            case 9:  /* desetinne cislo se zapornym exp */
+
+            	if(c >= '0' && c <= '9')
+                {
+                    if (doubleAddChar(s_vysledek, c, alokovano, delka) == NULL)
+	        		{
+	        			free(s_vysledek);
+	        			return INTERNAL_ERR;
+	        		}
+                    obs = 1;
+                }
+                else
+                {
+                    if(obs == 0)
+                    {
+                    	free(s_vysledek);
+                    	return STDIN_NUM_ERROR;
+                    }
+                   	vysledek = strtod(s_vysledek, NULL);
+                    free(s_vysledek);
+                    if (vysledek == -0) vysledek = 0;
+                    return vysledek;
+                }
+
+            break;
+		}
+	}
+}
+
+
+/**
+* Funkce nacita ze standardniho vstupu typ string
+* @return typ ukazatel na retezec, nebo chyba NULL -> vyresit rozpoznani SEM_ERROR_TYPE/INTERNAL_ERR
+*/
+
+char* readln_string(int *err)
+{
+	int prirustek = 10; /* pomocna promenna pro realokaci */
+	int alokovano = prirustek+1; /* pomocna promenna pro realokaci */
+	int c;
+	int counter = 0;
+
+	char *vysledek;
+	if ((vysledek = (char *) malloc(sizeof(char)*(prirustek+1))) == NULL) /* pocatecni velikost 11 */
+	{
+		*err = INTERNAL_ERR;
+		return NULL; /* kontrolovat v interpretu! */
+	}
+
+	vysledek[0] = '\0';
+
+	while ((c = getchar()) != EOF) /* nacitame do konce */
+	{
+		if (c == '\n')
+		{
+			break;	
+		}
+
+		if (counter+1 == alokovano) /* musime alokovat vice mista */
+		{
+			if ((vysledek = (char *) realloc(vysledek, alokovano+prirustek)) == NULL)
+			{
+				*err = INTERNAL_ERR;
+				return NULL; /* kontrolovat v interpretu! */	
+			}
+			alokovano = alokovano+prirustek;
+		}
+
+		vysledek[counter] = c; /* pridani nacteneho znaku do retezce */
+		counter++;
+	}
+	
+	vysledek[counter] = '\0'; /* zakonceni retezce */
+
+	if (strcmp(vysledek,"true") == 0 || strcmp(vysledek,"false") == 0) /* booleovske vyrazy */
+	{
+		*err = SEM_ERROR_TYPE;
+		return NULL; /* kontrolovat v interpretu! */
+	}
+	
+	return vysledek;
+}
+
+
+/**
+* Pomocna funkce (pro readln_real), pro pridavani znaku ke stringu
+* @return uspech nebo chyba, ktera probubla dal
+*/
+
+char* doubleAddChar(char *s1, char c, int *alokovano, int *delka)
+{
+	int prirustek = 10;
+
+   	if ((*delka)+1 >= *alokovano)
+   	{
+    	/* pamet nestaci, je potreba provest realokaci */
+      	if ((s1 = (char*) realloc(s1, strlen(s1) + prirustek)) == NULL)
+        {
+        	return NULL;
+        }
+
+      	*alokovano = *delka + prirustek;
+   	}
+   	s1[*delka] = c;
+   	(*delka)++;
+   	s1[(*delka)] = '\0';
+
+   	return s1;
+}
