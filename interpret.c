@@ -187,6 +187,16 @@ int interpret(symbol_table_item *GTable, tList *List)
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
+				if (scope1 == 0)
+				{
+					if (l_arr[index1].init == 0)
+						return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
+				}
+				else
+				{
+					if (g_arr[index1].init == 0)
+						return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
+				}
 				if (type1 != 2)
 				{
 					if (scope1 == 0)
@@ -1161,48 +1171,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 				}
 				break;
 			}
-
-			/*case I_INC: //++
-			{
-				index3 = ((htab_item*) I->addr3)->index;
-				type3 = ((htab_item*) I->addr3)->type;
-				scope3 = ((htab_item*) I->addr3)->global;
-
-				if (type3 != 2)
-				{
-					if (scope3 == 0)
-						var3 = l_arr[index3].var;
-					else
-						var3 = g_arr[index3].var;
-
-					if (type3 == 0)
-						(*((int*) var3))++;
-					else
-						(*((double*) var3))++;
-				}
-				break;
-			}
-
-			case I_DEC: //--
-			{
-				index3 = ((htab_item*) I->addr3)->index;
-				type3 = ((htab_item*) I->addr3)->type;
-				scope3 = ((htab_item*) I->addr3)->global;
-
-				if (type3 != 2)
-				{
-					if (scope3 == 0)
-						var3 = l_arr[index3].var;
-					else
-						var3 = g_arr[index3].var;
-
-					if (type3 == 0)
-						(*((int*) var3))--;
-					else
-						(*((double*) var3))--;
-				}
-				break;
-			}*/
 
 			//porovnavaci instrukce
 			case I_GREAT: //>
