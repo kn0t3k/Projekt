@@ -1480,13 +1480,13 @@ int parse_expression(struct htab_item **expected_item){/*Precedencni syntakticka
   if ((*expected_item) == NULL){ /*Pozaduju navratit vysledek hodnoty bool, znamena to ze je funkce volana s if nebo while*/
 	if (Stack -> Top -> item -> type != s_boolean){
 	  printf("\nPodminka pozaduje typ bool");
-	  return SEM_ERROR;
+	  return SEM_ERROR_TYPE;
 	  }
     }	  
   else{	
     if (Stack -> Top -> item -> type != (*expected_item) -> type){
       printf("\nTyp vyrazu se neshoduje s promenou do ktere prirazujeme");
-	  return SEM_ERROR;
+	  return SEM_ERROR_TYPE;
 	  }
     }
   (*expected_item) = Stack -> Top -> item;/*Vratime ukazatel na polozku, ve ktere bude vysledny vyraz*/
