@@ -1,22 +1,13 @@
-{ Program 1: Vypocet faktorialu (iterativne) }
-var
-a : integer;
-vysl : integer;
+var 
+x:integer;
+
 begin
-write('Zadejte cislo pro vypocet faktorialu: ');
-readln(a);
-if a < 0 then
+x:=0;
+
+while x < 10 do
 begin
-write('Faktorial nelze spocitat'#10'')
+x:= x + 1;
+write(x)
 end
-else
-begin
-vysl := 1;
-while a > 0 do
-begin
-vysl := vysl * a;
-a := a - 1
-end;
-write('Vysledek je: ', vysl, ''#10'')
-end
+
 end.
