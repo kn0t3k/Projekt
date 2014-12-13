@@ -769,10 +769,8 @@ int find(char *s, char *search, int s_len, int search_len)
 
 
 /**
-* Funkce vytvari kopii vstupu, kterou pak seradi (QuickSort - algoritmus z opory 14-Q)
-* @param *s ukazatel na strukturu string puvodniho retezce
+* Funkce seradi retezec dest->str (QuickSort - algoritmus z opory 14-Q)
 * @param *dest ukazatel na strukturu string, KDE BUDE VYSLEDEK
-* @return chyba nebo uspech
 */
 
 void sort(string *dest)
@@ -853,6 +851,7 @@ void sort_main(char *A, int left, int right)
 /**
 * Funkce nacita ze standardniho vstupu typ integer
 * Kostra automatu je prevzata ze scanneru
+* @param *err ukazatel na int ve kterem je pripadne error
 * @return typ int, nebo chyba STDIN_NUM_ERROR
 */
 
@@ -985,6 +984,7 @@ int readln_int(int *err)
 /**
 * Funkce nacita ze standardniho vstupu typ real
 * Kostra automatu je prevzata ze scanneru
+* @param *err ukazatel na int ve kterem je pripadne error
 * @return typ real, nebo chyba (STDIN_NUM_ERROR/INTERNAL_ERR)
 */
 
@@ -1399,7 +1399,8 @@ double readln_real(int *err)
 
 /**
 * Funkce nacita ze standardniho vstupu typ string
-* @return typ ukazatel na retezec, nebo chyba NULL -> vyresit rozpoznani SEM_ERROR_TYPE/INTERNAL_ERR
+* @param *err ukazatel na int ve kterem je pripadne error
+* @return typ ukazatel na retezec, nebo chyba NULL
 */
 
 char* readln_string(int *err)
@@ -1442,7 +1443,7 @@ char* readln_string(int *err)
 	vysledek[counter] = '\0'; /* zakonceni retezce */
 
 	if (strcmp(vysledek,"true") == 0 || strcmp(vysledek,"false") == 0 ||
-		strcmp(vysledek,"TRUE") == 0 || strcmp(vysledek,"FALSE") == 0) /* booleovske vyrazy */
+		strcmp(vysledek,"TRUE") == 0 || strcmp(vysledek,"FALSE") == 0) /* booleovske vyrazy -> chyba 4 */
 	{
 		*err = SEM_ERROR_TYPE;
 		return NULL; /* kontrolovat v interpretu! */
