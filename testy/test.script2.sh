@@ -47,3 +47,36 @@ if ! diff $file_out $file_cor >/dev/null ; then
   echo "CHYBA $file"
 fi
 #=========================================================
+#=========================================================
+file=readln1.pas
+file_out="$file.out"
+file_cor="$file.cor"
+#-------------
+cat "$file.input" | ./$exe $file > $file_out
+
+if ! diff $file_out $file_cor >/dev/null ; then
+  echo "CHYBA $file"
+fi
+#=========================================================
+#=========================================================
+file=readln2.pas
+file_out="$file.out"
+file_cor="$file.cor"
+#-------------
+cat "$file.input" | ./$exe $file > $file_out
+
+if ! diff $file_out $file_cor >/dev/null ; then
+  echo "CHYBA $file"
+fi
+#=========================================================
+#=========================================================
+file=readln3.pas
+file_out="$file.out"
+file_cor="$file.cor"
+#-------------
+cat "$file.input" | ./$exe $file > $file_out
+
+if ! diff $file_out $file_cor >/dev/null ; then
+  echo "CHYBA $file"
+fi
+#=========================================================
