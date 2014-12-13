@@ -10,6 +10,7 @@
 | Datum:   5.12.2014
 |--------------------------------------*/
 
+
     // lexikalni analyzator
     #include <stdio.h>
     #include <ctype.h>
@@ -127,7 +128,6 @@
          {
 
            case 0:
-
              if (isspace(c)) state = 0;  //bila mista ignorujeme
              else
              if (c == '{') state = 1;  //komentar
@@ -175,8 +175,6 @@
              if (c == '>') state = 5;
              else
              if (c == '<') state = 4;
-             else
-             if(c == ':') state = 12;
              else
              if(c == APS) state = 13;   //APS = 39 = ascii hodnota apostrofu
              else return LEX_ERROR;
@@ -298,28 +296,39 @@
 
            case 4:
             //mensi
-            if ((c == '_')||(isalnum(c)) || (c == ' '))
+            /*if ((c == '_')||(isalnum(c)) || (c == ' '))
             {
                 ungetc(c, source);
                 return S;//mensitko
             }
-            else
+            else*/
                 if(c == '=') return SE;//mensi nebo rovno
                 else
                 if(c == '>') return SL;//nerovno
-                else return LEX_ERROR;
+                else
+                {
+                    ungetc(c, source);
+                    return S;
+                }
             break;
 
            case 5:
                //vetsi
-            if((c == '_')||(isalnum(c))||(c == ' '))
+            /*if((c == '_')||(isalnum(c))||(c == ' '))
             {
                 ungetc(c, source);
                 return L;//vetsitko
             }
             else
                 if(c == '=') return LE;//vetsi nebo rovno
-                    else return LEX_ERROR;
+                    else return LEX_ERROR;*/
+
+                if(c == '=') return LE;
+                else
+                {
+                    ungetc(c, source);
+                    return L;
+                }
             break;
 
            case 6:  //int nebo double
@@ -527,24 +536,18 @@
             break;
 
            case 12:
-               if(c == '=') return ASS; //prirazeni :D
-               else if(isalnum(c) || c == ' ')  //" : neco "
+               if(c == '=') return ASS; //prirazeni
+               else
                {
                     ungetc(c, source);
                    return COLON;
                }
-               else return LEX_ERROR;
             break;
 
-           case 13:
-               /* rozsirit o povolene/nepovolene znaky  */
-               if(c == APS)
+           case 13: //prijima string
+               if(c == APS)//APS = 39 = ascii hodnota apostrofu
                {
                    state = 14;
-                }
-               else if(c == '\n')  //APS = 39 = ascii hodnota apostrofu
-               {
-                   return LEX_ERROR;
                }
                else
                {
@@ -568,7 +571,11 @@
                }
                else
                {
-                   if(!(isalnum(c)) || (c == ' '))
+                   if(obs == -1) return LEX_ERROR;
+                        ungetc(c, source);
+                        return STRING;
+
+                   /*if(!(isalnum(c)) || (c == ' '))
                    {
                        if(obs == -1) return LEX_ERROR;
                        //printf("vracim retezec \n");
@@ -576,7 +583,7 @@
                         return STRING;
                    }
                    else
-                    return LEX_ERROR;
+                    return LEX_ERROR;*/
 
                }
             break;
@@ -604,10 +611,9 @@
                 }
                 else if(c == APS)
                 {
-                    if (obs == 0) return LEX_ERROR;
-                    //printf("prevadim: %d\n", atoi((&pom)->str));
+                    if (obs == 0) return LEX_ERROR;//pokud esc sekvence nic neobsahuje
                     int esc = atoi((&pom)->str);
-                    if (esc < 1 || esc > 255) return LEX_ERROR;
+                    if (esc < 1 || esc > 255) return LEX_ERROR;//pokud je obsah esc sekvence prilis veliky
                     strAddChar(attr, esc);
                     strClear(&pom);
                     obs = 0;
