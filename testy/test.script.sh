@@ -96,7 +96,7 @@ fi
 #=========================================================
 file=readln.pas
 result=0
--------------
+#-------------
 ./$exe $file >/dev/null
 realresult=$?
 if [ $realresult -ne $result ]; then

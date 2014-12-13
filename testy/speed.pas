@@ -2,7 +2,7 @@ var a : integer;
 vysl : integer;
 
 begin
-	a := 1000000;
+	a := 10;
 	if a < 0 then
 	begin
 		write('Faktorial nelze spocitat')
