@@ -25,6 +25,7 @@
 //-----------------hash_function---------------------------------------------
 unsigned int hash_function(const char *str, unsigned htab_size)
 //hashovaci funkce, ktera pro zadany retezec vraci hodnotu z pozadovaneho intervalu
+//hashovaci funkce byla prevzata z projektu predmetu IJC
 {
  unsigned int h=0;
  const unsigned char *p;
@@ -48,7 +49,7 @@ struct symbol_table* symbol_table_init(){
 	new->global->item_count = 0;
 	
 	new->global->next = NULL;
-	new->global->table = htab_init(SIZE); //inicializace samotne tabulky
+	new->global->table = htab_init(SIZE); //inicializace samotne hashovaci tabulky
 	if(new->global->table == NULL){
 		return NULL;
 	}
@@ -260,7 +261,7 @@ void remove_local_table(struct symbol_table* s_table, int* error){
 		return;
 	}
 	
-	s_table->local = s_table->global;
+	s_table->local = s_table->global; //loklni ukazetel je shodny s globalnim == jsme na globalni urovni
 	
 	*error = 0;
 	return; 
