@@ -17,7 +17,7 @@
 //----------------------------------- HLAVICKOVY SOUBOR ial.h ------------------------------------
 
 
-#define SIZE 971   //velikost hashovaci tabulky, idealne prvociselna
+#define SIZE 487   //velikost hashovaci tabulky, idealne prvociselna
 /*		
 *		S touto velikosti tabulky bylo dosahnuto nejlepsiho a nejuniverzalnejsiho pomeru spotrebovana pamet/spotrebovany cas
 *		a to i pro vzorky s mensim nebo vetsim poctem jedinecnych slov. (Testovano na vzorku, ktery obsahoval 2 995 362 slov, z toho priblizne 87 000 jedinecnych.)
