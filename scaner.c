@@ -10,8 +10,6 @@
 | Datum:   5.12.2014
 |--------------------------------------*/
 
-
-    // lexikalni analyzator
     #include <stdio.h>
     #include <ctype.h>
     #include <stdlib.h>
@@ -19,10 +17,9 @@
     #include "str.h"
     #include "scaner.h"
 
-    // promenna pro ulozeni vstupniho souboru
     FILE *source;
-    short obs = 0;   //kontorla, zda ciselne exponentu, nebo cisla obsahuji nejakou hodnotu
-    string pom;
+    short obs = 0;   //kontorla, zda cisla exponentu, nebo des. casti obsahuji nejakou hodnotu
+    string pom;	//pro ukladani a kontrolu escape sekvenci
 
 
     void setSourceFile(FILE *f)
@@ -30,77 +27,14 @@
       source = f;
     }
 
-    /*
-        STACI ZAKOMENTAROVAT SWITCH NIC JINEHO !!!
-        */
-
-
-    int getNextToken(string *attr)//tuto funkci vola praser a ona vola printtoken aby mohla vytisknout tokeny, potom zmenit
+    int getNextToken(string *attr)//tuto funkci vola praser a ona vola maketoken aby mohla vytisknout tokeny
     {
         strInit(&pom);
         int vysledek = makeToken(attr);
-
-        switch (vysledek)
-        {
-            case ID: printf("\n**ID");break;
-            case SHIFT:printf("\n**SHIFT");break;
-            case REDUCE:printf("\n**REDUCE");break;
-            case EQUAL:printf("\n**EQUAL");break;
-            case DOLLAR:printf("\n**DOLLAR");break;
-            case ID_FUNCTION:printf("\n**ID_FUNCTION");break;
-            case BEGIN:printf("\n**BEGIN");break;
-            case T_BOOLEAN:printf("\n**T_BOOLEAN");break;
-            case BOOLEAN:printf("\n**BOOLEAN");break;
-            case DO:printf("\n**DO");break;
-            case ELSE:printf("\n** ELSE");break;
-            case END:printf("\n**END");break;
-            case FALSE:printf("\n**FALSE");break;
-            case FIND:printf("\n**FIND");break;
-            case FORWARD:printf("\n**FORWARD");break;
-            case FUNCTION:printf("\n**FUNCTION");break;
-            case IF:printf("\n**IF");break;
-            case T_INTEGER:printf("\n**T_INTEGER");break;
-            case READLN:printf("\n**READLN");break;
-            case T_REAL:printf("\n**T_REAL");break;
-            case SORT:printf("\n**SORT");break;
-            case T_STRING:printf("\n**T_STRING");break;
-            case THEN:printf("\n**THEN");break;
-            case TRUE:printf("\n**TRUE");break;
-            case VAR:printf("\n**VAR");break;
-            case WHILE:printf("\n**WHLE");break;
-            case WRITE:printf("\n**WRITE");break;
-            case STRING:printf("\n**STRING");break;
-            case INTEGER:printf("\n**INTEGER");break;
-            case REAL:printf("\n**REAL");break;
-            case COPY:printf("\n**COPY");break;
-            case LENGTH:printf("\n**LENGTH");break;
-            case EXPRESSION:printf("\n**EXPRESSION");break;
-            case ADD:printf("\n**ADD");break;
-            case DIF:printf("\n**DIF");break;
-            case MUL:printf("\n**MUL");break;
-            case DIV:printf("\n**DIV");break;
-            case EQ:printf("\n**EQ");break;
-            case L:printf("\n**L");break;
-            case S:printf("\n**S");break;
-            case LE:printf("\n**LE");break;
-            case SE:printf("\n**SE");break;
-            case SL:printf("\n**SL");break;
-            case ASS:printf("\n**ASS");break;
-            case DES_INT:printf("\n**DES_INT");break;
-            case DES_EXP:printf("\n**DES_EXP");break;
-            case DES_EXP_NEG:printf("\n**DES_EXP_NEG");break;
-            case EXP:printf("\n**EXP");break;
-            case EXP_NEG:printf("\n**EXP_NEG");break;
-            case LEFT_VINCULUM:printf("\n**LEFT_VINCULUM");break;
-            case RIGHT_VINCULUM:printf("\n**RIGHT_VINCULUM");break;
-            case SEMICOLON:printf("\n**SEMICOLON");break;
-            case APS:printf("\n**APS");break;
-            case L_BRACKET:printf("\n**L_BRAKET");break;
-            case R_BRACKET:printf("\n**R_BRACKET");break;
-            case COLON:printf("\n**COLON");break;
-            case COMMA:printf("\n**COMA");break;
-            case DOT:printf("\n**DOT");break;
-        }
+		
+		/*
+		fce slouzila k vypisovani tokenu a slouzi k uvolneni mista pro promennou
+		*/
 
         strFree(&pom);
         return vysledek;
@@ -108,9 +42,8 @@
 
 
     int makeToken(string *attr)
-    // hlavni funkce lexikalniho analyzatoru
+    // hlavni funkce scaneru
     {
-
        int state = 0;
        int c;
        int plusko = NEPRAVDA;
@@ -118,14 +51,12 @@
        strClear(attr);
        strClear(&pom);
 
-
        while (1)
        {
          c = getc(source);
 
          switch (state)
          {
-
            case 0:
              if (isspace(c)) state = 0;
              else
@@ -178,8 +109,7 @@
              if(c == APS) state = 12;   //APS = 39 = ascii hodnota apostrofu
              else return LEX_ERROR;
             break;
-
-
+			
            case 1:
            // komentar
              if (c == '}') state = 0;
@@ -188,7 +118,6 @@
              // ale kontroluj, zda neprijde EOF (neukonceny komentar)
              if (c == EOF) return LEX_ERROR;
            break;
-
 
            case 2:
            // identifikator nebo klicove slovo
@@ -218,7 +147,7 @@
                     if((c=getc(source)) == '(') //v kodu mam find(...)
                     {
                         ungetc(c, source);
-                        return ID_FUNCTION; //vratim attr = find, token = id_function, obdobne pro ostatni fce i obecne
+                        return ID_FUNCTION; //vratim attr = find, token = id_function, obdobne pro ostatni vestavene fce i  uzivatelem definovane
                     }
                     ungetc(c, source);
                     return FIND;
@@ -261,7 +190,7 @@
                 else
                 if (strCmpConstStr(attr, "COPY") == 0)
                 {
-                    if((c=getc(source)) == '(')//pokud se jedna o funkci - funkce() vrati id_function, jinak pouze funkce - promenna, ...
+                    if((c=getc(source)) == '(')
                     {
                         ungetc(c, source);
                         return ID_FUNCTION;
@@ -298,7 +227,7 @@
                 if(c == '=') return SE;//mensi nebo rovno
                 else
                 if(c == '>') return SL;//nerovno
-                else
+                else	//vratim posledni znak a mensitko
                 {
                     ungetc(c, source);
                     return S;
@@ -347,7 +276,6 @@
                         }
                     }
                 }
-
             break;
 
            case 6:  //desetinne cislo
@@ -367,7 +295,7 @@
                     }
                     else
                     {
-                        if(isalpha(c)) return LEX_ERROR;
+                        if(isalpha(c)) return LEX_ERROR;	//pokud mezi cisly je pismeno
                         else
                         {
                             ungetc(c, source);
@@ -475,7 +403,6 @@
             break;
 
            case 9: //pouze X.e^(neco)
-
                if(c>='0' && c<='9')
                 {
                     obs = 1;
@@ -584,8 +511,11 @@
                }
                else
                {
-                   if(c >= 31 && c<=255) strAddChar(attr, c); /*ascii znaky mezi 31, 255 vcetne se zapisuji primo, krom APS,
-                   ostatni musi podle escape sekvence, podle zadani*/
+                   if(c >= 31 && c<=255) strAddChar(attr, c); 
+				   /*
+				   ascii znaky <31, 255> se zapisuji primo, krom APS,
+                   ostatni musi podle escape sekvence, podle zadani
+				   */
                    else return LEX_ERROR;
                }
             break;
@@ -593,7 +523,7 @@
            case 13:
                if(c == APS) //dva apostrofy za sebou
                {
-                   strAddChar(attr, APS);
+                   strAddChar(attr, APS);	//zapiseme APS do vysledneho stringu
                    state = 12;
                }
                else if(c == '#') //escape sekvence
@@ -603,7 +533,7 @@
                }
                else
                {
-                   if(obs == -1) return LEX_ERROR;
+                   if(obs == -1) return LEX_ERROR;	//v esc sekvenci jsou same nuly
                         ungetc(c, source);
                         return STRING;
                }
@@ -621,7 +551,12 @@
                         }
                         else
                         {
-                            obs = -1;
+                            obs = -1;	
+							/*
+							pokud v pom je aktualne nula a pokud je nactena dalsi nula tak obs = -1, pokud tento stav skonci
+							s obs == -1 tak byly zjisteny same nuly, zajistuje ignorovani pocatecnich nul
+							pokud esc sekvence uz neco obsahuje (obs == 1), tak se vsechna dalsi cisla pripojuji
+							*/
                         }
                     }
                     else
@@ -630,20 +565,17 @@
                         obs = 1;
                     }
                 }
-                else if(c == APS)
+                else if(c == APS)	// ukonceni esc sekvence
                 {
                     if (obs == 0) return LEX_ERROR;//pokud esc sekvence nic neobsahuje
                     int esc = atoi((&pom)->str);
-                    if (esc < 1 || esc > 255) return LEX_ERROR;//pokud je obsah esc sekvence prilis veliky
-                    strAddChar(attr, esc);
+                    if (esc < 1 || esc > 255) return LEX_ERROR;//pokud obsah sekvenec neodpovida zadani
+                    strAddChar(attr, esc);	//cisla esc sekv. vyjadrujici znak pripojime jako znak do vysledneho stringu
                     strClear(&pom);
                     obs = 0;
                     state = 12;
                 }
-                else
-                {
-                    return LEX_ERROR;
-                }
+                else return LEX_ERROR;
             break;
 
             default: return LEX_ERROR;//neznamy znak na vstupu
