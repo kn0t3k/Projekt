@@ -1438,13 +1438,6 @@ char* readln_string(int *err)
 	}
 	
 	vysledek[counter] = '\0'; /* zakonceni retezce */
-
-	if (strcmp(vysledek,"true") == 0 || strcmp(vysledek,"false") == 0 ||
-		strcmp(vysledek,"TRUE") == 0 || strcmp(vysledek,"FALSE") == 0) /* booleovske vyrazy -> chyba 4 */
-	{
-		*err = SEM_ERROR_TYPE;
-		return NULL; 
-	}
 	
 	return vysledek;
 }
