@@ -23,7 +23,11 @@ string *str_parameters = NULL;/*Citac parametru funkci*/
 
 tList *LS;/*List instrukci*/
 
-/*Funkce pro generovani jdinecnych promenych*/
+/*Funkce pro generovani jedinecnych promenych*/
+/*Tato funkce byla prevzata s "jednoducheho interpretu", pristupneho na strankach predmetu IFJ 2014*/
+/*Web: http://www.fit.vutbr.cz/study/courses/IFJ/public/project/*/
+/*Archiv: jednoduchy_interpret.zip*/
+/*Soubor: parser.c*/
 void generateVariable(string *var)
 
 {
