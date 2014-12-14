@@ -579,7 +579,7 @@ htab_t* htab_init(unsigned int htab_size)
 
 int length(string *s)
 {
-	return  s == NULL ? SEM_ERROR : s->length;
+	return s->length;
 }
 
 
@@ -597,9 +597,9 @@ int copy(char *s, string *dest, int i, int n, int s_len)
 {
 	int alokovano = 0;
 
-	if (s == NULL || i < 1)
+	if (i < 1)
 	{
-		return SEM_ERROR; /* kontrolovat v interpretu */
+		return SEM_ERROR;
 	}
 	else if (n < 1 || i > s_len) /* neni co delat */
 	{
@@ -616,7 +616,8 @@ int copy(char *s, string *dest, int i, int n, int s_len)
 	/* jeste zbyva zkontrolovat jestli nekopirujeme ze stejneho retezce do ktereho taky ukladame */
 	if (s == dest->str) /* je to jeden a ten samy retezec */
 	{
-		tmp = (char *) malloc(sizeof(char) * (strlen(s)+1)); /* +1 kvuli '\0' */
+		if (tmp = (char *) malloc(sizeof(char) * (strlen(s)+1)) == NULL) /* +1 kvuli '\0' */
+			return INTERNAL_ERR;
 		strcpy(tmp, s);
 		tmp[strlen(s)] = '\0';
 		strClear(dest);
@@ -659,11 +660,7 @@ int find(char *s, char *search, int s_len, int search_len)
 	int max = 0;
 	int return_s_len = s_len;
 
-	if (s == NULL || search == NULL) /* neplatne ukazatele */
-	{
-		return SEM_ERROR; /* v interpretu kontrolovat navratovou hodnotu */
-	}
-	else if (search_len == 0) /* prazdny retezec se vzdy nachazi na pozici 1 */
+	if (search_len == 0) /* prazdny retezec se vzdy nachazi na pozici 1 */
 	{
 		return 1; /* toto neni chyba, je to spravny vysledek - index */
 	}
@@ -1006,7 +1003,7 @@ double readln_real(int *err)
 
 	char *s_vysledek;
 
-	if ((s_vysledek = (char *) malloc(sizeof(char)*(tmp))) == NULL) /* nezapomenout na FREE */
+	if ((s_vysledek = (char *) malloc(sizeof(char)*(tmp))) == NULL)
 	{
 		*err = INTERNAL_ERR;
 		return INTERNAL_ERR;
@@ -1418,7 +1415,7 @@ char* readln_string(int *err)
 	if ((vysledek = (char *) malloc(sizeof(char)*(prirustek+1))) == NULL) /* pocatecni velikost 11 */
 	{
 		*err = INTERNAL_ERR;
-		return NULL; /* kontrolovat v interpretu! */
+		return NULL;
 	}
 
 	vysledek[0] = '\0';
@@ -1435,7 +1432,7 @@ char* readln_string(int *err)
 			if ((vysledek = (char *) realloc(vysledek, alokovano+prirustek)) == NULL)
 			{
 				*err = INTERNAL_ERR;
-				return NULL; /* kontrolovat v interpretu! */	
+				return NULL; 
 			}
 			alokovano = alokovano+prirustek;
 		}
@@ -1450,7 +1447,7 @@ char* readln_string(int *err)
 		strcmp(vysledek,"TRUE") == 0 || strcmp(vysledek,"FALSE") == 0) /* booleovske vyrazy -> chyba 4 */
 	{
 		*err = SEM_ERROR_TYPE;
-		return NULL; /* kontrolovat v interpretu! */
+		return NULL; 
 	}
 	
 	return vysledek;
