@@ -16,12 +16,17 @@
 #define ADS_STACK_SIZE 50
 #define LVS_STACK_SIZE 50
 
+/* Inicializace ramce hodnot */
 void initarray(tVarArr *array, int size)
 {
 	for (int i = 0; i < size; i++)
 		array[i].var = NULL;
 }
 
+/* Nacteni ramce hodnot
+	Parametry jsou pole tvorici ramec a ukazatel na tabulku symbolu patrici k danemu ramci.
+	Funkce prochazi celou tabulku symbolu a podle indexu a typu promennych pozna kam a co
+	v ramci naalokovat. Zaroven nastavuje hodnotu inicializace na 0. */
 int loadarray(tVarArr *array, symbol_table_item *TB)
 {
 	int hash_size = TB->table->htab_size;
@@ -81,6 +86,7 @@ int loadarray(tVarArr *array, symbol_table_item *TB)
 	return 0;
 }
 
+/* Uvolneni ramce hodnot */
 void disposearray(tVarArr *array, int size)
 {
 	for (int i = 0; i < size; i++)
@@ -93,6 +99,12 @@ void disposearray(tVarArr *array, int size)
 		free(array);
 }
 
+
+/* Hlavni funkce interpretu
+	Parametry jsou ukazatel na globalni tabulku symbolu a ukazatel na instrukcni list.
+	Pouzite konstanty:	INTERNAL_ERR - navratova chyba 99, chyba pri alokaci
+						RUN_INIT_ERR - navratova chyba 7, prace s neinicializovanou hodnotou
+						RUN_ZERO_ERR - navratova chyba 8, deleni nulou */
 int interpret(symbol_table_item *GTable, tList *List)
 {
 	garbage_list* Garbage = garbage_init();
@@ -160,7 +172,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 		return INTERNAL_ERR;
 	LStackInit(LS, LVS_STACK_SIZE);
 
-	tAddS *AS = malloc(sizeof(tAddS));
+	tAddS *AS = malloc(sizeof(tAddS)); //return address stack
 	if (AS == NULL)
 		return INTERNAL_ERR;
 	AS->add_stack = malloc(sizeof(tItem)*(ADS_STACK_SIZE));
@@ -168,41 +180,43 @@ int interpret(symbol_table_item *GTable, tList *List)
 		return INTERNAL_ERR;
 	AddStackInit(AS, ADS_STACK_SIZE);
 
-//pri ruseni velikost u funkce v tabulce
-	
-//load global array
-//initiate stacks
 	while (1)
 	{
 		I = GetData(List);
 		switch (I->Type)
 		{
 			//pomocne instrukce
+
+			/* Slouzi pouze jako navesti v instrukcnim listu. */
 			case I_LABEL:
 				break;
 
+			/* I->addr1 = adresa na promennou v tabulce symbolu
+			   I->addr3 = adresa na polozku v instrukcnim listu
+			   Ziska si potrebne informace o promenne, ve ktere je ulozena vysledna hodnota podminky.
+			   Nasledne zkontroluje, zda byla promenna inicializovana a nakonec vyhodnoti, zda by se melo
+			   nebo nemelo skocit v seznamu instrukci na zadanou adresu. */
 			case I_IFGOTO:
 			{
-			//get info about addr1
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
 				if (scope1 == 0)
 				{
 					if (l_arr[index1].init == 0)
-						return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
+						return RUN_INIT_ERROR;
 				}
 				else
 				{
 					if (g_arr[index1].init == 0)
-						return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
+						return RUN_INIT_ERROR;
 				}
 				if (type1 != 2)
 				{
 					if (scope1 == 0)
 					{
 						if (!(*((bool*) l_arr[index1].var)))
-							GoToItem(List,((tItem*) I->addr3)); //melo by fungovat...
+							GoToItem(List,((tItem*) I->addr3));
 					}
 					else
 					{
@@ -213,12 +227,15 @@ int interpret(symbol_table_item *GTable, tList *List)
 				break;
 			}
 
+			   /*I->addr3 = adresa na polozku v instrukcnim listu
+			     Skoci v seznamu instrukci na zadanou adresu. */
 			case I_GOTO:
 			{
 				GoToItem(List,((tItem*) I->addr3));
 				break;
 			}
 
+			/* Uvolni docasne promenne, zasobniky a globalni tabulku symbolu a zavola Garbage Collector. */
 			case I_END:
 			{
 				
@@ -241,6 +258,11 @@ int interpret(symbol_table_item *GTable, tList *List)
 			}			
 
 			//instrukce nacteni a zapsani
+
+			/* I->addr3 - adresa promenne v tabulce symbolu
+			   Ziska si potrebne informace o promenne, do ktere se ulozi nactena hodnota ze vstupu.
+			   Nasledne nastavi inicializovanost promenne na 1 a nakonec zavola podpurnou funkci pro potrebny typ,
+			   ktera vrati hodnotu nactenou ze vstupu a ta se ulozi do ramce hodnot. */
 			case I_READ:
 			{
 				int errcheck = 0;
@@ -314,6 +336,10 @@ int interpret(symbol_table_item *GTable, tList *List)
 				break;
 			}
 
+			/* I->addr3 - retezec slouzici jako seznam parametru
+			   Postupne nacita ze zasobniku hodnotu inicializace parametru a hodnotu parametru. Pokud byl
+			   parametr inicializovany pred zavolanim funkce write(), ulozi se jeho hodnota na list tisknuti.
+			   Tento list se nakonec vytiskne v obracenem poradi. */
 			case I_WRITE:
 			{
 				if (I->addr3 != NULL)				
@@ -326,10 +352,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 				for (int i = (*size_temp - 1); i >= 0; i--)
 				{
 					if ((BoolVarStackPop(VS)) == 0)
-					{
-						//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-						return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-					}
+						return RUN_INIT_ERROR;
 					switch (((char*) I->addr3)[i])
 					{
 						case 'i':
@@ -387,7 +410,17 @@ int interpret(symbol_table_item *GTable, tList *List)
 				break;
 			}
 
-			//nase instrukce
+			//vestavene funkce
+
+			/* I->addr1 - adresa tabulky symbolu pro funkci find()
+			   I->addr3 - adresa promenne v tabulce symbolu
+			   Ziska si potrebne informace o promenne, do ktere se ulozi navratova hodnota.
+			   Nasledne, pokud existuje, vlozi na zasobnik lokalnich ramcu momentalni ramec.
+			   Pote si nacte novy lokalni ramec, odpovidajici tabulce symbolu funkce find().
+			   V dalsich krocich postupne zkontroluje inicializovanost parametru a nacte jejich hodnoty ze zasobniku.
+			   Nakonec zavola podpurnou funkci find() a jeji navratovou hodnotu si ulozi do docasne promenne. Pak uvolni momentalni
+			   lokalni ramec, nacte si nadrazeny, pokud existuje, a ulozi navratovou hodnotu k dane promenne. Zaroven
+			   taky teto promenne nastavi inicializovanost na 1. */
 			case I_FIND:
 			{
 				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
@@ -407,10 +440,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 					return INTERNAL_ERR;
 
 				if ((BoolVarStackPop(VS)) == 0)
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
+					return RUN_INIT_ERROR;
 
 				str_temp = StrVarStackPop(VS);
 				if (strlen(str_temp) != strlen((char*) l_arr[2].var))
@@ -424,10 +454,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 				memcpy(((char*) l_arr[2].var), str_temp, sizeof(char) * (strlen(str_temp) + 1));
 
 				if ((BoolVarStackPop(VS)) == 0)
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
+					return RUN_INIT_ERROR;
 
 				str_temp = StrVarStackPop(VS);
 				if (strlen(str_temp) != strlen((char*) l_arr[1].var))
@@ -464,6 +491,14 @@ int interpret(symbol_table_item *GTable, tList *List)
 				break;
 			}
 
+			/* I->addr1 - adresa tabulky symbolu pro funkci sort()
+			   I->addr3 - adresa promenne v tabulce symbolu
+			   Ziska si potrebne informace o promenne, do ktere se ulozi navratova hodnota.
+			   Nasledne, pokud existuje, vlozi na zasobnik lokalnich ramcu momentalni ramec.
+			   Pote si nacte novy lokalni ramec, odpovidajici tabulce symbolu funkce sort().
+			   V dalsich krocich postupne zkontroluje inicializovanost parametru a nacte jeho hodnotu ze zasobniku.
+			   Nakonec zavola podpurnou funkci sort() a ulozi serazeny retezec do docasne promenne. Pak uvolni momentalni
+			   lokalni ramec, nacte si nadrazeny, pokud existuje, a aktualizuje hodnotu serazovane promenne. */
 			case I_SORT:
 			{
 				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
@@ -483,10 +518,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 					return INTERNAL_ERR;
 
 				if ((BoolVarStackPop(VS)) == 0)
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
+					return RUN_INIT_ERROR;
 
 				str_temp = StrVarStackPop(VS);
 				
@@ -550,6 +582,15 @@ int interpret(symbol_table_item *GTable, tList *List)
 				break;
 			}
 
+			/* I->addr1 - adresa tabulky symbolu pro funkci length()
+			   I->addr3 - adresa promenne v tabulce symbolu
+			   Ziska si potrebne informace o promenne, do ktere se ulozi navratova hodnota.
+			   Nasledne, pokud existuje, vlozi na zasobnik lokalnich ramcu momentalni ramec.
+			   Pote si nacte novy lokalni ramec, odpovidajici tabulce symbolu funkce length().
+			   V dalsich krocich postupne zkontroluje inicializovanost parametru a nacte jejo hodnotu ze zasobniku.
+			   Nakonec zavola podpurnou funkci length() a jeji navratovou hodnotu si ulozi do docasne promenne. Pak uvolni momentalni
+			   lokalni ramec, nacte si nadrazeny, pokud existuje, a ulozi navratovou hodnotu k dane promenne. Zaroven
+			   taky teto promenne nastavi inicializovanost na 1. */
 			case I_LENGTH:
 			{
 				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
@@ -569,10 +610,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 					return INTERNAL_ERR;
 
 				if ((BoolVarStackPop(VS)) == 0)
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
+					return RUN_INIT_ERROR;
 
 				str_temp = StrVarStackPop(VS);
 				
@@ -620,6 +658,16 @@ int interpret(symbol_table_item *GTable, tList *List)
 				break;
 			}
 
+
+			/* I->addr1 - adresa tabulky symbolu pro funkci copy()
+			   I->addr3 - adresa promenne v tabulce symbolu
+			   Ziska si potrebne informace o promenne, do ktere se ulozi navratova hodnota.
+			   Nasledne, pokud existuje, vlozi na zasobnik lokalnich ramcu momentalni ramec.
+			   Pote si nacte novy lokalni ramec, odpovidajici tabulce symbolu funkce copy().
+			   V dalsich krocich postupne zkontroluje inicializovanost parametru a nacte jejich hodnoty ze zasobniku.
+			   Nakonec zavola podpurnou funkci copy() a jeji navratovou hodnotu si ulozi do docasne promenne. Pak uvolni momentalni
+			   lokalni ramec, nacte si nadrazeny, pokud existuje, a ulozi navratovou hodnotu k dane promenne. Zaroven
+			   taky teto promenne nastavi inicializovanost na 1. */
 			case I_COPY:
 			{
 				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
@@ -639,26 +687,17 @@ int interpret(symbol_table_item *GTable, tList *List)
 					return INTERNAL_ERR;
 
 				if ((BoolVarStackPop(VS)) == 0)
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
+					return RUN_INIT_ERROR;
 
 				*((int*) l_arr[3].var) = IntVarStackPop(VS);
 
 				if ((BoolVarStackPop(VS)) == 0)
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
+					return RUN_INIT_ERROR;
 
 				*((int*) l_arr[2].var) = IntVarStackPop(VS);
 
 				if ((BoolVarStackPop(VS)) == 0)
-				{
-					//clearall - nejdriv uvolnit vsechny local array, pak global a vse ostatni
-					return RUN_INIT_ERROR; //prace s neinicializovanou promennou, behova chyba 7
-				}
+					return RUN_INIT_ERROR;
 
 				str_temp = StrVarStackPop(VS);
 				if (strlen(str_temp) != strlen((char*) l_arr[1].var))
@@ -744,10 +783,16 @@ int interpret(symbol_table_item *GTable, tList *List)
 			}
 
 			//aritmeticke instrukce
+
+			/* Tento popis se vztahuje ke vsem aritmetickym a relacnim operacim.
+			   I->addr1 - adresa na promennou do tabulky symbolu, 1. operand
+			   I->addr2 - adresa na promennou do tabulky symbolu, 2. operand
+			   I->addr3 - adresa na promennou do tabulky symbolu, promenna, kam se ulozi vysleden operace 
+			   Nejprve si nacte potrebne informace o promennych a zkontroluje inicializovanost operandu.
+			   Nasledne provede potrebnou operaci a hodnotu inicializovanosti vysledkove promenne nastavi na 1. */
+
 			case I_ADD: //+
 			{
-				//get type, scope, index
-
 				index1 = ((htab_item*) I->addr1)->index;
 				type1 = ((htab_item*) I->addr1)->type;
 				scope1 = ((htab_item*) I->addr1)->global;
@@ -894,7 +939,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 					var2 = NULL;
 					var3 = NULL;
 				}
-					//error - asi neni potreba kontrolovat
 				break;
 			}
 
@@ -1128,19 +1172,13 @@ int interpret(symbol_table_item *GTable, tList *List)
 						if (type2 == 0)
 						{
 							if (*((int*) var2) == 0)
-							{
-								//clearall - nejdriv uvolnit vsechny local array, pak global a vse 												 ostatni
-								return RUN_ZERO_ERROR; //deleni nulou, behova chyba 8
-							}
+								return RUN_ZERO_ERROR;
 							*((double*) var3) = ((double)*((int*) var1)) / ((double)(*((int*) var2)));
 						}
 						else
 						{
 							if (*((double*) var2) == 0.0)
-							{
-								//clearall
-								return RUN_ZERO_ERROR; //deleni nulou, behova chyba 8
-							}
+								return RUN_ZERO_ERROR;
 							*((double*) var3) = ((double)*((int*) var1)) / (*((double*) var2));
 						}
 					}
@@ -1151,10 +1189,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 							if (type2 == 0)
 							{
 								if (*((int*) var2) == 0)
-								{
-									//clearall
-									return RUN_ZERO_ERROR; //deleni nulou, behova chyba 8
-								}
+									return RUN_ZERO_ERROR;
 								*((double*) var3) = (*((double*) var1)) / ((double)*((int*) var2));
 							}
 							else
@@ -1240,7 +1275,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 							*((bool*) var3) = *((int*) var1) > *((int*) var2);
 						}
-						//error?
 						break;
 					}
 
@@ -1411,7 +1445,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 							*((bool*) var3) = *((int*) var1) < *((int*) var2);
 						}
-						//error?
 						break;
 					}
 
@@ -1582,7 +1615,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 							*((bool*) var3) = *((int*) var1) == *((int*) var2);
 						}
-						//error?
 						break;
 					}
 
@@ -1753,7 +1785,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 							*((bool*) var3) = *((int*) var1) >= *((int*) var2);
 						}
-						//error?
 						break;
 					}
 
@@ -1924,7 +1955,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 							*((bool*) var3) = *((int*) var1) <= *((int*) var2);
 						}
-						//error?
 						break;
 					}
 
@@ -2095,7 +2125,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 							*((bool*) var3) = *((int*) var1) != *((int*) var2);
 						}
-						//error?
 						break;
 					}
 
@@ -2200,6 +2229,12 @@ int interpret(symbol_table_item *GTable, tList *List)
 			}
 
 			//instrukce prirazeni
+
+			/* I->addr1 - docasny ukazatel na prirazovanou hodnotu
+			   I->addr3 - ukazatel na promennou v tabulce symbolu
+			   Ziska si potrebne informace o promenne, vlozi docasny ukazatel na hodnotu do Garbage Collectoru,
+			   nastavi inicializovanost promenne, do ktere se vklada hodnota, na 1 a vlozi do dane promenne hodnotu
+			   z docasneho ukazatele. */
 			case I_ASSIGN: //:=
 			{
 				if (I->addr1 == NULL)
@@ -2213,12 +2248,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 					l_arr[index3].init = 1;
 				else
 					g_arr[index3].init = 1;
-				//addr3 - address of storage variable
-				//addr1 - temp pointer for value
-				//---------------------------------
-				//search for index, type and scope
-				//copy value into array
-				//free received pointer
+				
 				switch (type3)
 				{
 					case 0:
@@ -2280,6 +2310,11 @@ int interpret(symbol_table_item *GTable, tList *List)
 				break;
 			}
 
+			/* I->addr1 - ukazatel na promennou v tabulce symbolu, ta, co se kopiruje
+			   I->addr3 - ukazatel na promennou v tabulce symbolu, ta, do ktere se kopiruje 
+			   Ziska si potrebne informace o promennych, zkontroluje inicializovanost kopirovane promenne,
+			   nastavi inicializovanost promenne, do ktere se kopiruje hodnota, na 1 a nakopiruje do dane promenne hodnotu
+			   z kopirovane promenne. */
 			case I_COPYVAR:
 			{
 				index1 = ((htab_item*) I->addr1)->index;
@@ -2429,6 +2464,10 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 
 			//instrukce pro volani funkci
+
+			/* I->addr3 - ukazatel na promennou v tabulce symbolu
+			   Nacte si potrebne informace o promenne, ulozi si jeji hodnotu inicializace do docasneho ukazatele,
+			   vlozi na zasobnik hodnotu promenne a nasledne vlozi na zasobnik jeji hodnotu inicializace. */
 			case I_PUSH_PARAM:
 			{
 				index3 = ((htab_item*) I->addr3)->index;
@@ -2438,8 +2477,6 @@ int interpret(symbol_table_item *GTable, tList *List)
 					*init_temp = l_arr[index3].init;
 				else
 					*init_temp = g_arr[index3].init;
-				//search table for type, index and scope
-				//push value from array
 				switch (type3)
 				{
 					case 0:
@@ -2508,20 +2545,17 @@ int interpret(symbol_table_item *GTable, tList *List)
 				break;
 			}
 
+			/* I->addr1 - adresa volane funkce v tabulce symbolu
+			   I->addr3 - adresa promenne v tabulce symbolu
+			   Ziska si potrebne informace o promenne, do ktere se ulozi navratova hodnota.
+			   Nasledne, pokud existuje, vlozi na zasobnik lokalnich ramcu momentalni ramec.
+			   Pote si nacte novy lokalni ramec, odpovidajici tabulce symbolu volane funkce.
+			   V dalsich krocich postupne zkontroluje inicializovanost parametru a nacte jejich hodnoty ze zasobniku.
+			   Dale vlozi na zasobnik navratovych adres momentalni navratovou adresu a nacte si novou.
+			   Nakonec vlozi na zasobnik promennych informace o promenne, do ktere se ulozi navratova hodnota a posune
+			   se na adresu zacatku volane funkce. */
 			case I_CALL:
 			{
-				//addr1 - adresa volane funkce - get label, get number of variables
-				//addr3 - adresa promenne pro ulozeni return value
-				//search for index and type of return value
-				//push local array
-				//load new local array
-				//get parameter count
-				//pop & load paramaters
-				//push index of return value in calling function
-				//push current return address
-				//get new return address - adress current instruction (after return, NextIns(List) is used
-				// addr1
-
 				*size_temp = ((htab_item*) I->addr1)->func_table->item_count;
 				*type_temp = ((htab_item*) I->addr3)->type;
 				*index_temp = ((htab_item*) I->addr3)->index;
@@ -2604,16 +2638,12 @@ int interpret(symbol_table_item *GTable, tList *List)
 				break;
 			}
 
+			/* Nacte si ze zasobniku informace o promenne, do ktere se ulozi navratova hodnota momentalne spracovavane funkce.
+			   Navratovou hodnotu si pak ulozi do docasne promenne, uvolni momentalni lokalni ramec hodnot, pokud existuje,
+			   nacte nadrazeny lokalni ramec, ulozi navratovou hodnotu do zadane promenne, posune se v seznamu isntrukci na
+			   navratovou hodnotu a nacte ze zasobniku novou navratovou hodnotu. */
 			case I_RETURN:
 			{
-				//pop return value index, type, scope
-				//save return value (index 0) into temporary variable
-				//free local table
-				//pop now-current local table -- if stack isn't empty
-				//load return value into index (realloc string if needed)
-				//goto return address
-				//pop now-current return address
-
 				*type_temp = IntVarStackPop(VS);
 				*size_temp = IntVarStackPop(VS);
 				*scope_temp = BoolVarStackPop(VS);
