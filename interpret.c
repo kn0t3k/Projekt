@@ -116,7 +116,8 @@ void disposearray(tVarArr *array, int size)
 	Parametry jsou ukazatel na globalni tabulku symbolu a ukazatel na instrukcni list.
 	Pouzite konstanty:	INTERNAL_ERR - navratova chyba 99, chyba pri alokaci
 						RUN_INIT_ERR - navratova chyba 7, prace s neinicializovanou hodnotou
-						RUN_ZERO_ERR - navratova chyba 8, deleni nulou */
+						RUN_ZERO_ERR - navratova chyba 8, deleni nulou 
+						RUN_OTHER_ERR - navratova chyba 9, ostatni behove chyby */
 int interpret(symbol_table_item *GTable, tList *List)
 {
 	garbage_list* Garbage = garbage_init();
