@@ -68,7 +68,7 @@ int InsertNew (tList *L, tInstr NewIns)
 	return 0;
 }
 
-void *LastItemAddress (tList *L) //musi vracet void aby se pak dala ta adresa vlozit do 3. adresy instrukce CALL a IFGOTO
+void *LastItemAddress (tList *L)
 {
 	return ((void*) L->Last);
 }
@@ -95,13 +95,13 @@ void Last (tList *L)
 
 void NextIns (tList *L)
 {
-	if (L->Act != NULL) //Je potreba??
+	if (L->Act != NULL)
 		L->Act = L->Act->NextItem;
 }
 
 tInstr *GetData (tList *L)
 {
-	if (L->Act == NULL) //Je potreba??
+	if (L->Act == NULL)
 		return NULL;
 	return &(L->Act->Instruction);
 }

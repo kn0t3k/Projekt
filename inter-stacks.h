@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-typedef struct VarArr{
+typedef struct VarArr{ //Variable Array
 	void *var;
 	bool init;
 } tVarArr;

@@ -13,10 +13,6 @@
 
 
 
-/*#define INT_INT 330
-#define INT_REAL 331
-#define INT_STRING 332
-#define INT_BOOLEAN 333*/
 #define I_FIND 323
 #define I_SORT 324
 #define I_COPY 325

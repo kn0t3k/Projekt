@@ -19,7 +19,6 @@ void DisposePrintList (tPrintList *L)
 		{
 			L->Act = L->First;
 			L->First = L->First->NextItem;
-			//free(L->Act->var);
 			free(L->Act);
 		}
 		L->First = NULL;
