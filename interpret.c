@@ -2639,7 +2639,7 @@ int interpret(symbol_table_item *GTable, tList *List)
 			}
 
 			/* Nacte si ze zasobniku informace o promenne, do ktere se ulozi navratova hodnota momentalne spracovavane funkce.
-			   Navratovou hodnotu si pak ulozi do docasne promenne, uvolni momentalni lokalni ramec hodnot, pokud existuje,
+			   Pokud byla navratova hodnota inicializovana, ulozi ji do docasne promenne, uvolni momentalni lokalni ramec hodnot a, pokud existuje,
 			   nacte nadrazeny lokalni ramec, ulozi navratovou hodnotu do zadane promenne, posune se v seznamu isntrukci na
 			   navratovou hodnotu a nacte ze zasobniku novou navratovou hodnotu. */
 			case I_RETURN:
@@ -2649,6 +2649,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 				*scope_temp = BoolVarStackPop(VS);
 				*index_temp = IntVarStackPop(VS);
 				
+				if (l_arr[0].init == 0)
+					return RUN_INIT_ERROR;
 				switch (*type_temp)
 				{
 					case 0:
