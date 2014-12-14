@@ -18,6 +18,7 @@
 #define STDIN_NUM_ERROR -6
 #define RUN_INIT_ERROR -7
 #define RUN_ZERO_ERROR -8
+#define RUN_OTHER_ERROR -9
 
 #define SEM_OK 55
 

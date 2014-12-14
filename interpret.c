@@ -694,6 +694,9 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 				*((int*) l_arr[2].var) = IntVarStackPop(VS);
 
+				if (*((int*) l_arr[2].var) < 1)
+					return RUN_OTHER_ERROR;
+
 				if ((BoolVarStackPop(VS)) == 0)
 					return RUN_INIT_ERROR;
 
@@ -730,8 +733,8 @@ int interpret(symbol_table_item *GTable, tList *List)
 
 				*((int*) value_temp) = copy(((char*) l_arr[1].var), SPtr, *((int*) l_arr[2].var), *((int*) l_arr[3].var), strlen((char*) l_arr[1].var));
 
-				if (*((int*) value_temp) == SEM_ERROR)
-					return SEM_ERROR;
+				if (*((int*) value_temp) == INTERNAL_ERR)
+					return INTERNAL_ERR;
 
 				free(value_temp);
 				value_temp = NULL;

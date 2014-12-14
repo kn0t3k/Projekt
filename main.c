@@ -110,12 +110,6 @@ int main(int argc, char** argv)
 
    switch (result)
    {
-     case SEM_ERROR:
-       symbol_table_free(table);
-       DisposeList(&list);
-       fclose(f);
-       return -result;
-       break;
 	 case INTERNAL_ERR:
        symbol_table_free(table);
        DisposeList(&list);
@@ -132,12 +126,12 @@ int main(int argc, char** argv)
        DisposeList(&list);
        fclose(f);
        return -result;
-     case STDIN_NUM_ERROR:
+	 case RUN_OTHER_ERROR:
 	   symbol_table_free(table);
        DisposeList(&list);
        fclose(f);
        return -result;
-      case SEM_ERROR_TYPE:
+     case STDIN_NUM_ERROR:
 	   symbol_table_free(table);
        DisposeList(&list);
        fclose(f);
