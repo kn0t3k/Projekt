@@ -65,42 +65,36 @@ int main(int argc, char** argv)
    switch (result)
    {
      case LEX_ERROR:
-       printf("\nerr LEX \n");
        symbol_table_free(table);
        DisposeList(&list);
        fclose(f);
        return -result;
 	   break;
      case SYNTAX_ERROR:
-       printf("\nerr STX \n");
        symbol_table_free(table);
        DisposeList(&list);
        fclose(f);
        return -result;
        break;
      case SEM_ERROR:
-       printf("\nerr SEM \n");
        symbol_table_free(table);
        DisposeList(&list);
        fclose(f);
        return -result;
        break;
 	 case SEM_ERROR_TYPE:
-       printf("\nerr SEM_TYPE \n");
        symbol_table_free(table);
        DisposeList(&list);
        fclose(f);
        return -result;
 	   break;
      case SEM_ERROR_OVERFLOW:
-       printf("\nerr SEM_OVERFLOW \n");
        symbol_table_free(table);
        DisposeList(&list);
        fclose(f);
        return -result;
        break;	   
 	 case INTERNAL_ERR:
-       printf("\nerr INTERNAL_ERR \n");
        symbol_table_free(table);
        DisposeList(&list);
        fclose(f);
@@ -112,46 +106,38 @@ int main(int argc, char** argv)
 	 
      // jinak probehlo vse v poradku, muzeme provadet kod
    }
-   printf("\n**vse OK**\n");
-   printf("\n\nZacatek interpretu:\n\n");
    result = interpret(table -> global, &list);
 
    switch (result)
    {
      case SEM_ERROR:
-       printf("\nerr SEM \n");
        symbol_table_free(table);
        DisposeList(&list);
        fclose(f);
        return -result;
        break;
 	 case INTERNAL_ERR:
-       printf("\nerr INTERNAL_ERR \n");
        symbol_table_free(table);
        DisposeList(&list);
        fclose(f);
        return -result;
 	   break;
      case RUN_INIT_ERROR:
-       printf("\nerr INIT\n");	   
 	   symbol_table_free(table);
        DisposeList(&list);
        fclose(f);
        return -result;
 	 case RUN_ZERO_ERROR:
-       printf("\nerr DIV BY ZERO\n");	   
 	   symbol_table_free(table);
        DisposeList(&list);
        fclose(f);
        return -result;
      case STDIN_NUM_ERROR:
-	   printf("\nerr STDIN NUM\n");	   
 	   symbol_table_free(table);
        DisposeList(&list);
        fclose(f);
        return -result;
       case SEM_ERROR_TYPE:
-	   printf("\nerr TYPE ERR\n");	   
 	   symbol_table_free(table);
        DisposeList(&list);
        fclose(f);
@@ -163,6 +149,5 @@ int main(int argc, char** argv)
    symbol_table_free(table);
    DisposeList(&list);
    fclose(f);
-   printf("\n\n");
    return 0;
 }
