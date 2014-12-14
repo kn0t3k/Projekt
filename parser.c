@@ -702,7 +702,7 @@ int callfunass(){/*<CALLFUNASS>*/
 	  if ((id_item = search_var(attr.str, table, &result)) == NULL)
         return result;
 	  if (id_item -> function == 1)/*Overime, ze neprirazujeme do funkce*/
-        return SEM_ERROR;	
+        return SEM_ERROR_TYPE;	
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	  if (token != ASS) return SYNTAX_ERROR;
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -871,18 +871,21 @@ int value(struct htab_item** item){
 	  else{/*Zkontrolujeme, zda muzeme ID pouzit*/
 	    if (table -> local != table -> global){/*Jsme v lokalni tabulce*/
 	      if ((*item) -> global != 1){/*Globalni promenne, nevyzaduji inicializaci*/
-			if (((*item) -> initialized != 1) || ((*item) -> function == 1)){/*Kontrolujeme, zda se nejedna o funkci*/
+			if ((*item) -> initialized != 1)
 			  return SEM_ERROR;
-			  }
+			if ((*item) -> function == 1)/*Kontrolujeme, zda se nejedna o funkci*/
+			  return SEM_ERROR_TYPE;
 	        }
 		  else{
 		    if ((*item) -> function == 1)
-		      return SEM_ERROR;
+		      return SEM_ERROR_TYPE;
 		    }
 	      }
 		else{/*Pokud jsme jiz v hlavnim tele programu (globalni tabulce) tak inicializaci globalni promenne vyzadujeme*/
-		  if (((*item) -> initialized != 1) || ((*item) -> function == 1))
-	         return SEM_ERROR;
+		  if ((*item) -> initialized != 1)
+	        return SEM_ERROR;
+		  if ((*item) -> function == 1)
+            return SEM_ERROR_TYPE;		  
 		  }
 		}
       break;
@@ -1131,8 +1134,8 @@ int function_readln(){/*<FUNCTION_READLN>*/
 	  if (token != ID) return SYNTAX_ERROR;
 	  if ((item = search_var(attr.str, table, &result)) == NULL)
         return result;
-	  if (item -> function == 1)/*Pokud je promenna funkce, nastane SEM_ERROR*/
-	    return SEM_ERROR;
+	  if ((item -> function == 1) || (item -> type == s_boolean))/*Pokud je promenna funkce, nebo je typu boolena nastane SEM_ERROR_TYPE*/
+	    return SEM_ERROR_TYPE;
 	  else
 	    item -> initialized = 1;/*Promenna se inicializuje*/
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
