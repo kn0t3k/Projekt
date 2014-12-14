@@ -801,11 +801,13 @@ void partition(char *A, int left, int right, int *i, int *j)
 	PM = A[((*i)+(*j))/2];
 	do
 	{
+		/* zleva doprava (index roste) */
 		while (A[(*i)] < PM)
 		{
 			(*i)++;
 		} 
-
+		
+		/* zprava doleva (index klesa) */
 		while (A[(*j)] > PM)
 		{
 			(*j)--;
@@ -813,6 +815,7 @@ void partition(char *A, int left, int right, int *i, int *j)
 
 		if ((*i) <= (*j))
 		{
+			/* prohozeni prvku */
 			tmp = A[(*i)];
 			A[(*i)] = A[(*j)];
 			A[(*j)] = tmp;
@@ -861,8 +864,8 @@ int readln_int(int *err)
 	int state = 0;
 	int c;
 	int vysledek = 0; /* zde bude vysledek */
-	long int overflow = 0; /* tady nahravam to same co do i...kdyby i melo pretect tak to overflow pozna */
-	int znamenko = 0; /*  0=+  1=-  */
+	long int overflow = 0; /* tady nahravam to same co do i...kdyby i melo pretect/podtect tak to overflow pozna */
+	int znamenko = 0; /*  0=kladne  1=zaporne  */
 
 	*err = 0;
 
@@ -944,7 +947,7 @@ int readln_int(int *err)
 			break;
 
 
-			case 2:
+			case 2: /* znamenko bylo zadano */
 
 				if (c >= '0' && c <= '9')
 				{
@@ -1003,7 +1006,7 @@ double readln_real(int *err)
 
 	char *s_vysledek;
 
-	if ((s_vysledek = (char *) malloc(sizeof(char)*(10+1))) == NULL) /* nezapomenout na FREE */
+	if ((s_vysledek = (char *) malloc(sizeof(char)*(tmp))) == NULL) /* nezapomenout na FREE */
 	{
 		*err = INTERNAL_ERR;
 		return INTERNAL_ERR;
