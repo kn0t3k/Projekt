@@ -13,72 +13,6 @@
 #include "interpret.h"
 
 
-
-void vypis(int vysledek){
-
-switch (vysledek)
-        {
-            case ID: printf("ID");break;
-            case SHIFT:printf("SHIFT");break;
-            case REDUCE:printf("REDUCE");break;
-            case EQUAL:printf("EQUAL");break;
-            case DOLLAR:printf("DOLLAR");break;
-            case ID_FUNCTION:printf("ID_FUNCTION");break;
-            case BEGIN:printf("BEGIN");break;
-            case BOOLEAN:printf("BOOLEAN");break;
-            case DO:printf("DO");break;
-            case ELSE:printf("ELSE");break;
-            case END:printf("END");break;
-            case FALSE:printf("FALSE");break;
-            case FIND:printf("FIND");break;
-            case FORWARD:printf("FORWARD");break;
-            case FUNCTION:printf("FUNCTION");break;
-            case IF:printf("IF");break;
-            case T_INTEGER:printf("T_INTEGER");break;
-            case READLN:printf("READLN");break;
-            case T_REAL:printf("T_REAL");break;
-            case SORT:printf("SORT");break;
-            case T_STRING:printf("T_STRING");break;
-            case THEN:printf("THEN");break;
-            case TRUE:printf("TRUE");break;
-            case VAR:printf("VAR");break;
-            case WHILE:printf("WHLE");break;
-            case WRITE:printf("WRITE");break;
-            case STRING:printf("STRING");break;
-            case INTEGER:printf("INTEGER");break;
-            case REAL:printf("REAL");break;
-            case COPY:printf("COPY");break;
-            case LENGTH:printf("LENGTH");break;
-            case EXPRESSION:printf("EXPRESSION");break;
-            case ADD:printf("ADD");break;
-            case DIF:printf("DIF");break;
-            case MUL:printf("MUL");break;
-            case DIV:printf("DIV");break;
-            case EQ:printf("EQ");break;
-            case L:printf("L");break;
-            case S:printf("S");break;
-            case LE:printf("LE");break;
-            case SE:printf("SE");break;
-            case SL:printf("SL");break;
-            case ASS:printf("ASS");break;
-            case DES_INT:printf("DES_INT");break;
-            case DES_EXP:printf("DES_EXP");break;
-            case DES_EXP_NEG:printf("DES_EXP_NEG");break;
-            case EXP:printf("EXP");break;
-            case EXP_NEG:printf("EXP_NEG");break;
-            case LEFT_VINCULUM:printf("LEFT_VINCULUM");break;
-            case RIGHT_VINCULUM:printf("RIGHT_VINCULUM");break;
-            case SEMICOLON:printf("SEMICOLON");break;
-            case APS:printf("APS");break;
-            case L_BRACKET:printf("L_BRAKET");break;
-            case R_BRACKET:printf("R_BRACKET");break;
-            case COLON:printf("COLON");break;
-            case COMMA:printf("COMA");break;
-            case DOT:printf("DOT");break;
-        }
-}
-
-
 /*Globalni promenne*/
 int token;
 int counterVar = 1;/*Citac jedinecnych promennych*/
@@ -440,7 +374,6 @@ int parameter(struct htab_item **func_item){/*<PARAMETER>*/
   /*Pokud jsme delali porovnani srovname, jestli se retezce parametru shoduji*/
   
   if (porovnani){
-    printf ("\nPorovnavam parametry funkci: forward = %s, aktualni = %s",(*func_item) -> func_data, str_parameters -> str);
     if (strcmp((*func_item) -> func_data, str_parameters -> str) != 0)
         return SEM_ERROR;		
     }
@@ -450,7 +383,6 @@ int parameter(struct htab_item **func_item){/*<PARAMETER>*/
 	  if((*func_item) -> func_data == NULL){
 		return  INTERNAL_ERR;;
 	    }
-	  printf("\nPridavam parametry k funkci (%s) : %s", (*func_item) -> name, str_parameters -> str);
 	  strncpy((*func_item) -> func_data, str_parameters -> str, sizeof(char)*(strlen(str_parameters -> str)+1));
 	  }
 	}
@@ -546,7 +478,6 @@ int function_body(struct htab_item **func_item){/*<FUNCTION_BODY>*/
 	  if ((item = search_var((*func_item) -> name, table, &result)) == NULL)
 		return result;
       if (item -> initialized != 1){/*Overime, ze funkce neco vraci*/
-		printf("\nFunkce (%s) by mela vracet nejaky typ",(*func_item) -> name);
 		return SEM_ERROR;
 		}
 	  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
@@ -833,7 +764,6 @@ int variable(struct htab_item **func_item){
 	} 
 
   if (func_item != NULL){/*Pokud kontrolujeme paramtry*/
-    printf("\nPorovnavam parametry volane funkce (%s): %s se zadanymi parametry: %s", (*func_item) -> name, (*func_item) -> func_data, str_parameters -> str);
     /*Pokud funkce zadne parametry nema, srovname retezec parametru (vytvoreny ve funkci "value") s prazdnym retezcem*/
 	if ((*func_item) -> func_data == NULL){
 	  if (strcmp("", str_parameters -> str) != 0)
@@ -1262,7 +1192,6 @@ int assign_int_to_token(int token){
 	  return 113;
 	  break;
 	default:
-	  printf("\nSpatny token u prirazovani int tokenum: %d",token);
 	  return SYNTAX_ERROR;
 	  break;
     }
@@ -1294,12 +1223,6 @@ int table_symbols(int x, int y, PtrStack Stack){/*Realizace tabulky*/
 113 - DOLLAR (konec vstupu, zasobniku) 
 */ 
 
-  
-  printf("\nNa vrcholu zasobniku je token: ");
-  vypis(x);
-  printf("\nAktualni token na vstupu je: "); 
-  vypis(y);
-
   /*Priradime int (souradnici) tokenu*/
   if ((x = assign_int_to_token(x)) == SYNTAX_ERROR) return SYNTAX_ERROR;  
   if ((y = assign_int_to_token(y)) == SYNTAX_ERROR) return SYNTAX_ERROR;
@@ -1324,7 +1247,6 @@ int table_symbols(int x, int y, PtrStack Stack){/*Realizace tabulky*/
     }
 	
 
-  printf("\nPodle tabulky rozhodnu co mam delat:");
   /*Nasleduje samotna realizace tabulky*/
   if (((x <= 101) && (y <= 109))||
       ((x > 101) && (x <= 103) && (y > 101) && (y <= 109))||
@@ -1355,7 +1277,6 @@ int table_symbols(int x, int y, PtrStack Stack){/*Realizace tabulky*/
 }
 
 int parse_expression(struct htab_item **expected_item){/*Precedencni syntakticka analyza vyrazu*/
-  printf("\n\nPrecedencni syntakticka analyza vyrazu\n");
   
   int result, error;
   struct htab_item *item;
@@ -1384,17 +1305,14 @@ int parse_expression(struct htab_item **expected_item){/*Precedencni syntakticka
 		    item = NULL;/*Nejedna se o hodnotu*/
 	        break;
 	      }
-		  printf("\nSHIFT");
 		  /*Na zasobnik vlozime dany token a ukazatel na polozku, ktera reprezentuje hodnotu, typ daneho tokenu*/
 		  if ((SPush(Stack, token, item)) != INTERNAL_OK) return INTERNAL_ERR;
-		  printf("\nDalsi token bude:");
 		  /*Zpracujeme token*/
 		  if ((token = getNextToken(&attr)) == LEX_ERROR) return LEX_ERROR;
 	    break;
 	  
       case REDUCE:
 	    /*Mame provest REDUCE*/
-	    printf("\nREDUCE");
 	    switch (STop(Stack)){
 		  /*Zpracovani hodnoty, token se pouze prepise na EXPRESSION*/
 	      case ID:
@@ -1526,25 +1444,19 @@ int parse_expression(struct htab_item **expected_item){/*Precedencni syntakticka
 	    break;
       }
     }while (!((STop(Stack) == DOLLAR) && ((token == THEN) || (token == DO) || (token == SEMICOLON) || (token == END))));
-  printf("\n\nVyprazdneni zasobniku");
   if ((*expected_item) == NULL){ /*Pozadujeme navratit vysledek hodnoty bool, znamena to ze je funkce volana s if nebo while*/
 	if (Stack -> Top -> item -> type != s_boolean){
-	  printf("\nPodminka pozaduje typ bool");
 	  return SEM_ERROR_TYPE;
 	  }
     }	  
   else{/*Zkontrolujeme, jestli ma vysledny typ promenne stejny typ, jako promenna do ktere prirazujeme*/	
     if (Stack -> Top -> item -> type != (*expected_item) -> type){
-      printf("\nTyp vyrazu se neshoduje s promenou do ktere prirazujeme");
 	  return SEM_ERROR_TYPE;
 	  }
     }
   (*expected_item) = Stack -> Top -> item;/*Vratime ukazatel na polozku, ve ktere bude vysledny vyraz*/
   
   SEmpty(Stack);
-  printf("\n");
-  printf("\nKonec precedencni syntakticke analyzy vyrazu");
-  printf("\n");
   return SYNTAX_OK;  
   
 }
@@ -1751,8 +1663,6 @@ void SInit(PtrStack Stack){
 int SPush(PtrStack Stack, int data, struct htab_item *item){
 
   PtrElement tmp;
-  printf("\n**push ");
-  vypis(data);
   
   if ((tmp = (PtrElement) malloc(sizeof(struct Element))) == NULL) return INTERNAL_ERR;
   tmp -> data = data;
@@ -1786,13 +1696,9 @@ void SPop(PtrStack Stack){
 
   if (Stack -> Top != NULL){
     tmp = Stack -> Top;
-	printf("\n**pop ");
-	vypis(Stack -> Top -> data);
     Stack -> Top = Stack -> Top -> Next;
 	free(tmp);
 	}
-   else
-     printf("\nnemam co popnout");
 }
 
 /*Precteni hodnoty, ktera je na vrcholu zasobniku (podle precedencni syntakticke analyzy)*/
