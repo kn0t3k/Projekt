@@ -652,7 +652,7 @@ int copy(char *s, string *dest, int i, int n, int s_len)
 
 int find(char *s, char *search, int s_len, int search_len)
 {
-	int ascii = 256; /* podle ascii tabulky, vetsi hodnotu nez 128 tam kvuli multibajtovym znaku neodstanu ale pro jistotu */
+	int ascii = 256; /* podle ascii tabulky */
 	int max = 0;
 	int return_s_len = s_len;
 
@@ -664,7 +664,7 @@ int find(char *s, char *search, int s_len, int search_len)
 	{
 		return 0; /* nenalezen */
 	}
-	else /* konecne muzeme zacit s vyhledavanim */
+	else /* muzeme zacit s vyhledavanim */
 	{
 		/* vytvoreni pole - vstupni abecedy */
 		/* obsahuje 2 cykly */
@@ -720,7 +720,7 @@ int find(char *s, char *search, int s_len, int search_len)
 					j = max+1;
 					max = j;
 				}
-				/* uz nevim co to je, ale nemam odvahu to smazat */
+				/* podminka proti zacykleni */
 				else if (j+tmp == (search_len-1)) 
 				{		
 					j = j+tmp+1;
