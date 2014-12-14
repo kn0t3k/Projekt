@@ -100,5 +100,3 @@
 
 //chybove hlasky
 #define LEX_ERROR    -1
-
-
