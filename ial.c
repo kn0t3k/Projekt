@@ -597,11 +597,7 @@ int copy(char *s, string *dest, int i, int n, int s_len)
 {
 	int alokovano = 0;
 
-	if (i < 1)
-	{
-		return SEM_ERROR;
-	}
-	else if (n < 1 || i > s_len) /* neni co delat */
+	if (n < 1 || i > s_len) /* neni co delat */
 	{
 		return 0;
 	}
@@ -616,7 +612,7 @@ int copy(char *s, string *dest, int i, int n, int s_len)
 	/* jeste zbyva zkontrolovat jestli nekopirujeme ze stejneho retezce do ktereho taky ukladame */
 	if (s == dest->str) /* je to jeden a ten samy retezec */
 	{
-		if (tmp = (char *) malloc(sizeof(char) * (strlen(s)+1)) == NULL) /* +1 kvuli '\0' */
+		if ((tmp = (char *) malloc(sizeof(char) * (strlen(s)+1))) == NULL) /* +1 kvuli '\0' */
 			return INTERNAL_ERR;
 		strcpy(tmp, s);
 		tmp[strlen(s)] = '\0';
